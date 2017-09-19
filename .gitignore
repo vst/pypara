@@ -1,0 +1,8 @@
+.cache
+.tox
+build
+dist
+pypara.egg-info
+.mypy_cache
+.idea
+*.iml
