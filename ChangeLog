@@ -1,0 +1,7 @@
+VERS: 2017-09-19 ------- release/0.0.1
+
+    * 2017-09-19 faec140 [release] Version bumped to 0.0.1 (vst@vsthost.com)
+    * 2017-09-19 35c91c3 [fix] Small fix to instructions in README (vst@vsthost.com)
+    * 2017-09-19 ace3504 [chore] README updated for build status (vst@vsthost.com)
+    * 2017-09-19 a7a6ee2 [chore] Initial commit (vst@vsthost.com)
+    * 2017-09-19 349a66f Initial commit (vst@vsthost.com)
