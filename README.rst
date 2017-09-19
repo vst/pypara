@@ -23,7 +23,7 @@ Make sure that `tox <https://tox.readthedocs.io/en/latest/>`_ completes successf
 
 Create a virtual environment::
 
-  mkvirtualenv --python=python3.6
+  mkvirtualenv --python=python3.6 <VIRTUAL-ENVIRONMENT-NAME>
 
 Install ``tox``::
 
