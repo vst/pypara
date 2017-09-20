@@ -1,5 +1,16 @@
-VERS: 2017-09-19 ------- release/0.0.1
+VERS: 2017-09-20 ------- release/0.0.2
 
+    * 2017-09-20 d4a3f9d [release] Version bumped to 0.0.2 (vst@vsthost.com)
+    * 2017-09-20 3d9a1f0 [fix] Fixes to packaging and distribution (vst@vsthost.com)
+    * 2017-09-20 4905f95 [chore] Defining equality semantics for monetary (vst@vsthost.com)
+    * 2017-09-20 bca1b4c [chore] Signature change to FXRateService.queries (vst@vsthost.com)
+    * 2017-09-20 d238a40 [chore] Currency equality and hash methods (vst@vsthost.com)
+    * 2017-09-19 e2c2729 [chore] Development version bumped to 0.0.2dev0 (vst@vsthost.com)
+
+VERS: 2017-09-19 b9189b4 0.0.1 (vst@vsthost.com)
+
+    * 2017-09-19 ff4be09 Merge branch 'release/0.0.1' (vst@vsthost.com)
+    * 2017-09-19 e5e483e [release] Change log updated (vst@vsthost.com)
     * 2017-09-19 faec140 [release] Version bumped to 0.0.1 (vst@vsthost.com)
     * 2017-09-19 35c91c3 [fix] Small fix to instructions in README (vst@vsthost.com)
     * 2017-09-19 ace3504 [chore] README updated for build status (vst@vsthost.com)
