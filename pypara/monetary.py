@@ -328,7 +328,10 @@ class DefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
         return True
 
     def __eq__(self, other: Any) -> bool:
-        return type(self) is type(other) and self.ccy == other.ccy and self.qty == other.qty and self.dov == other.dov
+        ## Do comparison only if the instance is a defined monetary value:
+        if isinstance(other, DefinedMonetaryValue):
+            return self.ccy == other.ccy and self.qty == other.qty and self.dov == other.dov
+        return False
 
     def __repr__(self) -> str:
         """
@@ -371,7 +374,7 @@ class UndefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
         return False
 
     def __eq__(self, other: Any) -> bool:
-        return type(self) is type(other) and not self.defined and not other.defined
+        return isinstance(other, UndefinedMonetaryValue)
 
     def __repr__(self) -> str:
         """
