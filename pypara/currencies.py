@@ -65,6 +65,14 @@ class Currency:
     Decimal('1.000000000000')
     >>> ZZZ.quantize(Decimal("1.0000000000015"))
     Decimal('1.000000000002')
+    >>> Currency("USD", "US Dollars", 2) == Currency("USD", "United States Dollars", 3)
+    True
+    >>> Currency("USD", "US Dollars", 2) == Currency("EUR", "US Dollars", 2)
+    False
+    >>> hash(Currency("USD", "US Dollars", 2)) == hash(Currency("USD", "United States Dollars", 3))
+    True
+    >>> hash(Currency("USD", "US Dollars", 2)) == hash("USD")
+    True
     """
 
     #: Limit instance attributes.
@@ -142,6 +150,18 @@ class Currency:
         Provides an internal string representation of the :class:`Currency` instance.
         """
         return f"<Currency {self.__code}>"
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        Indicates if two currencies are same.
+        """
+        return isinstance(other, Currency) and self.code == other.code
+
+    def __hash__(self) -> int:
+        """
+        Returns the hash of the instance.
+        """
+        return hash(self.code)
 
     def quantize(self, qty: Decimal) -> Decimal:
         """
