@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, Iterable
 
 from abc import ABCMeta, abstractmethod
 
@@ -102,6 +102,9 @@ class FXRateService(metaclass=ABCMeta):
     #: Defines the default foreign exchange rate service for the runtime.
     default: Optional["FXRateService"] = None  # noqa: E704
 
+    #: Defines an FX rate query tuple.
+    TQuery = Tuple[Currency, Currency, Temporal]
+
     @abstractmethod
     def query(self, ccy1: Currency, ccy2: Currency, asof: Temporal, strict: bool=False) -> Optional[FXRate]:
         """
@@ -116,7 +119,7 @@ class FXRateService(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def queries(self, queries: List[Tuple[Currency, Currency, Temporal]], strict: bool=False) -> List[Optional[FXRate]]:
+    def queries(self, queries: Iterable[TQuery], strict: bool=False) -> Iterable[Optional[FXRate]]:
         """
         Returns foreign exchange rates for a given collection of currency pairs and dates.
 
