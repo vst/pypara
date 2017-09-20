@@ -73,10 +73,11 @@ def test_equality() -> None:
     assert NoneMoney() == Money.of(None, None, None)
     assert NoneBigMoney() == NoneBigMoney()
     assert NoneBigMoney() == BigMoney.of(None, None, None)
-    assert NoneMoney() != NoneBigMoney()
-    assert NoneMoney() != BigMoney.of(None, None, None)
+    assert NoneMoney() == NoneBigMoney()
+    assert NoneMoney() == BigMoney.of(None, None, None)
     assert Money.of(USD, ZERO, today) == Money.of(USD, ZERO, today)
     assert BigMoney.of(USD, ZERO, today) == BigMoney.of(USD, ZERO, today)
+    assert Money.of(USD, ZERO, today) == BigMoney.of(USD, ZERO, today)
 
 
 def test_abs() -> None:

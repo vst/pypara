@@ -11,6 +11,9 @@ from setuptools import setup
 #: Defines the name of our package.
 NAME = "pypara"
 
+#: Defines the description of our package.
+DESCRIPTION = "Currencies, Monetary Value Objects, Arithmetic and Conversion"
+
 #: Defines the regular expression of the version.
 VERSION_REGEXP = r"__version__\s*=\s*['\"]([^'\"]*)['\"]"
 
@@ -21,10 +24,8 @@ VERSION = re.search(VERSION_REGEXP, open(f"{NAME}/__init__.py", encoding="utf_8_
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 #: Defines the README file contents.
-README = open(os.path.join(BASEDIR, "README.rst")).read()
-
-#: Defines the LICENSE file contents.
-LICENSE = open(os.path.join(BASEDIR, "LICENSE")).read()
+with open(os.path.join(BASEDIR, "README.rst")) as cfile:
+    README = cfile.read()
 
 #: Defines a list of required libraries.
 REQUIREMENTS = []
@@ -44,7 +45,7 @@ REQUIREMENTS_EXTRAS = {
 setup(
     name=NAME,
     version=VERSION,
-    description=NAME,
+    description=DESCRIPTION,
     long_description=README,
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -56,8 +57,8 @@ setup(
     author="Vehbi Sinan Tunalioglu",
     author_email="vst@vsthost.com",
     url="https://github.com/vst/pypara",
-    license=LICENSE,
-    packages=find_packages(),
+    license="BSD",
+    packages=find_packages(exclude=["pypara.tests"]),
     include_package_data=True,
     zip_safe=False,
     install_requires=REQUIREMENTS,
