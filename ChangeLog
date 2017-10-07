@@ -1,5 +1,13 @@
-VERS: 2017-09-20 ------- release/0.0.2
+VERS: 2017-10-07 ------- release/0.0.3
 
+    * 2017-10-07 9e338ce [release] Version bumped to 0.0.3 (vst@vsthost.com)
+    * 2017-10-07 1618858 [chore] Re-configuring tox, testing with new mypy (vst@vsthost.com)
+    * 2017-09-20 5ef2a14 [chore] Development version bumped to 0.0.3.dev0 (vst@vsthost.com)
+
+VERS: 2017-09-20 1b8cbe5 0.0.2 (vst@vsthost.com)
+
+    * 2017-09-20 76fff2e Merge branch 'release/0.0.2' (vst@vsthost.com)
+    * 2017-09-20 7a8d788 [release] Change log updated (vst@vsthost.com)
     * 2017-09-20 d4a3f9d [release] Version bumped to 0.0.2 (vst@vsthost.com)
     * 2017-09-20 3d9a1f0 [fix] Fixes to packaging and distribution (vst@vsthost.com)
     * 2017-09-20 4905f95 [chore] Defining equality semantics for monetary (vst@vsthost.com)
