@@ -10,6 +10,12 @@ from .exchange import FXRateService, FXRateLookupError
 from .generic import MaxPrecisionQuantizer, Temporal, make_quantizer, ProgrammingError
 
 
+## TODO: Revisit generic types.
+##
+## With the upgrade to mypy v0.530, generic type's factory methods assumed to be returning `Any`. Generic methods
+## and generic self are still experimental. Therefore, we are simply silencing these errors.
+
+
 class IncompatibleCurrencyError(ValueError):
     """
     Provides an exception indicating that there is an attempt for performing monetary operations
@@ -108,13 +114,15 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         """
         ## Is the other a Decimal?
         if isinstance(other, Decimal) or isinstance(other, int) or isinstance(other, float):
-            return self.apply(lambda x, y, z: (x, func(y, Decimal(cast(Union[Decimal, int, float], other))), z))
+            return self.apply(  # type: ignore
+                lambda x, y, z: (x, func(y, Decimal(cast(Union[Decimal, int, float], other))), z)
+            )
 
         ## Short circuits:
         if not other.defined:
             return self
         elif not self.defined:
-            return self.of(other.ccy, other.qty, other.dov)
+            return self.of(other.ccy, other.qty, other.dov)  # type: ignore
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(self.ccy, other.ccy, "binary arithmetic")
 
@@ -128,7 +136,7 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
             coperand = self.of(other.ccy, other.qty, other.dov)
 
         ## Now, perform the operation and return:
-        return self.apply(lambda x, y, z: (x, func(y, coperand.qty), max(z, coperand.dov)))
+        return self.apply(lambda x, y, z: (x, func(y, coperand.qty), max(z, coperand.dov)))  # type: ignore
 
     ## region Unary Operations
     def __neg__(self) -> MV:
@@ -210,37 +218,37 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         """
         Maps the currency of the monetary value object.
         """
-        return self.apply(lambda x, y, z: (func(x), y, z))
+        return self.apply(lambda x, y, z: (func(x), y, z))  # type: ignore
 
     def map_qty(self: MV, func: Callable[[Decimal], Decimal]) -> MV:
         """
         Maps the quantity of the monetary value object.
         """
-        return self.apply(lambda x, y, z: (x, func(y), z))
+        return self.apply(lambda x, y, z: (x, func(y), z))  # type: ignore
 
     def map_dov(self: MV, func: Callable[[Temporal], Temporal]) -> MV:
         """
         Maps the date of value of the monetary value object.
         """
-        return self.apply(lambda x, y, z: (x, y, func(z)))
+        return self.apply(lambda x, y, z: (x, y, func(z)))  # type: ignore
 
     def with_ccy(self: MV, ccy: Currency) -> MV:
         """
         Returns the monetary value with the given currency.
         """
-        return self.apply(lambda x, y, z: (ccy, y, z))
+        return self.apply(lambda x, y, z: (ccy, y, z))  # type: ignore
 
     def with_qty(self: MV, qty: Decimal) -> MV:
         """
         Returns the monetary value with the given quantity.
         """
-        return self.apply(lambda x, y, z: (x, qty, z))
+        return self.apply(lambda x, y, z: (x, qty, z))  # type: ignore
 
     def with_dov(self: MV, dov: Temporal) -> MV:
         """
         Returns the monetary value with the given temporal dimension value.
         """
-        return self.apply(lambda x, y, z: (x, y, dov))
+        return self.apply(lambda x, y, z: (x, y, dov))  # type: ignore
 
     def convert(self: MV, ccy: Currency, asof: Optional[Temporal] = None, strict: bool = False) -> MV:
         """
@@ -269,10 +277,10 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
                 raise FXRateLookupError(self.ccy, ccy, asof)
             else:
                 ## Just return NA:
-                return self.of(None, None, None)
+                return self.of(None, None, None)  # type: ignore
 
         ## Compute and return:
-        return self.of(ccy, self.qty * rate.value, asof)
+        return self.of(ccy, self.qty * rate.value, asof)  # type: ignore
 
     @property
     def bigmoney(self) -> "BigMoney":
@@ -343,7 +351,7 @@ class DefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
         """
         Provides a method to apply a function to the deconstructed monetary value object.
         """
-        return self.of(*func(self.ccy, self.qty, self.dov))
+        return self.of(*func(self.ccy, self.qty, self.dov))  # type: ignore
 
 
 class UndefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
