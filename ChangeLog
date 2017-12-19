@@ -1,5 +1,13 @@
-VERS: 2017-10-07 ------- release/0.0.3
+VERS: 2017-12-19 ------- release/0.0.4
 
+    * 2017-12-19 8c78b46 [improve] Added crypto-currencies (vst@vsthost.com)
+    * 2017-11-17 e1c2799 [chore] pyflakes fixes (vst@vsthost.com)
+    * 2017-10-07 13c4484 [chore] Development version bumped to 0.0.4.dev0 (vst@vsthost.com)
+
+VERS: 2017-10-07 557fbd4 0.0.3 (vst@vsthost.com)
+
+    * 2017-10-07 1f70348 Merge branch 'release/0.0.3' (vst@vsthost.com)
+    * 2017-10-07 b4c6bc8 [release] Change log updated (vst@vsthost.com)
     * 2017-10-07 9e338ce [release] Version bumped to 0.0.3 (vst@vsthost.com)
     * 2017-10-07 1618858 [chore] Re-configuring tox, testing with new mypy (vst@vsthost.com)
     * 2017-09-20 5ef2a14 [chore] Development version bumped to 0.0.3.dev0 (vst@vsthost.com)
