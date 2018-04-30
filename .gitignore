@@ -6,3 +6,5 @@ pypara.egg-info
 .mypy_cache
 .idea
 *.iml
+.pytest_cache/
+__pycache__
