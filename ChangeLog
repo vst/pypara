@@ -1,5 +1,15 @@
-VERS: 2017-12-19 ------- release/0.0.4
+VERS: 2018-04-30 ------- release/0.0.5
 
+    * 2018-04-30 dc0e701 [release] Version bumped to 0.0.5 (vst@vsthost.com)
+    * 2018-04-30 e32fc67 [chore] Updated .gitignore file (vst@vsthost.com)
+    * 2018-04-30 f5129a9 [improve] Added EOS and NEO Cryptocurrencies (vst@vsthost.com)
+    * 2017-12-19 7ea0fd9 [chore] Development version bumped to 0.0.5.dev0 (vst@vsthost.com)
+
+VERS: 2017-12-19 a8fd04e 0.0.4 (vst@vsthost.com)
+
+    * 2017-12-19 7589672 Merge branch 'release/0.0.4' (vst@vsthost.com)
+    * 2017-12-19 6a6fc63 [release] Version bumped to 0.0.4 (vst@vsthost.com)
+    * 2017-12-19 a564d9f [release] Change log updated (vst@vsthost.com)
     * 2017-12-19 8c78b46 [improve] Added crypto-currencies (vst@vsthost.com)
     * 2017-11-17 e1c2799 [chore] pyflakes fixes (vst@vsthost.com)
     * 2017-10-07 13c4484 [chore] Development version bumped to 0.0.4.dev0 (vst@vsthost.com)
