@@ -1,2 +1,2 @@
 #: Defines the version of the package.
-__version__ = "0.0.6"
+__version__ = "0.0.7.dev0"
