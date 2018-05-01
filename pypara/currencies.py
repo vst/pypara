@@ -414,6 +414,7 @@ with Currencies as register:
     register(Currency("IDR", "Rupiah", 2, CurrencyType.MONEY))
     register(Currency("ILS", "New Israeli Sheqel", 2, CurrencyType.MONEY))
     register(Currency("INR", "Indian Rupee", 2, CurrencyType.MONEY))
+    register(Currency("IOT", "IOTA", -1, CurrencyType.CRYPTO))
     register(Currency("IQD", "Iraqi Dinar", 3, CurrencyType.MONEY))
     register(Currency("IRR", "Iranian Rial", 2, CurrencyType.MONEY))
     register(Currency("ISK", "Iceland Krona", 0, CurrencyType.MONEY))
