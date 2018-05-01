@@ -1,5 +1,13 @@
-VERS: 2018-04-30 ------- release/0.0.5
+VERS: 2018-05-01 ------- release/0.0.6
 
+    * 2018-05-01 540e293 [release] Version bumped to 0.0.6 (vst@vsthost.com)
+    * 2018-05-01 349cc98 [improve] Added IOT Cryptocurrency (vst@vsthost.com)
+    * 2018-04-30 fb351b4 [chore] Development version bumped to 0.0.6.dev0 (vst@vsthost.com)
+
+VERS: 2018-04-30 7c6a368 0.0.5 (vst@vsthost.com)
+
+    * 2018-04-30 1d9012a Merge branch 'release/0.0.5' (vst@vsthost.com)
+    * 2018-04-30 f38d001 [release] Change log updated (vst@vsthost.com)
     * 2018-04-30 dc0e701 [release] Version bumped to 0.0.5 (vst@vsthost.com)
     * 2018-04-30 e32fc67 [chore] Updated .gitignore file (vst@vsthost.com)
     * 2018-04-30 f5129a9 [improve] Added EOS and NEO Cryptocurrencies (vst@vsthost.com)
