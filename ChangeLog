@@ -1,5 +1,13 @@
-VERS: 2018-05-01 ------- release/0.0.6
+VERS: 2018-05-08 ------- release/0.0.7
 
+    * 2018-05-08 cf1a7e4 [release] Version bumped to 0.0.7 (vst@vsthost.com)
+    * 2018-05-08 c89738f [improve] Added BCH and XLM currencies (vst@vsthost.com)
+    * 2018-05-01 3821daf [chore] Development version bumped to 0.0.7.dev0 (vst@vsthost.com)
+
+VERS: 2018-05-01 0a526fe 0.0.6 (vst@vsthost.com)
+
+    * 2018-05-01 226ccf5 Merge branch 'release/0.0.6' (vst@vsthost.com)
+    * 2018-05-01 5e4c84c [release] Change log updated (vst@vsthost.com)
     * 2018-05-01 540e293 [release] Version bumped to 0.0.6 (vst@vsthost.com)
     * 2018-05-01 349cc98 [improve] Added IOT Cryptocurrency (vst@vsthost.com)
     * 2018-04-30 fb351b4 [chore] Development version bumped to 0.0.6.dev0 (vst@vsthost.com)
