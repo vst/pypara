@@ -460,6 +460,7 @@ with Currencies as register:
     register(Currency("NOK", "Norwegian Krone", 2, CurrencyType.MONEY))
     register(Currency("NPR", "Nepalese Rupee", 2, CurrencyType.MONEY))
     register(Currency("NZD", "New Zealand Dollar", 2, CurrencyType.MONEY))
+    register(Currency("OMG", "OmiseGO", -1, CurrencyType.CRYPTO))
     register(Currency("OMR", "Rial Omani", 3, CurrencyType.MONEY))
     register(Currency("PAB", "Balboa", 2, CurrencyType.MONEY))
     register(Currency("PEN", "Nuevo Sol", 2, CurrencyType.MONEY))
