@@ -28,7 +28,11 @@ with open(os.path.join(BASEDIR, "README.rst")) as cfile:
     README = cfile.read()
 
 #: Defines a list of required libraries.
-REQUIREMENTS = []
+REQUIREMENTS = [
+    ## We want dataclass package if it is not available in stdlib:
+    "dataclasses; python_version<'3.7'"
+]
+
 
 #: Defines extra requirements for various other purposes.
 REQUIREMENTS_EXTRAS = {
