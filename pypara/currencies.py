@@ -1,8 +1,7 @@
-from decimal import Decimal
-from typing import Dict, List, Tuple, Optional, Type, Any, Callable
-
 from collections import OrderedDict
+from decimal import Decimal, ROUND_HALF_EVEN
 from enum import Enum
+from typing import Dict, List, Tuple, Optional, Type, Any, Callable
 
 from .generic import MaxPrecisionQuantizer, ProgrammingError, make_quantizer
 
@@ -48,119 +47,128 @@ class Currency:
     Note that you should not call :class:`Currency` constructor directly, but instead use the :method:`Currency.build`.
     :method:`Currency.build` is responsible of performing some checks before creating the currency.
 
-    >>> Currency("XXX", "My Currency", 2)
-    <Currency XXX>
-    >>> USD = Currency("USD", "US Dollars", 2)
+    >>> Currency("XXX", "My Currency", 2, CurrencyType.MONEY)
+    Currency(code='XXX', name='My Currency', decimals='2', type='MONEY')
+    >>> USD = Currency("USD", "US Dollars", 2, CurrencyType.MONEY)
     >>> USD.quantize(Decimal("1.005"))
     Decimal('1.00')
     >>> USD.quantize(Decimal("1.015"))
     Decimal('1.02')
-    >>> JPY = Currency("JPY", "Japanese Yen", 0)
+    >>> JPY = Currency("JPY", "Japanese Yen", 0, CurrencyType.MONEY)
     >>> JPY.quantize(Decimal("0.5"))
     Decimal('0')
     >>> JPY.quantize(Decimal("1.5"))
     Decimal('2')
-    >>> ZZZ = Currency("ZZZ", "Some weird currency", -1)
+    >>> ZZZ = Currency("ZZZ", "Some weird currency", -1, CurrencyType.CRYPTO)
     >>> ZZZ.quantize(Decimal("1.0000000000005"))
     Decimal('1.000000000000')
     >>> ZZZ.quantize(Decimal("1.0000000000015"))
     Decimal('1.000000000002')
-    >>> Currency("USD", "US Dollars", 2) == Currency("USD", "United States Dollars", 3)
+    >>> usd1 = Currency("USD", "US Dollars", 2, CurrencyType.MONEY)
+    >>> usd2 = Currency("USD", "US Dollars", 2, CurrencyType.MONEY)
+    >>> usdx = Currency("USD", "UX Dollars", 2, CurrencyType.MONEY)
+    >>> usd1 == usd2
     True
-    >>> Currency("USD", "US Dollars", 2) == Currency("EUR", "US Dollars", 2)
+    >>> usd1 == usdx
     False
-    >>> hash(Currency("USD", "US Dollars", 2)) == hash(Currency("USD", "United States Dollars", 3))
+    >>> hash(usd1) == hash(usd2)
     True
-    >>> hash(Currency("USD", "US Dollars", 2)) == hash("USD")
-    True
+    >>> hash(usd1) == hash(usdx)
+    False
     """
 
     #: Limit instance attributes.
-    __slots__ = ["__code", "__name", "__decimals", "__quantizer", "__ctype"]
+    __slots__ = {"code", "name", "decimals", "type", "_quantizer", "_hashcache"}
 
-    def __init__(self, code: str, name: str, decimals: int, ctype: CurrencyType = CurrencyType.MONEY) -> None:
+    #: Defines the code of the currency.
+    code: str
+
+    #: Defines the name of the currency.
+    name: str
+
+    #: Defines the number of decimals of the currency.
+    decimals: int
+
+    #: Defines the type of the currency.
+    type: CurrencyType
+
+    #: Defines the quantiser of the currency.
+    _quantizer: Decimal
+
+    #: Defines the pre-computed, cached hash.
+    _hashcache: int
+
+    def __init__(self, code: str, name: str, decimals: int, type: CurrencyType) -> None:
         """
-        Creates a currency value object model instance.
+        Initializes the currency.
         """
-        ## Check the code:
-        assert isinstance(code, str)
-        assert code.isalpha()
-        assert code.isupper()
-        assert " " not in code
+        ## Keep slots:
+        object.__setattr__(self, "code", code)
+        object.__setattr__(self, "name", name)
+        object.__setattr__(self, "decimals", decimals)
+        object.__setattr__(self, "type", type)
 
-        ## Check the name:
-        assert isinstance(name, str)
-        assert name
-        assert not name.startswith(" ")
-        assert not name.endswith(" ")
-
-        ## Check the decimals:
-        assert isinstance(decimals, int)
-        assert decimals >= -1
-
-        ## Check the ctype:
-        assert isinstance(ctype, CurrencyType)
+        ## Validate stuff:
+        self.__validate()
 
         ## Define the quantizer:
-        if decimals < 0:
-            quantizer = MaxPrecisionQuantizer
-        elif decimals == 0:
-            quantizer = Decimal("0")
+        if self.decimals > 0:
+            object.__setattr__(self, "_quantizer", make_quantizer(self.decimals))
+        elif self.decimals < 0:
+            object.__setattr__(self, "_quantizer", MaxPrecisionQuantizer)
         else:
-            quantizer = make_quantizer(decimals)
+            object.__setattr__(self, "_quantizer", Decimal("0"))
 
-        ## Setup slots:
-        self.__code = code
-        self.__name = name
-        self.__decimals = decimals
-        self.__quantizer = quantizer
-        self.__ctype = ctype
-
-    @property
-    def code(self) -> str:
-        """
-        Returns the code of the currency.
-        """
-        return self.__code
-
-    @property
-    def name(self) -> str:
-        """
-        Returns the name of the currency.
-        """
-        return self.__name
-
-    @property
-    def decimals(self) -> int:
-        """
-        Returns the number of decimal points as per the fractional units of the currency.
-        """
-        return self.__decimals
-
-    @property
-    def type(self) -> CurrencyType:
-        """
-        Returns the type of the currency.
-        """
-        return self.__ctype
-
-    def __repr__(self) -> str:
-        """
-        Provides an internal string representation of the :class:`Currency` instance.
-        """
-        return f"<Currency {self.__code}>"
+        ## By now, we should have all instance attributes set. However, we want to compute and cache the hash.
+        object.__setattr__(self, "_hashcache", hash((self.code, self.name, self.decimals, self.type, self._quantizer)))
 
     def __eq__(self, other: Any) -> bool:
         """
-        Indicates if two currencies are same.
+        Checks if the `self` and `other` are same currencies.
         """
-        return isinstance(other, Currency) and self.code == other.code
+        ## TODO: Why is mypy whining?
+        return other.__class__ == Currency and self._hashcache == other._hashcache  # type: ignore
 
     def __hash__(self) -> int:
         """
-        Returns the hash of the instance.
+        Returns the pre-computed and cached hash.
         """
-        return hash(self.code)
+        return self._hashcache
+
+    def __repr__(self) -> str:
+        """
+        Provides a string representation of the currency object.
+        """
+        return f"Currency(code='{self.code}', name='{self.name}', decimals='{self.decimals}', type='{self.type.name}')"
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        """
+        Make currency objects pseudo-immutable.
+        """
+        raise ValueError("Currency objects can not be altered post-creation.")
+
+    def __validate(self) -> None:
+        """
+        Validates instance attributes.
+        """
+        ## Check the code:
+        assert isinstance(self.code, str)
+        assert self.code.isalpha()
+        assert self.code.isupper()
+        assert " " not in self.code
+
+        ## Check the name:
+        assert isinstance(self.name, str)
+        assert self.name
+        assert not self.name.startswith(" ")
+        assert not self.name.endswith(" ")
+
+        ## Check the decimals:
+        assert isinstance(self.decimals, int)
+        assert self.decimals >= -1
+
+        ## Check the ctype:
+        assert isinstance(self.type, CurrencyType)
 
     def quantize(self, qty: Decimal) -> Decimal:
         """
@@ -168,7 +176,7 @@ class Currency:
         the [ROUND HALF TO EVEN](https://en.wikipedia.org/wiki/Rounding) method
         is used for rounding purposes.
         """
-        return qty.quantize(self.__quantizer)
+        return qty.quantize(self._quantizer, rounding=ROUND_HALF_EVEN)
 
 
 class CurrencyRegistry:
@@ -184,13 +192,13 @@ class CurrencyRegistry:
     >>> Currencies.has("XXX")
     False
     >>> Currencies["USD"]
-    <Currency USD>
+    Currency(code='USD', name='US Dollar', decimals='2', type='MONEY')
     >>> Currencies.get("USD")
-    <Currency USD>
+    Currency(code='USD', name='US Dollar', decimals='2', type='MONEY')
     >>> assert Currencies["USD"] == Currencies.get("USD")
     >>> Currencies.get("XXX")
     >>> Currencies.get("XXX", default=Currencies["USD"])
-    <Currency USD>
+    Currency(code='USD', name='US Dollar', decimals='2', type='MONEY')
     >>> assert len(Currencies) == len(Currencies.all)
     >>> assert Currencies.codes == [currency.code for currency in Currencies.all]
     >>> assert Currencies.codenames == [(currency.code, currency.name) for currency in Currencies.all]
