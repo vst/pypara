@@ -152,23 +152,21 @@ class Currency:
         Validates instance attributes.
         """
         ## Check the code:
-        assert isinstance(self.code, str)
-        assert self.code.isalpha()
-        assert self.code.isupper()
-        assert " " not in self.code
+        ProgrammingError.passert(isinstance(self.code, str), "Currency code must be a string")
+        ProgrammingError.passert(self.code.isalpha(), "Currency code must contain only alphabetic characters")
+        ProgrammingError.passert(self.code.isupper(), "Currency code must be all uppercase")
 
         ## Check the name:
-        assert isinstance(self.name, str)
-        assert self.name
-        assert not self.name.startswith(" ")
-        assert not self.name.endswith(" ")
+        ProgrammingError.passert(isinstance(self.name, str), "Currency name must be a string")
+        ProgrammingError.passert(self.name != "", "Currency name can not be empty")
+        ProgrammingError.passert(not (self.name.startswith(" ") or self.name.endswith(" ")), "Trim the currency name")
 
         ## Check the decimals:
-        assert isinstance(self.decimals, int)
-        assert self.decimals >= -1
+        ProgrammingError.passert(isinstance(self.decimals, int), "Number of decimals must be an integer")
+        ProgrammingError.passert(self.decimals >= -1, "Number of decimals can not be less than -1")
 
-        ## Check the ctype:
-        assert isinstance(self.type, CurrencyType)
+        ## Check the type:
+        ProgrammingError.passert(isinstance(self.type, CurrencyType), "Currency Type must be of type `CurrencyType`")
 
     def quantize(self, qty: Decimal) -> Decimal:
         """

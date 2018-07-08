@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Iterable
 from abc import ABCMeta, abstractmethod
 
 from .currencies import Currency
-from .generic import Temporal, MaxPrecisionQuantizer
+from .generic import Date, MaxPrecisionQuantizer
 
 
 class FXRateLookupError(LookupError):
@@ -12,7 +12,7 @@ class FXRateLookupError(LookupError):
     Provides an exception indicating that the foreign exchange rate is not found.
     """
 
-    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Temporal) -> None:
+    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Date) -> None:
         """
         Initializes the foreign exchange rate lookup error.
         """
@@ -33,7 +33,7 @@ class FXRate:
     ## Limit the slots.
     __slots__ = ["_ccy1", "_ccy2", "_asof", "_value"]
 
-    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Temporal, value: Decimal) -> None:
+    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Date, value: Decimal) -> None:
         """
         Initializes the foreign exchange rate class safely.
 
@@ -54,7 +54,7 @@ class FXRate:
         self._ccy2: Currency = ccy2
 
         ## Keep the temporal dimension of the foreign exchange rate.
-        self._asof: Temporal = asof
+        self._asof: Date = asof
 
         ## Keep the value of the foreign exchange rate.
         self._value: Decimal = value.quantize(MaxPrecisionQuantizer)
@@ -74,7 +74,7 @@ class FXRate:
         return self._ccy2
 
     @property
-    def asof(self) -> Temporal:
+    def asof(self) -> Date:
         """
         Returns the temporal dimension value which the foreign exchange rate is effective as of.
         """
@@ -103,10 +103,10 @@ class FXRateService(metaclass=ABCMeta):
     default: Optional["FXRateService"] = None  # noqa: E704
 
     #: Defines an FX rate query tuple.
-    TQuery = Tuple[Currency, Currency, Temporal]
+    TQuery = Tuple[Currency, Currency, Date]
 
     @abstractmethod
-    def query(self, ccy1: Currency, ccy2: Currency, asof: Temporal, strict: bool=False) -> Optional[FXRate]:
+    def query(self, ccy1: Currency, ccy2: Currency, asof: Date, strict: bool=False) -> Optional[FXRate]:
         """
         Returns the foreign exchange rate of a given currency pair as of a given date.
 

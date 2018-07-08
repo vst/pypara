@@ -6,11 +6,8 @@ from typing import Dict, Callable, Set, Optional, List, Iterable
 from dataclasses import dataclass
 
 from pypara.currencies import Currency, Currencies
+from pypara.generic import Date
 from pypara.monetary import Money
-
-#: Defines a type alias for dates.
-Date = datetime.date
-
 
 #: Defines a type alias for day count fraction calculation functions.
 DCFC = Callable[[Date, Date, Date], Decimal]

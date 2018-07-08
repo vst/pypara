@@ -7,7 +7,7 @@ from abc import abstractmethod, ABCMeta
 
 from .currencies import Currency
 from .exchange import FXRateService, FXRateLookupError
-from .generic import MaxPrecisionQuantizer, Temporal, make_quantizer, ProgrammingError
+from .generic import MaxPrecisionQuantizer, Date, make_quantizer, ProgrammingError
 
 
 ## TODO: Revisit generic types.
@@ -39,7 +39,7 @@ class IncompatibleCurrencyError(ValueError):
 MV = TypeVar("MV", bound="MonetaryValue", covariant=True)
 
 #: Defines the 3-Tuple for monetary value object contents.
-MVO = Tuple[Currency, Decimal, Temporal]
+MVO = Tuple[Currency, Decimal, Date]
 
 #: Defines a type alias for acceptable numeric values.
 _Numeric = Union["MonetaryValue", Decimal, int, float]
@@ -71,7 +71,7 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
 
     @property
     @abstractmethod
-    def dov(self) -> Temporal:
+    def dov(self) -> Date:
         """
         Returns the date of value of the monetary value.
         """
@@ -102,7 +102,7 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         pass
 
     @abstractmethod
-    def apply(self: MV, func: Callable[[Currency, Decimal, Temporal], Tuple[Currency, Decimal, Temporal]]) -> MV:
+    def apply(self: MV, func: Callable[[Currency, Decimal, Date], Tuple[Currency, Decimal, Date]]) -> MV:
         """
         Provides a method to apply a function to the deconstructed monetary value object.
         """
@@ -226,7 +226,7 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         """
         return self.apply(lambda x, y, z: (x, func(y), z))  # type: ignore
 
-    def map_dov(self: MV, func: Callable[[Temporal], Temporal]) -> MV:
+    def map_dov(self: MV, func: Callable[[Date], Date]) -> MV:
         """
         Maps the date of value of the monetary value object.
         """
@@ -244,13 +244,13 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         """
         return self.apply(lambda x, y, z: (x, qty, z))  # type: ignore
 
-    def with_dov(self: MV, dov: Temporal) -> MV:
+    def with_dov(self: MV, dov: Date) -> MV:
         """
         Returns the monetary value with the given temporal dimension value.
         """
         return self.apply(lambda x, y, z: (x, y, dov))  # type: ignore
 
-    def convert(self: MV, ccy: Currency, asof: Optional[Temporal] = None, strict: bool = False) -> MV:
+    def convert(self: MV, ccy: Currency, asof: Optional[Date] = None, strict: bool = False) -> MV:
         """
         Converts the monetary amount.
 
@@ -301,7 +301,7 @@ class MonetaryValue(Generic[MV], SupportsRound[MV], SupportsAbs[MV], metaclass=A
         return NoMoney
 
     @property
-    def primitive(self) -> Optional[Dict[str, Union[str, Decimal, Temporal]]]:
+    def primitive(self) -> Optional[Dict[str, Union[str, Decimal, Date]]]:
         """
         Returns a primitive representation of the monetary instance.
         """
@@ -347,7 +347,7 @@ class DefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
         """
         return f"<{self.__class__.__name__} {self.ccy} {self.qty} {self.dov}>"
 
-    def apply(self: MV, func: Callable[[Currency, Decimal, Temporal], Tuple[Currency, Decimal, Temporal]]) -> MV:
+    def apply(self: MV, func: Callable[[Currency, Decimal, Date], Tuple[Currency, Decimal, Date]]) -> MV:
         """
         Provides a method to apply a function to the deconstructed monetary value object.
         """
@@ -390,7 +390,7 @@ class UndefinedMonetaryValue(MonetaryValue, Generic[MV], metaclass=ABCMeta):
         """
         return f"<{self.__class__.__name__}>"
 
-    def apply(self: MV, func: Callable[[Currency, Decimal, Temporal], Tuple[Currency, Decimal, Temporal]]) -> MV:
+    def apply(self: MV, func: Callable[[Currency, Decimal, Date], Tuple[Currency, Decimal, Date]]) -> MV:
         """
         Provides a method to apply a function to the deconstructed monetary value object.
         """
