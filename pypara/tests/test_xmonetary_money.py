@@ -26,6 +26,8 @@ def test_of():
     assert Money.of(usd, None, today) == Money.NA
     assert Money.of(usd, one, None) == Money.NA
     assert Money.of(usd, one, today) == SomeMoney(usd, one, today)
+    assert Money.of(usd, Decimal("0.055"), today) == Money.of(usd, Decimal("0.06"), today)
+    assert Money.of(usd, Decimal("0.045"), today) == Money.of(usd, Decimal("0.04"), today)
 
 
 def test_is_equal():
@@ -152,6 +154,14 @@ def test_round():
     assert round(Money.of(usd, Decimal("1.555"), today), 2) == Money.of(usd, Decimal("1.56"), today)
     assert round(Money.of(usd, Decimal("1.545"), today), 2) == Money.of(usd, Decimal("1.54"), today)
 
+    ## Extras:
+    assert round(Money.of(usd, Decimal("0.545"), today), 0) == Money.of(usd, Decimal("1"), today)
+    assert round(Money.of(usd, Decimal("1.545"), today), 0) == Money.of(usd, Decimal("2"), today)
+    assert round(Money.of(usd, Decimal("0.545"), today), 1) == Money.of(usd, Decimal("0.5"), today)
+    assert round(Money.of(usd, Decimal("1.545"), today), 1) == Money.of(usd, Decimal("1.5"), today)
+    assert round(Money.of(usd, Decimal("0.45"), today), 1) == Money.of(usd, Decimal("0.4"), today)
+    assert round(Money.of(usd, Decimal("1.45"), today), 1) == Money.of(usd, Decimal("1.4"), today)
+
 
 def test_addition():
     ## First use `Money.NA`s:
@@ -189,6 +199,12 @@ def test_scalar_addition():
     assert Money.of(usd, zero, today).scalar_add(1.0) == Money.of(usd, one, today)
     assert Money.of(usd, zero, today).scalar_add(one) == Money.of(usd, one, today)
     assert Money.of(usd, zero, today).scalar_add(-1) == Money.of(usd, -one, today)
+
+    ## Extras:
+    assert Money.of(usd, zero, today).scalar_add(0.5) == Money.of(usd, half, today)
+    assert Money.of(usd, zero, today).scalar_add(Decimal("0.05")) == Money.of(usd, Decimal("0.05"), today)
+    assert Money.of(usd, zero, today).scalar_add(Decimal("0.005")) == Money.of(usd, Decimal("0"), today)
+    assert Money.of(usd, zero, today).scalar_add(Decimal("0.015")) == Money.of(usd, Decimal("0.02"), today)
 
 
 def test_subtraction():
@@ -232,6 +248,12 @@ def test_scalar_subtraction():
     assert Money.of(usd, zero, today).scalar_subtract(1) == Money.of(usd, -one, today)
     assert Money.of(usd, zero, today).scalar_subtract(-1) == Money.of(usd, one, today)
 
+    ## Extras:
+    assert Money.of(usd, zero, today).scalar_subtract(0.5) == Money.of(usd, -half, today)
+    assert Money.of(usd, zero, today).scalar_subtract(Decimal("0.05")) == -Money.of(usd, Decimal("0.05"), today)
+    assert Money.of(usd, zero, today).scalar_subtract(Decimal("0.005")) == -Money.of(usd, Decimal("0"), today)
+    assert Money.of(usd, zero, today).scalar_subtract(Decimal("0.015")) == -Money.of(usd, Decimal("0.02"), today)
+
 
 def test_scalar_multiplication():
     ## First use `Money.NA`s:
@@ -254,6 +276,11 @@ def test_scalar_multiplication():
     assert Money.of(usd, one, today) * 2 == Money.of(usd, two, today)
     assert Money.of(usd, -one, today) * 1 == Money.of(usd, -one, today)
     assert Money.of(usd, -one, today) * 2 == Money.of(usd, -two, today)
+
+    ## Extras
+    assert Money.of(usd, one, today).multiply(Decimal("0.050")) == Money.of(usd, Decimal("0.05"), today)
+    assert Money.of(usd, one, today).multiply(Decimal("0.005")) == Money.of(usd, Decimal("0.00"), today)
+    assert Money.of(usd, one, today).multiply(Decimal("0.015")) == Money.of(usd, Decimal("0.02"), today)
 
 
 def test_division():
@@ -284,6 +311,12 @@ def test_division():
     assert Money.of(usd, -one, today) / 2 == Money.of(usd, -half, today)
     assert Money.of(usd, -one, today) / 0 == Money.NA
 
+    ## Extras
+    assert Money.of(usd, one, today).divide(Decimal("10")) == Money.of(usd, Decimal("0.10"), today)
+    assert Money.of(usd, one, today).divide(Decimal("50")) == Money.of(usd, Decimal("0.02"), today)
+    assert Money.of(usd, one, today).divide(Decimal("100")) == Money.of(usd, Decimal("0.01"), today)
+    assert Money.of(usd, one, today).divide(Decimal("1000")) == Money.of(usd, Decimal("0.00"), today)
+
 
 def test_floor_division():
     ## First use `Money.NA`s:
@@ -312,6 +345,10 @@ def test_floor_division():
     assert Money.of(usd, -one, today) // 1 == Money.of(usd, -one, today)
     assert Money.of(usd, -one, today) // 2 == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today) // 0 == Money.NA
+
+    ## Extras
+    assert Money.of(usd, Decimal("10"), today).floor_divide(Decimal("10")) == Money.of(usd, Decimal("1.00"), today)
+    assert Money.of(usd, Decimal("10"), today).floor_divide(Decimal("11")) == Money.of(usd, Decimal("0.00"), today)
 
 
 def test_comparisons():
@@ -362,3 +399,7 @@ def test_with():
     assert Money.of(usd, zero, today).with_ccy(eur) == Money.of(eur, zero, today)
     assert Money.of(usd, zero, today).with_qty(one) == Money.of(usd, one, today)
     assert Money.of(usd, zero, today).with_dov(yesterday) == Money.of(usd, zero, yesterday)
+
+    ## Extras:
+    assert Money.of(usd, zero, today).with_qty(Decimal("0.005")) == Money.of(usd, zero, today)
+    assert Money.of(usd, zero, today).with_qty(Decimal("0.054")) == Money.of(usd, Decimal("0.05"), today)
