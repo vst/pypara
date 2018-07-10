@@ -390,7 +390,10 @@ class SomeMoney(Money):
         return f"SomeMoney(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == SomeMoney and self.ccy == other.ccy and self.qty == other.qty and self.dov == other.dov
+        return (other.__class__ == SomeMoney and  # type: ignore
+                self.ccy == other.ccy and
+                self.qty == other.qty and
+                self.dov == other.dov)
 
     def as_boolean(self) -> bool:
         return self.qty.__bool__()
@@ -411,7 +414,7 @@ class SomeMoney(Money):
         return SomeMoney(self.ccy, self.qty.__pos__(), self.dov)
 
     def round(self, ndigits: int = 0) -> "Money":
-        return SomeMoney(self.ccy, self.qty.__round__(min(ndigits, self.ccy.decimals)), self.dov)
+        return SomeMoney(self.ccy, self.qty.__round__(min(ndigits, self.ccy.decimals)), self.dov)  # type: ignore
 
     def add(self, other: "Money") -> "Money":
         if other.undefined:
@@ -559,7 +562,7 @@ class NoneMoney(Money):
         return False
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == NoneMoney
+        return other.__class__ == NoneMoney  # type: ignore
 
     def abs(self) -> "Money":
         return self
@@ -1032,7 +1035,10 @@ class SomePrice(Price):
         return f"SomePrice(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == SomePrice and self.ccy == other.ccy and self.qty == other.qty and self.dov == other.dov
+        return (other.__class__ == SomePrice and  # type: ignore
+                self.ccy == other.ccy and
+                self.qty == other.qty and
+                self.dov == other.dov)
 
     def as_boolean(self) -> bool:
         return self.qty.__bool__()
@@ -1053,7 +1059,7 @@ class SomePrice(Price):
         return SomePrice(self.ccy, self.qty.__pos__(), self.dov)
 
     def round(self, ndigits: int = 0) -> "Price":
-        return SomePrice(self.ccy, self.qty.__round__(ndigits), self.dov)
+        return SomePrice(self.ccy, self.qty.__round__(ndigits), self.dov)  # type: ignore
 
     def add(self, other: "Price") -> "Price":
         if other.undefined:
@@ -1204,7 +1210,7 @@ class NonePrice(Price):
         return False
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == NonePrice
+        return other.__class__ == NonePrice  # type: ignore
 
     def abs(self) -> "Price":
         return self
