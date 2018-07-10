@@ -64,7 +64,7 @@ class Money:
     dov: Date
 
     #: Indicates that the money is a *defined* monetary value.
-    defined: bool
+    defined: bool  # noqa: E704
 
     #: Indicates that the money is an *undefined* monetary value.
     undefined: bool
@@ -673,6 +673,7 @@ Money.NA = NoMoney = NoneMoney()
 # BEGIN DEFINITION: Price #
 ###########################
 
+
 class Price:
     """
     Provides an abstract price model and its semantics.
@@ -700,7 +701,7 @@ class Price:
     dov: Date
 
     #: Indicates that the price is a *defined* monetary value.
-    defined: bool
+    defined: bool  # noqa: E704
 
     #: Indicates that the price is an *undefined* monetary value.
     undefined: bool

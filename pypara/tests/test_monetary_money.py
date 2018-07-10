@@ -21,7 +21,7 @@ today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 
 
-def test_of():
+def test_of() -> None:
     assert Money.of(usd, one, None) == Money.NA
     assert Money.of(usd, None, today) == Money.NA
     assert Money.of(usd, one, None) == Money.NA
@@ -30,7 +30,7 @@ def test_of():
     assert Money.of(usd, Decimal("0.045"), today) == Money.of(usd, Decimal("0.04"), today)
 
 
-def test_is_equal():
+def test_is_equal() -> None:
     ## Vanilla:
     assert Money.NA.is_equal(NoMoney)
     assert Money.NA.is_equal(NoneMoney())
@@ -51,7 +51,7 @@ def test_is_equal():
     assert Money.of(usd, zero, today) != Money.of(usd, zero, yesterday)
 
 
-def test_to_boolean():
+def test_to_boolean() -> None:
     ## Vanilla:
     assert not Money.NA.as_boolean()
     assert not Money.of(usd, zero, today).as_boolean()
@@ -65,7 +65,7 @@ def test_to_boolean():
     assert Money.of(usd, -half, today)
 
 
-def test_to_float():
+def test_to_float() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
         Money.NA.as_float()
@@ -79,7 +79,7 @@ def test_to_float():
     assert type(float(Money.of(usd, half, today))) == float
 
 
-def test_to_integer():
+def test_to_integer() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
         int(Money.NA)
@@ -93,7 +93,7 @@ def test_to_integer():
     assert type(Money.of(usd, half, today).as_integer()) == int
 
 
-def test_abs():
+def test_abs() -> None:
     ## Vanilla:
     assert Money.NA.abs() == Money.NA
     assert Money.of(usd, zero, today).abs() == Money.of(usd, zero, today)
@@ -107,7 +107,7 @@ def test_abs():
     assert abs(Money.of(usd, +one, today)) == Money.of(usd, +one, today)
 
 
-def test_negative():
+def test_negative() -> None:
     ## Vanilla:
     assert Money.NA.negative() == Money.NA
     assert Money.of(usd, zero, today).negative() == Money.of(usd, zero, today)
@@ -121,7 +121,7 @@ def test_negative():
     assert -Money.of(usd, +one, today) == Money.of(usd, -one, today)
 
 
-def test_positive():
+def test_positive() -> None:
     ## Vanilla:
     assert Money.NA.positive() == Money.NA
     assert Money.of(usd, zero, today).positive() == Money.of(usd, zero, today)
@@ -135,7 +135,7 @@ def test_positive():
     assert +Money.of(usd, +one, today) == Money.of(usd, +one, today)
 
 
-def test_round():
+def test_round() -> None:
     ## Vanilla:
     assert Money.NA.round(2) == Money.NA
     assert Money.of(usd, zero, today).round(2) == Money.of(usd, zero, today)
@@ -163,7 +163,7 @@ def test_round():
     assert round(Money.of(usd, Decimal("1.45"), today), 1) == Money.of(usd, Decimal("1.4"), today)
 
 
-def test_addition():
+def test_addition() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.add(Money.NA) == Money.NA
     assert Money.NA.add(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
@@ -190,7 +190,7 @@ def test_addition():
     assert Money.of(usd, zero, today) + Money.of(usd, one, today) == Money.of(usd, one, today)
 
 
-def test_scalar_addition():
+def test_scalar_addition() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.scalar_add(1) == Money.NA
 
@@ -207,7 +207,7 @@ def test_scalar_addition():
     assert Money.of(usd, zero, today).scalar_add(Decimal("0.015")) == Money.of(usd, Decimal("0.02"), today)
 
 
-def test_subtraction():
+def test_subtraction() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.subtract(Money.NA) == Money.NA
     assert Money.NA.subtract(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
@@ -234,7 +234,7 @@ def test_subtraction():
     assert Money.of(usd, zero, today) - Money.NA == Money.of(usd, zero, today)
 
 
-def test_scalar_subtraction():
+def test_scalar_subtraction() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.scalar_subtract(1) == Money.NA
 
@@ -255,7 +255,7 @@ def test_scalar_subtraction():
     assert Money.of(usd, zero, today).scalar_subtract(Decimal("0.015")) == -Money.of(usd, Decimal("0.02"), today)
 
 
-def test_scalar_multiplication():
+def test_scalar_multiplication() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.multiply(1) == Money.NA
 
@@ -283,7 +283,7 @@ def test_scalar_multiplication():
     assert Money.of(usd, one, today).multiply(Decimal("0.015")) == Money.of(usd, Decimal("0.02"), today)
 
 
-def test_division():
+def test_division() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.divide(1) == Money.NA
 
@@ -318,7 +318,7 @@ def test_division():
     assert Money.of(usd, one, today).divide(Decimal("1000")) == Money.of(usd, Decimal("0.00"), today)
 
 
-def test_floor_division():
+def test_floor_division() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.floor_divide(1) == Money.NA
 
@@ -351,7 +351,7 @@ def test_floor_division():
     assert Money.of(usd, Decimal("10"), today).floor_divide(Decimal("11")) == Money.of(usd, Decimal("0.00"), today)
 
 
-def test_comparisons():
+def test_comparisons() -> None:
     ## First use `Money.NA`s:
     assert not (Money.NA < Money.NA)
     assert Money.NA <= Money.NA
@@ -389,7 +389,7 @@ def test_comparisons():
     assert Money.of(usd, one, today) >= Money.of(usd, zero, today)
 
 
-def test_with():
+def test_with() -> None:
     ## First use `Money.NA`s:
     assert Money.NA.with_ccy(usd) == Money.NA
     assert Money.NA.with_qty(one) == Money.NA
@@ -405,7 +405,7 @@ def test_with():
     assert Money.of(usd, zero, today).with_qty(Decimal("0.054")) == Money.of(usd, Decimal("0.05"), today)
 
 
-def test_types():
+def test_types() -> None:
     assert isinstance(Money.NA, Money)
     assert isinstance(Money.NA, NoneMoney)
     assert not isinstance(Money.NA, SomeMoney)

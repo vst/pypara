@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 
 from pypara.currencies import Currencies
-from pypara.monetary import Money, NoMoney, Price, NonePrice, SomePrice, NoPrice, IncompatibleCurrencyError
+from pypara.monetary import Money, Price, NonePrice, SomePrice, NoPrice, IncompatibleCurrencyError
 
 ## Define some currencies:
 eur = Currencies["EUR"]
@@ -21,14 +21,14 @@ today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 
 
-def test_of():
+def test_of() -> None:
     assert Price.of(usd, one, None) == Price.NA
     assert Price.of(usd, None, today) == Price.NA
     assert Price.of(usd, one, None) == Price.NA
     assert Price.of(usd, one, today) == SomePrice(usd, one, today)
 
 
-def test_is_equal():
+def test_is_equal() -> None:
     ## Vanilla:
     assert Price.NA.is_equal(NoPrice)
     assert Price.NA.is_equal(NonePrice())
@@ -49,7 +49,7 @@ def test_is_equal():
     assert Price.of(usd, zero, today) != Price.of(usd, zero, yesterday)
 
 
-def test_to_boolean():
+def test_to_boolean() -> None:
     ## Vanilla:
     assert not Price.NA.as_boolean()
     assert not Price.of(usd, zero, today).as_boolean()
@@ -63,7 +63,7 @@ def test_to_boolean():
     assert Price.of(usd, -half, today)
 
 
-def test_to_float():
+def test_to_float() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
         Price.NA.as_float()
@@ -77,7 +77,7 @@ def test_to_float():
     assert type(float(Price.of(usd, half, today))) == float
 
 
-def test_to_integer():
+def test_to_integer() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
         int(Price.NA)
@@ -91,7 +91,7 @@ def test_to_integer():
     assert type(Price.of(usd, half, today).as_integer()) == int
 
 
-def test_abs():
+def test_abs() -> None:
     ## Vanilla:
     assert Price.NA.abs() == Price.NA
     assert Price.of(usd, zero, today).abs() == Price.of(usd, zero, today)
@@ -105,7 +105,7 @@ def test_abs():
     assert abs(Price.of(usd, +one, today)) == Price.of(usd, +one, today)
 
 
-def test_negative():
+def test_negative() -> None:
     ## Vanilla:
     assert Price.NA.negative() == Price.NA
     assert Price.of(usd, zero, today).negative() == Price.of(usd, zero, today)
@@ -119,7 +119,7 @@ def test_negative():
     assert -Price.of(usd, +one, today) == Price.of(usd, -one, today)
 
 
-def test_positive():
+def test_positive() -> None:
     ## Vanilla:
     assert Price.NA.positive() == Price.NA
     assert Price.of(usd, zero, today).positive() == Price.of(usd, zero, today)
@@ -133,7 +133,7 @@ def test_positive():
     assert +Price.of(usd, +one, today) == Price.of(usd, +one, today)
 
 
-def test_round():
+def test_round() -> None:
     ## Vanilla:
     assert Price.NA.round(2) == Price.NA
     assert Price.of(usd, zero, today).round(2) == Price.of(usd, zero, today)
@@ -153,7 +153,7 @@ def test_round():
     assert round(Price.of(usd, Decimal("1.545"), today), 2) == Price.of(usd, Decimal("1.54"), today)
 
 
-def test_addition():
+def test_addition() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.add(Price.NA) == Price.NA
     assert Price.NA.add(Price.of(usd, zero, today)) == Price.of(usd, zero, today)
@@ -180,7 +180,7 @@ def test_addition():
     assert Price.of(usd, zero, today) + Price.of(usd, one, today) == Price.of(usd, one, today)
 
 
-def test_scalar_addition():
+def test_scalar_addition() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.scalar_add(1) == Price.NA
 
@@ -191,7 +191,7 @@ def test_scalar_addition():
     assert Price.of(usd, zero, today).scalar_add(-1) == Price.of(usd, -one, today)
 
 
-def test_subtraction():
+def test_subtraction() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.subtract(Price.NA) == Price.NA
     assert Price.NA.subtract(Price.of(usd, zero, today)) == Price.of(usd, zero, today)
@@ -218,7 +218,7 @@ def test_subtraction():
     assert Price.of(usd, zero, today) - Price.NA == Price.of(usd, zero, today)
 
 
-def test_scalar_subtraction():
+def test_scalar_subtraction() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.scalar_subtract(1) == Price.NA
 
@@ -233,7 +233,7 @@ def test_scalar_subtraction():
     assert Price.of(usd, zero, today).scalar_subtract(-1) == Price.of(usd, one, today)
 
 
-def test_scalar_multiplication():
+def test_scalar_multiplication() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.multiply(1) == Price.NA
 
@@ -256,9 +256,9 @@ def test_scalar_multiplication():
     assert Price.of(usd, -one, today) * 2 == Price.of(usd, -two, today)
 
 
-def test_monetary_multiplication():
+def test_monetary_multiplication() -> None:
     ## First use `Price.NA`s:
-    assert Price.NA.times(1) == NoMoney  ## TODO: Change it to Money.NA
+    assert Price.NA.times(1) == Money.NA
 
     ## Vanilla multiplication:
     assert Price.of(usd, one, today).times(1) == Money.of(usd, one, today)
@@ -272,7 +272,7 @@ def test_monetary_multiplication():
     assert Price.of(usd, one, today).times(one) == Money.of(usd, one, today)
 
 
-def test_division():
+def test_division() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.divide(1) == Price.NA
 
@@ -301,7 +301,7 @@ def test_division():
     assert Price.of(usd, -one, today) / 0 == Price.NA
 
 
-def test_floor_division():
+def test_floor_division() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.floor_divide(1) == Price.NA
 
@@ -330,7 +330,7 @@ def test_floor_division():
     assert Price.of(usd, -one, today) // 0 == Price.NA
 
 
-def test_comparisons():
+def test_comparisons() -> None:
     ## First use `Price.NA`s:
     assert not (Price.NA < Price.NA)
     assert Price.NA <= Price.NA
@@ -368,7 +368,7 @@ def test_comparisons():
     assert Price.of(usd, one, today) >= Price.of(usd, zero, today)
 
 
-def test_with():
+def test_with() -> None:
     ## First use `Price.NA`s:
     assert Price.NA.with_ccy(usd) == Price.NA
     assert Price.NA.with_qty(one) == Price.NA
@@ -380,7 +380,7 @@ def test_with():
     assert Price.of(usd, zero, today).with_dov(yesterday) == Price.of(usd, zero, yesterday)
 
 
-def test_types():
+def test_types() -> None:
     assert isinstance(Price.NA, Price)
     assert isinstance(Price.NA, NonePrice)
     assert not isinstance(Price.NA, SomePrice)
