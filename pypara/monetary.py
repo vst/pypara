@@ -1,703 +1,10 @@
-from collections import namedtuple
-from decimal import Decimal
-from typing import SupportsAbs, SupportsFloat, SupportsInt, SupportsRound, TypeVar, Generic, Any, Union, Optional
+from abc import abstractmethod
+from decimal import Decimal, InvalidOperation, DivisionByZero
+from typing import Any, Optional
 
 from pypara.currencies import Currency
 from pypara.exchange import FXRateService, FXRateLookupError
-from pypara.generic import Date, ProgrammingError
-
-#: Defines the self type (sic.) for the monetary value implementations.
-MV = TypeVar("MV", bound="MonetaryValue")
-
-
-class MonetaryValue(Generic[MV], SupportsAbs[MV], SupportsFloat, SupportsInt, SupportsRound[MV]):
-    """
-    Provides an abstract monetary value model and its semantics.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    ccy: Currency
-
-    qty: Decimal
-
-    dov: Date
-
-    defined: bool  # noqa: E704
-
-    undefined: bool
-
-    def __bool__(self: MV) -> bool:
-        """
-        Returns the logical representation of the monetary value object.
-
-        A monetary value object is:
-
-        1. ``True`` if (a) it is *defined* **and** (b) it's quantity is non-zero.
-        2. ``False`` otherwise.
-        """
-        raise NotImplementedError
-
-    def __eq__(self: MV, other: Any) -> bool:
-        """
-        Checks the equality of two monetary value instances.
-        """
-        raise NotImplementedError
-
-    def __abs__(self: MV) -> MV:
-        """
-        Returns the absolute monetary value if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __float__(self: MV) -> float:
-        """
-        Returns the quantity as a ``float`` if *defined*, raises class:`MonetaryOperationException` otherwise.
-        """
-        raise NotImplementedError
-
-    def __int__(self: MV) -> int:
-        """
-        Returns the quantity as an ``int`` if *defined*, raises class:`MonetaryOperationException` otherwise.
-        """
-        raise NotImplementedError
-
-    def __round__(self: MV, ndigits: int = 0) -> MV:
-        """
-        Rounds the quantity of the monetary value to ``ndigits`` by using ``HALF_EVEN`` method if *defined*, itself
-        otherwise.
-        """
-        raise NotImplementedError
-
-    def __neg__(self: MV) -> MV:
-        """
-        Negates the quantity of the monetary value if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __pos__(self: MV) -> MV:
-        """
-        Returns same monetary value if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __mul__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        """
-        Multiplies the quantity by the given number if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __truediv__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        """
-        Applies ordinary division on the quantity if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __floordiv__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        """
-        Applies *floor* division on the quantity if *defined*, itself otherwise.
-        """
-        raise NotImplementedError
-
-    def __add__(self: MV, other: Union[MV, Decimal, int, float]) -> MV:
-        """
-        Applies addition on the quantity if *defined*, raises class:`MonetaryOperationException` if other is not a
-        monetary value.
-
-        If `other` is a :class:`MonetaryValue` instance of self-type:
-
-        1. Returns other if self is undefined,
-        2. Returns itself if `other` is undefined,
-        3. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
-        """
-        raise NotImplementedError
-
-    def __sub__(self: MV, other: Union[MV, Decimal, int, float]) -> MV:
-        """
-        Applies addition on the quantity if *defined*, raises class:`MonetaryOperationException` if other is not a
-        monetary value.
-
-        If `other` is a :class:`MonetaryValue` instance of self-type:
-
-        1. Returns other if self is undefined,
-        2. Returns itself if ``other`` is undefined,
-        3. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
-        """
-        raise NotImplementedError
-
-    def __lt__(self: MV, other: MV) -> bool:
-        """
-        Applies "less than" comparison against ``other``.
-
-        If ``self`` is undefined::
-        1. Return ``True`` if ``other`` is defined.
-        2. Return ``False`` if ``other`` is undefined.
-
-        If ``other`` is undefined::
-        1. Return ``False`` if ``self`` is defined.
-        2. Return ``False`` if ``self`` is undefined.
-
-        If both ``self`` and ``other`` are defined:
-        1. Raise :class:`IncompatibleCurrencyError` if currencies do not match,
-        2. Return ``True`` or ``False`` depending on the quantity of the monetary value.
-        """
-        raise NotImplementedError
-
-    def __le__(self: MV, other: MV) -> bool:
-        """
-        Applies "less than or equal to" comparison against ``other``.
-
-        If ``self`` is undefined::
-        1. Return ``True`` if ``other`` is defined.
-        2. Return ``True`` if ``other`` is undefined.
-
-        If ``other`` is undefined::
-        1. Return ``False`` if ``self`` is defined.
-        2. Return ``True`` if ``self`` is undefined.
-
-        If both ``self`` and ``other`` are defined:
-        1. Raise :class:`IncompatibleCurrencyError` if currencies do not match,
-        2. Return ``True`` or ``False`` depending on the quantity of the monetary value.
-        """
-        raise NotImplementedError
-
-    def __gt__(self: MV, other: MV) -> bool:
-        """
-        Applies "greater than" comparison against ``other``.
-
-        If ``self`` is undefined::
-        1. Return ``False`` if ``other`` is defined.
-        2. Return ``False`` if ``other`` is undefined.
-
-        If ``other`` is undefined::
-        1. Return ``True`` if ``self`` is defined.
-        2. Return ``False`` if ``self`` is undefined.
-
-        If both ``self`` and ``other`` are defined:
-        1. Raise :class:`IncompatibleCurrencyError` if currencies do not match,
-        2. Return ``True`` or ``False`` depending on the quantity of the monetary value.
-        """
-        raise NotImplementedError
-
-    def __ge__(self: MV, other: MV) -> bool:
-        """
-        Applies "greater than or equal to" comparison against ``other``.
-
-        If ``self`` is undefined::
-        1. Return ``False`` if ``other`` is defined.
-        2. Return ``True`` if ``other`` is undefined.
-
-        If ``other`` is undefined::
-        1. Return ``True`` if ``self`` is defined.
-        2. Return ``True`` if ``self`` is undefined.
-
-        If both ``self`` and ``other`` are defined:
-        1. Raise :class:`IncompatibleCurrencyError` if currencies do not match,
-        2. Return ``True`` or ``False`` depending on the quantity of the monetary value.
-        """
-        raise NotImplementedError
-
-    def with_ccy(self: MV, ccy: Currency) -> MV:
-        """
-        Copies the monetary value with the given currency.
-        """
-        raise NotImplementedError
-
-    def with_qty(self: MV, qty: Decimal) -> MV:
-        """
-        Copies the monetary value with the given quantity.
-        """
-        raise NotImplementedError
-
-    def with_dov(self: MV, dov: Date) -> MV:
-        """
-        Copies the monetary value with the given date.
-        """
-        raise NotImplementedError
-
-    def convert(self: MV, ccy: Currency, asof: Optional[Date] = None, strict: bool = False) -> MV:
-        """
-        Converts the monetary value from one currency to another.
-
-        Raises :class:`FXRateLookupError` if no foreign exchange rate can be found for conversion.
-
-        Note that we will carry the date forward as per ``asof`` date.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> MV:
-        """
-        Provides a factory method to create an instance of concrete monetary value object model in a safe manner.
-        """
-        raise NotImplementedError
-
-
-class DefinedMonetaryValue(Generic[MV], MonetaryValue, namedtuple("DMV", ["ccy", "qty", "dov"])):  # type: ignore
-    """
-    Provides a partial implementation of *defined* monetary value model.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    #: Indicates that instances of this class are *defined* monetary values.
-    defined: bool = True  # noqa: E704
-
-    #: Indicates that instances of this class are not *undefined* monetary values.
-    undefined: bool = False
-
-    def __bool__(self: MV) -> bool:
-        return self.qty != 0
-
-    def __float__(self: MV) -> float:
-        return float(self.qty)
-
-    def __int__(self: MV) -> int:
-        return int(self.qty)
-
-    def __lt__(self: MV, other: MV) -> bool:  # type: ignore
-        if other.undefined:
-            return False
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(self.ccy, other.ccy, "`<` comparison")
-        return self.qty < other.qty
-
-    def __le__(self: MV, other: MV) -> bool:  # type: ignore
-        if other.undefined:
-            return False
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(self.ccy, other.ccy, "`<=` comparison")
-        return self.qty <= other.qty
-
-    def __gt__(self: MV, other: MV) -> bool:  # type: ignore
-        if other.undefined:
-            return True
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(self.ccy, other.ccy, "`>` comparison")
-        return self.qty > other.qty
-
-    def __ge__(self: MV, other: MV) -> bool:  # type: ignore
-        if other.undefined:
-            return True
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(self.ccy, other.ccy, "`>=` comparison")
-        return self.qty >= other.qty
-
-
-class UndefinedMonetaryValue(Generic[MV], MonetaryValue):
-    """
-    Provides a partial implementation of *defined* monetary value model.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    #: Indicates that instances of this class are not *defined* monetary values.
-    defined: bool = False  # noqa: E704
-
-    #: Indicates that instances of this class are *undefined* monetary values.
-    undefined: bool = True
-
-    @property
-    def ccy(self) -> Currency:  # type: ignore
-        raise TypeError("Undefined monetary value object does not have currency information.")
-
-    @property
-    def qty(self) -> Decimal:  # type: ignore
-        raise TypeError("Undefined monetary value object does not have quantity information.")
-
-    @property
-    def dov(self) -> Date:  # type: ignore
-        raise TypeError("Undefined monetary value object does not have value date information.")
-
-    def __bool__(self: MV) -> bool:
-        return False
-
-    def __abs__(self: MV) -> MV:
-        return self
-
-    def __float__(self: MV) -> float:
-        raise MonetaryOperationException("Can not call __float__ on an undefined monetary value.")
-
-    def __int__(self: MV) -> int:
-        raise MonetaryOperationException("Can not call __int__ on an undefined monetary value.")
-
-    def __round__(self: MV, ndigits: int = 0) -> MV:
-        return self
-
-    def __neg__(self: MV) -> MV:
-        return self
-
-    def __pos__(self: MV) -> MV:
-        return self
-
-    def __mul__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        return self
-
-    def __truediv__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        return self
-
-    def __floordiv__(self: MV, other: Union[Decimal, int, float]) -> MV:
-        return self
-
-    def __lt__(self: MV, other: MV) -> bool:
-        return other.defined
-
-    def __le__(self: MV, other: MV) -> bool:
-        return True
-
-    def __gt__(self: MV, other: MV) -> bool:
-        return False
-
-    def __ge__(self: MV, other: MV) -> bool:
-        return other.undefined
-
-    def with_ccy(self: MV, ccy: Currency) -> MV:
-        return self
-
-    def with_qty(self: MV, qty: Decimal) -> MV:
-        return self
-
-    def with_dov(self: MV, dov: Date) -> MV:
-        return self
-
-    def convert(self: MV, ccy: Currency, asof: Optional[Date] = None, strict: bool = False) -> MV:
-        return self
-
-
-class Money(MonetaryValue["Money"]):
-    """
-    Defines a monetary value model with fixed precision as per the value currency.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def bigmoney(self) -> "BigMoney":
-        """
-        Returns the :class:`BigMoney` representation of the :class:`Money` instance.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
-        """
-        Creates a new money instance in a safe manner.
-        """
-        if ccy is None or qty is None or dov is None:
-            return NoMoney
-        return SomeMoney(ccy, ccy.quantize(qty), dov)
-
-
-class SomeMoney(Money, DefinedMonetaryValue["SomeMoney"]):  # type: ignore
-    """
-    Provides the *defined* :class:`Money` implementation.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def bigmoney(self) -> "BigMoney":
-        return SomeBigMoney(*tuple(self))
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, SomeMoney) and tuple(self) == tuple(other)
-
-    def __abs__(self) -> "SomeMoney":
-        return SomeMoney(self[0], abs(self[1]), self[2])
-
-    def __round__(self, ndigits: int = 0) -> "SomeMoney":
-        return SomeMoney(self[0], round(self[1], ndigits), self[2])
-
-    def __neg__(self) -> "SomeMoney":
-        return SomeMoney(self[0], -self[1], self[2])
-
-    def __pos__(self) -> "SomeMoney":
-        return self
-
-    def __mul__(self, other: Union[Decimal, int, float]) -> "SomeMoney":
-        ccy = self[0]
-        return SomeMoney(ccy, ccy.quantize(self[1] * other), self[2])
-
-    def __truediv__(self, other: Union[Decimal, int, float]) -> "SomeMoney":
-        ccy = self[0]
-        return SomeMoney(ccy, ccy.quantize(self[1] / other), self[2])
-
-    def __floordiv__(self, other: Union[Decimal, int, float]) -> "SomeMoney":
-        ccy = self[0]
-        return SomeMoney(ccy, ccy.quantize(self[1] // other), self[2])
-
-    def __add__(self, other: Union[Money, Decimal, int, float]) -> "SomeMoney":
-        if other.__class__ == SomeMoney:
-            ## Get slots:
-            ccy1, qty1, dov1 = self
-            ccy2, qty2, dov2 = other  # type: ignore
-
-            ## Check currencies:
-            if ccy1 != ccy2:
-                raise IncompatibleCurrencyError(ccy1, ccy2, "addition")
-            else:
-                return SomeMoney(ccy1, qty1 + qty2, max(dov1, dov2))
-        elif other.__class__ == NoneMoney:
-            return self
-        else:
-            ccy, qty, dov = self
-            return SomeMoney(ccy, ccy.quantize(qty + other), dov)
-
-    def __sub__(self, other: Union[Money, Decimal, int, float]) -> "SomeMoney":
-        if other.__class__ == SomeMoney:
-            ## Get slots:
-            ccy1, qty1, dov1 = self
-            ccy2, qty2, dov2 = other  # type: ignore
-
-            ## Check currencies:
-            if ccy1 != ccy2:
-                raise IncompatibleCurrencyError(ccy1, ccy2, "addition")
-            else:
-                return SomeMoney(ccy1, qty1 - qty2, max(dov1, dov2))
-        elif other.__class__ == NoneMoney:
-            return self
-        else:
-            ccy, qty, dov = self
-            return SomeMoney(ccy, ccy.quantize(qty - other), dov)
-
-    def with_ccy(self, ccy: Currency) -> "SomeMoney":
-        return SomeMoney(ccy, ccy.quantize(self[1]), self[2])
-
-    def with_qty(self, qty: Decimal) -> "SomeMoney":
-        ccy = self[0]
-        return SomeMoney(ccy, ccy.quantize(qty), self[2])
-
-    def with_dov(self, dov: Date) -> "SomeMoney":
-        return SomeMoney(self[0], self[1], dov)
-
-    def convert(self, ccy: Currency, asof: Optional[Date] = None, strict: bool = False) -> Money:
-        ## Get our slots
-        sccy, sqty, sdov = tuple(self)
-
-        ## Get date of conversion:
-        asof = asof or sdov
-
-        ## Attempt to get the FX rate:
-        try:
-            rate = FXRateService.default.query(sccy, ccy, asof, strict)  # type: ignore
-        except AttributeError as exc:
-            if FXRateService.default is None:
-                raise ProgrammingError("Did you implement and set the default FX rate service?")
-            else:
-                raise exc
-
-        ## Do we have a rate?
-        if rate is None:
-            ## Nope, shall we raise exception?
-            if strict:
-                ## Yep:
-                raise FXRateLookupError(sccy, ccy, asof)
-            else:
-                ## Just return NA:
-                return NoMoney
-
-        ## Compute and return:
-        return SomeMoney(ccy, ccy.quantize(sqty * rate.value), asof)
-
-
-class NoneMoney(Money, UndefinedMonetaryValue["SomeMoney"]):
-    """
-    Provides the *undefined* :class:`Money` implementation.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def bigmoney(self) -> "BigMoney":
-        return NoBigMoney
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, NoneMoney)
-
-    def __add__(self, other: Union[Money, Decimal, int, float]) -> Money:
-        if isinstance(other, Money):
-            return other
-        return self
-
-    def __sub__(self, other: Union[Money, Decimal, int, float]) -> Money:
-        if isinstance(other, Money):
-            return other
-        return self
-
-
-class BigMoney(MonetaryValue["BigMoney"]):
-    """
-    Defines a monetary value model with arbitrary precision.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def money(self) -> "Money":
-        """
-        Returns the :class:`Money` representation of the :class:`BigMoney` instance.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "BigMoney":
-        """
-        Creates a new money instance in a safe manner.
-        """
-        if ccy is None or qty is None or dov is None:
-            return NoBigMoney
-        return SomeBigMoney(ccy, qty, dov)
-
-
-class SomeBigMoney(BigMoney, DefinedMonetaryValue["SomeBigMoney"]):  # type: ignore
-    """
-    Provides the *defined* :class:`BigMoney` implementation.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def money(self) -> "Money":
-        ccy = self[0]
-        return SomeMoney(ccy, ccy.quantize(self[1]), self[2])
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, SomeBigMoney) and tuple(self) == tuple(other)
-
-    def __abs__(self) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], abs(self[1]), self[2])
-
-    def __round__(self, ndigits: int = 0) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], round(self[1], ndigits), self[2])
-
-    def __neg__(self) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], -self[1], self[2])
-
-    def __pos__(self) -> "SomeBigMoney":
-        return self
-
-    def __mul__(self, other: Union[Decimal, int, float]) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], self[1] * other, self[2])
-
-    def __truediv__(self, other: Union[Decimal, int, float]) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], self[1] / other, self[2])
-
-    def __floordiv__(self, other: Union[Decimal, int, float]) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], self[1] // other, self[2])
-
-    def __add__(self, other: Union[BigMoney, Decimal, int, float]) -> "SomeBigMoney":
-        if other.__class__ == SomeBigMoney:
-            ## Get slots:
-            ccy1, qty1, dov1 = self
-            ccy2, qty2, dov2 = other  # type: ignore
-
-            ## Check currencies:
-            if ccy1 != ccy2:
-                raise IncompatibleCurrencyError(ccy1, ccy2, "addition")
-            else:
-                return SomeBigMoney(ccy1, qty1 + qty2, max(dov1, dov2))
-        elif other.__class__ == NoneBigMoney:
-            return self
-        else:
-            ccy, qty, dov = self
-            return SomeBigMoney(ccy, qty + other, dov)
-
-    def __sub__(self, other: Union[BigMoney, Decimal, int, float]) -> "SomeBigMoney":
-        if other.__class__ == SomeBigMoney:
-            ## Get slots:
-            ccy1, qty1, dov1 = self
-            ccy2, qty2, dov2 = other  # type: ignore
-
-            ## Check currencies:
-            if ccy1 != ccy2:
-                raise IncompatibleCurrencyError(ccy1, ccy2, "addition")
-            else:
-                return SomeBigMoney(ccy1, qty1 - qty2, max(dov1, dov2))
-        elif other.__class__ == NoneBigMoney:
-            return self
-        else:
-            ccy, qty, dov = self
-            return SomeBigMoney(ccy, qty - other, dov)
-
-    def with_ccy(self, ccy: Currency) -> "SomeBigMoney":
-        return SomeBigMoney(ccy, self[1], self[2])
-
-    def with_qty(self, qty: Decimal) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], qty, self[2])
-
-    def with_dov(self, dov: Date) -> "SomeBigMoney":
-        return SomeBigMoney(self[0], self[1], dov)
-
-    def convert(self, ccy: Currency, asof: Optional[Date] = None, strict: bool = False) -> BigMoney:
-        ## Get our slots
-        sccy, sqty, sdov = tuple(self)
-
-        ## Get date of conversion:
-        asof = asof or sdov
-
-        ## Attempt to get the FX rate:
-        try:
-            rate = FXRateService.default.query(sccy, ccy, asof, strict)  # type: ignore
-        except AttributeError as exc:
-            if FXRateService.default is None:
-                raise ProgrammingError("Did you implement and set the default FX rate service?")
-            else:
-                raise exc
-
-        ## Do we have a rate?
-        if rate is None:
-            ## Nope, shall we raise exception?
-            if strict:
-                ## Yep:
-                raise FXRateLookupError(sccy, ccy, asof)
-            else:
-                ## Just return NA:
-                return NoBigMoney
-
-        ## Compute and return:
-        return SomeBigMoney(ccy, sqty * rate.value, asof)
-
-
-class NoneBigMoney(BigMoney, UndefinedMonetaryValue["NoneBigMoney"]):
-    """
-    Provides the *undefined* :class:`BigMoney` implementation.
-    """
-
-    ## No need for slots.
-    __slots__ = ()
-
-    @property
-    def money(self) -> "Money":
-        return NoMoney
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, NoneBigMoney)
-
-    def __add__(self, other: Union[BigMoney, Decimal, int, float]) -> BigMoney:
-        if isinstance(other, BigMoney):
-            return other
-        return self
-
-    def __sub__(self, other: Union[BigMoney, Decimal, int, float]) -> BigMoney:
-        if isinstance(other, BigMoney):
-            return other
-        return self
-
-
-#: Defines a singleton NoneMoney:
-NoMoney = NoneMoney()
-
-
-#: Defines a singleton NoneBigMoney:
-NoBigMoney = NoneBigMoney()
+from pypara.generic import Date, Numeric, ProgrammingError
 
 
 class IncompatibleCurrencyError(ValueError):
@@ -724,3 +31,1291 @@ class MonetaryOperationException(TypeError):
     Provides an exception that a certain monetary operation can not be carried on.
     """
     pass
+
+###########################
+# BEGIN DEFINITION: Money #
+###########################
+
+
+class Money:
+    """
+    Provides an abstract money model and its semantics.
+    """
+
+    ## No need for slots.
+    __slots__ = ()
+
+    #: Defines the *undefined* money object as a singleton.
+    NA: "Money"
+
+    #: Returns the currency of the money object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
+    ccy: Currency
+
+    #: Returns the quantity of the money object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
+    qty: Decimal
+
+    #: Returns the value date of the money object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
+    dov: Date
+
+    #: Indicates that the money is a *defined* monetary value.
+    defined: bool
+
+    #: Indicates that the money is an *undefined* monetary value.
+    undefined: bool
+
+    @abstractmethod
+    def is_equal(self, other: Any) -> bool:
+        """
+        Checks the equality of two money objects.
+
+        In particular:
+
+        1. ``True`` if ``other`` is a money object **and** all slots are same.
+        2. ``False`` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_boolean(self) -> bool:
+        """
+        Returns the logical representation of the money object.
+
+        In particular:
+
+        1. ``False`` if money is *undefined* **or** money quantity is ``zero``.
+        2. ``True`` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_float(self) -> float:
+        """
+        Returns the quantity as a ``float`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_integer(self) -> int:
+        """
+        Returns the quantity as an ``int`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def abs(self) -> "Money":
+        """
+        Returns the absolute money if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def negative(self) -> "Money":
+        """
+        Negates the quantity of the monetary value if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def positive(self) -> "Money":
+        """
+        Returns same monetary value if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def round(self, ndigits: int = 0) -> "Money":
+        """
+        Rounds the quantity of the monetary value to ``ndigits`` by using ``HALF_EVEN`` method if *defined*, itself
+        otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add(self, other: "Money") -> "Money":
+        """
+        Performs monetary addition on the money object and the given ``other`` money object.
+
+        Note that::
+
+        1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
+        2. If any of the operands are undefined, returns the other one conveniently.
+        3. Dates are carried forward as a result of addition of two defined money objects.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def scalar_add(self, other: Numeric) -> "Money":
+        """
+        Performs scalar addition on the quantity of the money.
+
+        Note that undefined money object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def subtract(self, other: "Money") -> "Money":
+        """
+        Performs monetary subtraction on the money object and the given ``other`` money object.
+
+        Note that::
+
+        1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
+        2. If any of the operands are undefined, returns the other one conveniently.
+        3. Dates are carried forward as a result of addition of two defined money objects.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def scalar_subtract(self, other: Numeric) -> "Money":
+        """
+        Performs scalar subtraction on the quantity of the money.
+
+        Note that undefined money object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def multiply(self, other: Numeric) -> "Money":
+        """
+        Performs scalar multiplication.
+
+        Note that undefined money object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def divide(self, other: Numeric) -> "Money":
+        """
+        Performs ordinary division on the money object if *defined*, itself otherwise.
+
+        Note that division by zero yields an undefined money object.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def floor_divide(self, other: Numeric) -> "Money":
+        """
+        Performs floor division on the money object if *defined*, itself otherwise.
+
+        Note that division by zero yields an undefined money object.
+
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def lt(self, other: "Money") -> bool:
+        """
+        Applies "less than" comparison against ``other`` money.
+
+        Note that::
+
+        1. Undefined money objects are always less than ``other`` if ``other`` is not undefined, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def lte(self, other: "Money") -> bool:
+        """
+        Applies "less than or equal to" comparison against ``other`` money.
+
+        Note that::
+
+        1. Undefined money objects are always less than or equal to ``other``, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def gt(self, other: "Money") -> bool:
+        """
+        Applies "greater than" comparison against ``other`` money.
+
+        Note that::
+
+        1. Undefined money objects are never greater than ``other``,
+        2. Defined money objects are always greater than ``other`` if other is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def gte(self, other: "Money") -> bool:
+        """
+        Applies "greater than or equal to" comparison against ``other`` money.
+
+        Note that::
+
+        1. Undefined money objects are never greater than or equal to ``other`` if ``other`` is defined,
+        2. Undefined money objects are greater than or equal to ``other`` if ``other is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def with_ccy(self, ccy: Currency) -> "Money":
+        """
+        Creates a new money object with the given currency if money is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def with_qty(self, qty: Decimal) -> "Money":
+        """
+        Creates a new money object with the given quantity if money is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def with_dov(self, dov: Date) -> "Money":
+        """
+        Creates a new money object with the given value date if money is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
+        """
+        Converts the monetary value from one currency to another.
+
+        Raises :class:`FXRateLookupError` if no foreign exchange rate can be found for conversion.
+
+        Note that we will carry the date forward as per ``asof`` date.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
+        """
+        Provides a factory method to create a new money object in a safe manner.
+        """
+        if qty is None or ccy is None or dov is None:
+            return NoMoney
+        return SomeMoney(ccy, ccy.quantize(qty), dov)
+
+    @abstractmethod
+    def __bool__(self) -> bool:
+        pass
+
+    @abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        pass
+
+    @abstractmethod
+    def __abs__(self) -> "Money":
+        pass
+
+    @abstractmethod
+    def __float__(self) -> float:
+        pass
+
+    @abstractmethod
+    def __int__(self) -> int:
+        pass
+
+    @abstractmethod
+    def __round__(self, ndigits: int = 0) -> "Money":
+        pass
+
+    @abstractmethod
+    def __neg__(self) -> "Money":
+        pass
+
+    @abstractmethod
+    def __pos__(self) -> "Money":
+        pass
+
+    @abstractmethod
+    def __add__(self, other: "Money") -> "Money":
+        pass
+
+    @abstractmethod
+    def __sub__(self, other: "Money") -> "Money":
+        pass
+
+    @abstractmethod
+    def __mul__(self, other: Numeric) -> "Money":
+        pass
+
+    @abstractmethod
+    def __truediv__(self, other: Numeric) -> "Money":
+        pass
+
+    @abstractmethod
+    def __floordiv__(self, other: Numeric) -> "Money":
+        pass
+
+    @abstractmethod
+    def __lt__(self, other: "Money") -> bool:
+        pass
+
+    @abstractmethod
+    def __le__(self, other: "Money") -> bool:
+        pass
+
+    @abstractmethod
+    def __gt__(self, other: "Money") -> bool:
+        pass
+
+    @abstractmethod
+    def __ge__(self, other: "Money") -> bool:
+        pass
+
+
+class SomeMoney(Money):
+    """
+    Provides a *defined* money object model.
+    """
+
+    defined = True
+
+    undefined = False
+
+    def __init__(self, ccy: Currency, qty: Decimal, dov: Date) -> None:
+        self.ccy = ccy
+        self.qty = qty
+        self.dov = dov
+
+    def __repr__(self) -> str:
+        return f"SomeMoney(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
+
+    def is_equal(self, other: Any) -> bool:
+        return (other.__class__ == SomeMoney and  # type: ignore
+                self.ccy == other.ccy and
+                self.qty == other.qty and
+                self.dov == other.dov)
+
+    def as_boolean(self) -> bool:
+        return self.qty.__bool__()
+
+    def as_float(self) -> float:
+        return self.qty.__float__()
+
+    def as_integer(self) -> int:
+        return self.qty.__int__()
+
+    def abs(self) -> "Money":
+        return SomeMoney(self.ccy, self.qty.__abs__(), self.dov)
+
+    def negative(self) -> "Money":
+        return SomeMoney(self.ccy, self.qty.__neg__(), self.dov)
+
+    def positive(self) -> "Money":
+        return SomeMoney(self.ccy, self.qty.__pos__(), self.dov)
+
+    def round(self, ndigits: int = 0) -> "Money":
+        return SomeMoney(self.ccy, self.qty.__round__(min(ndigits, self.ccy.decimals)), self.dov)  # type: ignore
+
+    def add(self, other: "Money") -> "Money":
+        if other.undefined:
+            return self
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="addition")
+        return SomeMoney(self.ccy, self.qty + other.qty, max(self.dov, other.dov))
+
+    def scalar_add(self, other: Numeric) -> "Money":
+        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__add__(Decimal(other))), self.dov)
+
+    def subtract(self, other: "Money") -> "Money":
+        if other.undefined:
+            return self
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="subtraction")
+        return SomeMoney(self.ccy, self.qty - other.qty, max(self.dov, other.dov))
+
+    def scalar_subtract(self, other: Numeric) -> "Money":
+        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__sub__(Decimal(other))), self.dov)
+
+    def multiply(self, other: Numeric) -> "Money":
+        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__mul__(Decimal(other))), self.dov)
+
+    def divide(self, other: Numeric) -> "Money":
+        try:
+            return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__truediv__(Decimal(other))), self.dov)
+        except (InvalidOperation, DivisionByZero) as ex:
+            return NoMoney
+
+    def floor_divide(self, other: Numeric) -> "Money":
+        try:
+            return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__floordiv__(Decimal(other))), self.dov)
+        except (InvalidOperation, DivisionByZero) as ex:
+            return NoMoney
+
+    def lt(self, other: "Money") -> bool:
+        if other.undefined:
+            return False
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+        return self.qty.__lt__(other.qty)
+
+    def lte(self, other: "Money") -> bool:
+        if other.undefined:
+            return False
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+        return self.qty.__le__(other.qty)
+
+    def gt(self, other: "Money") -> bool:
+        if other.undefined:
+            return True
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+        return self.qty.__gt__(other.qty)
+
+    def gte(self, other: "Money") -> bool:
+        if other.undefined:
+            return True
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+        return self.qty.__ge__(other.qty)
+
+    def with_ccy(self, ccy: Currency) -> "Money":
+        return SomeMoney(ccy, self.qty, self.dov)
+
+    def with_qty(self, qty: Decimal) -> "Money":
+        return SomeMoney(self.ccy, self.ccy.quantize(qty), self.dov)
+
+    def with_dov(self, dov: Date) -> "Money":
+        return SomeMoney(self.ccy, self.qty, dov)
+
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
+        ## Get slots:
+        ccy, qty, dov = self.ccy, self.qty, self.dov
+
+        ## Get date of conversion:
+        asof = asof or dov
+
+        ## Attempt to get the FX rate:
+        try:
+            rate = FXRateService.default.query(ccy, to, asof, strict)  # type: ignore
+        except AttributeError as exc:
+            if FXRateService.default is None:
+                raise ProgrammingError("Did you implement and set the default FX rate service?")
+            else:
+                raise exc
+
+        ## Do we have a rate?
+        if rate is None:
+            ## Nope, shall we raise exception?
+            if strict:
+                ## Yep:
+                raise FXRateLookupError(ccy, to, asof)
+            else:
+                ## Just return NA:
+                return NoMoney
+
+        ## Compute and return:
+        return SomeMoney(to, to.quantize(qty * rate.value), asof)
+
+    __bool__ = as_boolean
+
+    __eq__ = is_equal
+
+    __abs__ = abs
+
+    __float__ = as_float
+
+    __int__ = as_integer
+
+    __round__ = round
+
+    __neg__ = negative
+
+    __pos__ = positive
+
+    __add__ = add
+
+    __sub__ = subtract
+
+    __mul__ = multiply
+
+    __truediv__ = divide
+
+    __floordiv__ = floor_divide
+
+    __lt__ = lt
+
+    __le__ = lte
+
+    __gt__ = gt
+
+    __ge__ = gte
+
+
+class NoneMoney(Money):
+
+    defined = False
+
+    undefined = True
+
+    def as_boolean(self) -> bool:
+        return False
+
+    def is_equal(self, other: Any) -> bool:
+        return other.__class__ == NoneMoney  # type: ignore
+
+    def abs(self) -> "Money":
+        return self
+
+    def as_float(self) -> float:
+        raise TypeError("Undefined monetary values do not have quantity information.")
+
+    def as_integer(self) -> int:
+        raise TypeError("Undefined monetary values do not have quantity information.")
+
+    def round(self, ndigits: int = 0) -> "Money":
+        return self
+
+    def negative(self) -> "Money":
+        return self
+
+    def positive(self) -> "Money":
+        return self
+
+    def add(self, other: "Money") -> "Money":
+        return other
+
+    def scalar_add(self, other: Numeric) -> "Money":
+        return self
+
+    def subtract(self, other: "Money") -> "Money":
+        return -other
+
+    def scalar_subtract(self, other: Numeric) -> "Money":
+        return self
+
+    def multiply(self, other: Numeric) -> "Money":
+        return self
+
+    def divide(self, other: Numeric) -> "Money":
+        return self
+
+    def floor_divide(self, other: Numeric) -> "Money":
+        return self
+
+    def lt(self, other: "Money") -> bool:
+        return other.defined
+
+    def lte(self, other: "Money") -> bool:
+        return True
+
+    def gt(self, other: "Money") -> bool:
+        return False
+
+    def gte(self, other: "Money") -> bool:
+        return other.undefined
+
+    def with_ccy(self, ccy: Currency) -> "Money":
+        return self
+
+    def with_qty(self, qty: Decimal) -> "Money":
+        return self
+
+    def with_dov(self, dov: Date) -> "Money":
+        return self
+
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
+        return self
+
+    __bool__ = as_boolean
+
+    __eq__ = is_equal
+
+    __abs__ = abs
+
+    __float__ = as_float
+
+    __int__ = as_integer
+
+    __round__ = round
+
+    __neg__ = negative
+
+    __pos__ = positive
+
+    __add__ = add
+
+    __sub__ = subtract
+
+    __mul__ = multiply
+
+    __truediv__ = divide
+
+    __floordiv__ = floor_divide
+
+    __lt__ = lt
+
+    __le__ = lte
+
+    __gt__ = gt
+
+    __ge__ = gte
+
+
+## Define and attach undefined money singleton.
+Money.NA = NoMoney = NoneMoney()
+
+#########################
+# END DEFINITION: Money #
+#########################
+
+###########################
+# BEGIN DEFINITION: Price #
+###########################
+
+class Price:
+    """
+    Provides an abstract price model and its semantics.
+    """
+
+    ## No need for slots.
+    __slots__ = ()
+
+    #: Defines the *undefined* price object as a singleton.
+    NA: "Price"
+
+    #: Returns the currency of the price object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
+    ccy: Currency
+
+    #: Returns the quantity of the price object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
+    qty: Decimal
+
+    #: Returns the value date of the price object, if defined.
+    #:
+    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
+    dov: Date
+
+    #: Indicates that the price is a *defined* monetary value.
+    defined: bool
+
+    #: Indicates that the price is an *undefined* monetary value.
+    undefined: bool
+
+    @abstractmethod
+    def is_equal(self, other: Any) -> bool:
+        """
+        Checks the equality of two price objects.
+
+        In particular:
+
+        1. ``True`` if ``other`` is a price object **and** all slots are same.
+        2. ``False`` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_boolean(self) -> bool:
+        """
+        Returns the logical representation of the price object.
+
+        In particular:
+
+        1. ``False`` if price is *undefined* **or** price quantity is ``zero``.
+        2. ``True`` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_float(self) -> float:
+        """
+        Returns the quantity as a ``float`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def as_integer(self) -> int:
+        """
+        Returns the quantity as an ``int`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def abs(self) -> "Price":
+        """
+        Returns the absolute price if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def negative(self) -> "Price":
+        """
+        Negates the quantity of the monetary value if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def positive(self) -> "Price":
+        """
+        Returns same monetary value if *defined*, itself otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def round(self, ndigits: int = 0) -> "Price":
+        """
+        Rounds the quantity of the monetary value to ``ndigits`` by using ``HALF_EVEN`` method if *defined*, itself
+        otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add(self, other: "Price") -> "Price":
+        """
+        Performs monetary addition on the price object and the given ``other`` price object.
+
+        Note that::
+
+        1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
+        2. If any of the operands are undefined, returns the other one conveniently.
+        3. Dates are carried forward as a result of addition of two defined price objects.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def scalar_add(self, other: Numeric) -> "Price":
+        """
+        Performs scalar addition on the quantity of the price.
+
+        Note that undefined price object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def subtract(self, other: "Price") -> "Price":
+        """
+        Performs monetary subtraction on the price object and the given ``other`` price object.
+
+        Note that::
+
+        1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
+        2. If any of the operands are undefined, returns the other one conveniently.
+        3. Dates are carried forward as a result of addition of two defined price objects.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def scalar_subtract(self, other: Numeric) -> "Price":
+        """
+        Performs scalar subtraction on the quantity of the price.
+
+        Note that undefined price object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def multiply(self, other: Numeric) -> "Price":
+        """
+        Performs scalar multiplication.
+
+        Note that undefined price object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def times(self, other: Numeric) -> "Money":
+        """
+        Performs monetary multiplication operation.
+
+        Note that undefined price object is returned as is.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def divide(self, other: Numeric) -> "Price":
+        """
+        Performs ordinary division on the price object if *defined*, itself otherwise.
+
+        Note that division by zero yields an undefined price object.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def floor_divide(self, other: Numeric) -> "Price":
+        """
+        Performs floor division on the price object if *defined*, itself otherwise.
+
+        Note that division by zero yields an undefined price object.
+
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def lt(self, other: "Price") -> bool:
+        """
+        Applies "less than" comparison against ``other`` price.
+
+        Note that::
+
+        1. Undefined price objects are always less than ``other`` if ``other`` is not undefined, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def lte(self, other: "Price") -> bool:
+        """
+        Applies "less than or equal to" comparison against ``other`` price.
+
+        Note that::
+
+        1. Undefined price objects are always less than or equal to ``other``, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def gt(self, other: "Price") -> bool:
+        """
+        Applies "greater than" comparison against ``other`` price.
+
+        Note that::
+
+        1. Undefined price objects are never greater than ``other``,
+        2. Defined price objects are always greater than ``other`` if other is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def gte(self, other: "Price") -> bool:
+        """
+        Applies "greater than or equal to" comparison against ``other`` price.
+
+        Note that::
+
+        1. Undefined price objects are never greater than or equal to ``other`` if ``other`` is defined,
+        2. Undefined price objects are greater than or equal to ``other`` if ``other is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
+        currencies.
+        """
+        pass
+
+    @abstractmethod
+    def with_ccy(self, ccy: Currency) -> "Price":
+        """
+        Creates a new price object with the given currency if price is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def with_qty(self, qty: Decimal) -> "Price":
+        """
+        Creates a new price object with the given quantity if price is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def with_dov(self, dov: Date) -> "Price":
+        """
+        Creates a new price object with the given value date if price is *defined*, returns itself otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
+        """
+        Converts the monetary value from one currency to another.
+
+        Raises :class:`FXRateLookupError` if no foreign exchange rate can be found for conversion.
+
+        Note that we will carry the date forward as per ``asof`` date.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
+        """
+        Provides a factory method to create a new price object in a safe manner.
+        """
+        if qty is None or ccy is None or dov is None:
+            return NoPrice
+        return SomePrice(ccy, qty, dov)
+
+    @abstractmethod
+    def __bool__(self) -> bool:
+        pass
+
+    @abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        pass
+
+    @abstractmethod
+    def __abs__(self) -> "Price":
+        pass
+
+    @abstractmethod
+    def __float__(self) -> float:
+        pass
+
+    @abstractmethod
+    def __int__(self) -> int:
+        pass
+
+    @abstractmethod
+    def __round__(self, ndigits: int = 0) -> "Price":
+        pass
+
+    @abstractmethod
+    def __neg__(self) -> "Price":
+        pass
+
+    @abstractmethod
+    def __pos__(self) -> "Price":
+        pass
+
+    @abstractmethod
+    def __add__(self, other: "Price") -> "Price":
+        pass
+
+    @abstractmethod
+    def __sub__(self, other: "Price") -> "Price":
+        pass
+
+    @abstractmethod
+    def __mul__(self, other: Numeric) -> "Price":
+        pass
+
+    @abstractmethod
+    def __truediv__(self, other: Numeric) -> "Price":
+        pass
+
+    @abstractmethod
+    def __floordiv__(self, other: Numeric) -> "Price":
+        pass
+
+    @abstractmethod
+    def __lt__(self, other: "Price") -> bool:
+        pass
+
+    @abstractmethod
+    def __le__(self, other: "Price") -> bool:
+        pass
+
+    @abstractmethod
+    def __gt__(self, other: "Price") -> bool:
+        pass
+
+    @abstractmethod
+    def __ge__(self, other: "Price") -> bool:
+        pass
+
+
+class SomePrice(Price):
+    """
+    Provides a *defined* price object model.
+    """
+
+    defined = True
+
+    undefined = False
+
+    def __init__(self, ccy: Currency, qty: Decimal, dov: Date) -> None:
+        self.ccy = ccy
+        self.qty = qty
+        self.dov = dov
+
+    def __repr__(self) -> str:
+        return f"SomePrice(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
+
+    def is_equal(self, other: Any) -> bool:
+        return (other.__class__ == SomePrice and  # type: ignore
+                self.ccy == other.ccy and
+                self.qty == other.qty and
+                self.dov == other.dov)
+
+    def as_boolean(self) -> bool:
+        return self.qty.__bool__()
+
+    def as_float(self) -> float:
+        return self.qty.__float__()
+
+    def as_integer(self) -> int:
+        return self.qty.__int__()
+
+    def abs(self) -> "Price":
+        return SomePrice(self.ccy, self.qty.__abs__(), self.dov)
+
+    def negative(self) -> "Price":
+        return SomePrice(self.ccy, self.qty.__neg__(), self.dov)
+
+    def positive(self) -> "Price":
+        return SomePrice(self.ccy, self.qty.__pos__(), self.dov)
+
+    def round(self, ndigits: int = 0) -> "Price":
+        return SomePrice(self.ccy, self.qty.__round__(ndigits), self.dov)  # type: ignore
+
+    def add(self, other: "Price") -> "Price":
+        if other.undefined:
+            return self
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="addition")
+        return SomePrice(self.ccy, self.qty + other.qty, max(self.dov, other.dov))
+
+    def scalar_add(self, other: Numeric) -> "Price":
+        return SomePrice(self.ccy, self.qty.__add__(Decimal(other)), self.dov)
+
+    def subtract(self, other: "Price") -> "Price":
+        if other.undefined:
+            return self
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="subtraction")
+        return SomePrice(self.ccy, self.qty - other.qty, max(self.dov, other.dov))
+
+    def scalar_subtract(self, other: Numeric) -> "Price":
+        return SomePrice(self.ccy, self.qty.__sub__(Decimal(other)), self.dov)
+
+    def multiply(self, other: Numeric) -> "Price":
+        return SomePrice(self.ccy, self.qty.__mul__(Decimal(other)), self.dov)
+
+    def times(self, other: Numeric) -> "Money":
+        return SomeMoney(self.ccy, self.ccy.quantize(self.qty * Decimal(other)), self.dov)
+
+    def divide(self, other: Numeric) -> "Price":
+        try:
+            return SomePrice(self.ccy, self.qty.__truediv__(Decimal(other)), self.dov)
+        except (InvalidOperation, DivisionByZero) as ex:
+            return NoPrice
+
+    def floor_divide(self, other: Numeric) -> "Price":
+        try:
+            return SomePrice(self.ccy, self.qty.__floordiv__(Decimal(other)), self.dov)
+        except (InvalidOperation, DivisionByZero) as ex:
+            return NoPrice
+
+    def lt(self, other: "Price") -> bool:
+        if other.undefined:
+            return False
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+        return self.qty.__lt__(other.qty)
+
+    def lte(self, other: "Price") -> bool:
+        if other.undefined:
+            return False
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+        return self.qty.__le__(other.qty)
+
+    def gt(self, other: "Price") -> bool:
+        if other.undefined:
+            return True
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+        return self.qty.__gt__(other.qty)
+
+    def gte(self, other: "Price") -> bool:
+        if other.undefined:
+            return True
+        elif self.ccy != other.ccy:
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+        return self.qty.__ge__(other.qty)
+
+    def with_ccy(self, ccy: Currency) -> "Price":
+        return SomePrice(ccy, self.qty, self.dov)
+
+    def with_qty(self, qty: Decimal) -> "Price":
+        return SomePrice(self.ccy, qty, self.dov)
+
+    def with_dov(self, dov: Date) -> "Price":
+        return SomePrice(self.ccy, self.qty, dov)
+
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
+        ## Get slots:
+        ccy, qty, dov = self.ccy, self.qty, self.dov
+
+        ## Get date of conversion:
+        asof = asof or dov
+
+        ## Attempt to get the FX rate:
+        try:
+            rate = FXRateService.default.query(ccy, to, asof, strict)  # type: ignore
+        except AttributeError as exc:
+            if FXRateService.default is None:
+                raise ProgrammingError("Did you implement and set the default FX rate service?")
+            else:
+                raise exc
+
+        ## Do we have a rate?
+        if rate is None:
+            ## Nope, shall we raise exception?
+            if strict:
+                ## Yep:
+                raise FXRateLookupError(ccy, to, asof)
+            else:
+                ## Just return NA:
+                return NoPrice
+
+        ## Compute and return:
+        return SomePrice(to, qty * rate.value, asof)
+
+    __bool__ = as_boolean
+
+    __eq__ = is_equal
+
+    __abs__ = abs
+
+    __float__ = as_float
+
+    __int__ = as_integer
+
+    __round__ = round
+
+    __neg__ = negative
+
+    __pos__ = positive
+
+    __add__ = add
+
+    __sub__ = subtract
+
+    __mul__ = multiply
+
+    __truediv__ = divide
+
+    __floordiv__ = floor_divide
+
+    __lt__ = lt
+
+    __le__ = lte
+
+    __gt__ = gt
+
+    __ge__ = gte
+
+
+class NonePrice(Price):
+
+    defined = False
+
+    undefined = True
+
+    def as_boolean(self) -> bool:
+        return False
+
+    def is_equal(self, other: Any) -> bool:
+        return other.__class__ == NonePrice  # type: ignore
+
+    def abs(self) -> "Price":
+        return self
+
+    def as_float(self) -> float:
+        raise TypeError("Undefined monetary values do not have quantity information.")
+
+    def as_integer(self) -> int:
+        raise TypeError("Undefined monetary values do not have quantity information.")
+
+    def round(self, ndigits: int = 0) -> "Price":
+        return self
+
+    def negative(self) -> "Price":
+        return self
+
+    def positive(self) -> "Price":
+        return self
+
+    def add(self, other: "Price") -> "Price":
+        return other
+
+    def scalar_add(self, other: Numeric) -> "Price":
+        return self
+
+    def subtract(self, other: "Price") -> "Price":
+        return -other
+
+    def scalar_subtract(self, other: Numeric) -> "Price":
+        return self
+
+    def multiply(self, other: Numeric) -> "Price":
+        return self
+
+    def times(self, other: Numeric) -> "Money":
+        return NoMoney
+
+    def divide(self, other: Numeric) -> "Price":
+        return self
+
+    def floor_divide(self, other: Numeric) -> "Price":
+        return self
+
+    def lt(self, other: "Price") -> bool:
+        return other.defined
+
+    def lte(self, other: "Price") -> bool:
+        return True
+
+    def gt(self, other: "Price") -> bool:
+        return False
+
+    def gte(self, other: "Price") -> bool:
+        return other.undefined
+
+    def with_ccy(self, ccy: Currency) -> "Price":
+        return self
+
+    def with_qty(self, qty: Decimal) -> "Price":
+        return self
+
+    def with_dov(self, dov: Date) -> "Price":
+        return self
+
+    def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
+        return self
+
+    __bool__ = as_boolean
+
+    __eq__ = is_equal
+
+    __abs__ = abs
+
+    __float__ = as_float
+
+    __int__ = as_integer
+
+    __round__ = round
+
+    __neg__ = negative
+
+    __pos__ = positive
+
+    __add__ = add
+
+    __sub__ = subtract
+
+    __mul__ = multiply
+
+    __truediv__ = divide
+
+    __floordiv__ = floor_divide
+
+    __lt__ = lt
+
+    __le__ = lte
+
+    __gt__ = gt
+
+    __ge__ = gte
+
+
+## Define and attach undefined price singleton.
+Price.NA = NoPrice = NonePrice()
+
+#########################
+# END DEFINITION: Price #
+#########################

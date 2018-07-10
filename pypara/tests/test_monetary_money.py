@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 
 from pypara.currencies import Currencies
-from pypara.xmonetary import Money, NoneMoney, SomeMoney, NoMoney, IncompatibleCurrencyError
+from pypara.monetary import Money, NoneMoney, SomeMoney, NoMoney, IncompatibleCurrencyError, Price
 
 ## Define some currencies:
 eur = Currencies["EUR"]
@@ -403,3 +403,10 @@ def test_with():
     ## Extras:
     assert Money.of(usd, zero, today).with_qty(Decimal("0.005")) == Money.of(usd, zero, today)
     assert Money.of(usd, zero, today).with_qty(Decimal("0.054")) == Money.of(usd, Decimal("0.05"), today)
+
+
+def test_types():
+    assert isinstance(Money.NA, Money)
+    assert isinstance(Money.NA, NoneMoney)
+    assert not isinstance(Money.NA, SomeMoney)
+    assert not isinstance(Money.NA, Price)
