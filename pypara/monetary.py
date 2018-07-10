@@ -716,7 +716,7 @@ class IncompatibleCurrencyError(ValueError):
         self.operation = operation
 
         ## Call super:
-        super().__init__(f"{ccy1} vs {ccy2} are incompatible for operation '{operation}'.")
+        super().__init__(f"{ccy1.code} vs {ccy2.code} are incompatible for operation '{operation}'.")
 
 
 class MonetaryOperationException(TypeError):

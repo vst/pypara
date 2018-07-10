@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 
 from pypara.currencies import Currencies
-from pypara.monetary import NoneMoney, NoneBigMoney, Money, BigMoney
+from pypara.monetary import NoneMoney, NoneBigMoney, Money, BigMoney, SomeMoney, MonetaryValue, NoMoney
 
 
 def almost_eq(x: Decimal, y: Decimal) -> bool:
@@ -219,3 +219,16 @@ def test_comparison() -> None:
     """
     ## TODO: Complete tests.
     pass
+
+
+def test_types() -> None:
+    assert isinstance(M_USD_0_T0, MonetaryValue)
+    assert isinstance(M_USD_0_T0, Money)
+    assert isinstance(M_USD_0_T0, SomeMoney)
+    assert not isinstance(M_USD_0_T0, NoneMoney)
+
+    assert isinstance(NoMoney, MonetaryValue)
+    assert isinstance(NoMoney, Money)
+    assert isinstance(NoMoney, NoneMoney)
+    assert not isinstance(NoMoney, SomeMoney)
+

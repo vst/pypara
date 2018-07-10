@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Union
 
 
 class ProgrammingError(Exception):
@@ -26,6 +26,9 @@ def make_quantizer(precision: int) -> Decimal:
     """
     return Decimal(f"0.{''.join(['0' * precision])}")
 
+
+#: Defines a type alias for acceptable numeric values.
+Numeric = Union[Decimal, int, float]
 
 #: Defines an alias for the temporal dimension of :mod:`pypara` implementation.
 Date = datetime.date
