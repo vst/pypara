@@ -303,6 +303,14 @@ class Money:
             return NoMoney
         return SomeMoney(ccy, ccy.quantize(qty), dov)
 
+    @property
+    @abstractmethod
+    def price(self) -> "Price":
+        """
+        Returns the price representation of the money object.
+        """
+        raise NotImplementedError
+
     @abstractmethod
     def __bool__(self) -> bool:
         pass
@@ -517,6 +525,10 @@ class SomeMoney(Money):
         ## Compute and return:
         return SomeMoney(to, to.quantize(qty * rate.value), asof)
 
+    @property
+    def price(self) -> "Price":
+        return SomePrice(self.ccy, self.qty, self.dov)
+
     __bool__ = as_boolean
 
     __eq__ = is_equal
@@ -626,6 +638,10 @@ class NoneMoney(Money):
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         return self
+
+    @property
+    def price(self) -> "Price":
+        return NoPrice
 
     __bool__ = as_boolean
 
@@ -940,6 +956,14 @@ class Price:
         """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def money(self) -> Money:
+        """
+        Returns the money representation of the price object.
+        """
+        raise NotImplementedError
+
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
         """
@@ -1166,6 +1190,10 @@ class SomePrice(Price):
         ## Compute and return:
         return SomePrice(to, qty * rate.value, asof)
 
+    @property
+    def money(self) -> Money:
+        return SomeMoney(self.ccy, self.ccy.quantize(self.qty), self.dov)
+
     __bool__ = as_boolean
 
     __eq__ = is_equal
@@ -1278,6 +1306,8 @@ class NonePrice(Price):
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         return self
+
+    money = NoMoney
 
     __bool__ = as_boolean
 
