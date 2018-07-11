@@ -21,6 +21,39 @@ today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 
 
+def test_implementation() -> None:
+    ## Define instances:
+    _price = Price()  # type: ignore
+    sprice = SomePrice(usd, one, today)
+    nprice = NonePrice()
+
+    ## Check structure:
+    assert _price.__slots__ == ()
+    assert sprice.__slots__ == ()
+    assert nprice.__slots__ == ()
+    assert not hasattr(_price, "__dict__")
+    assert not hasattr(sprice, "__dict__")
+    assert not hasattr(nprice, "__dict__")
+
+    ## Check types
+    assert isinstance(Price.NA, Price)
+    assert isinstance(Price.NA, NonePrice)
+    assert not isinstance(Price.NA, SomePrice)
+    assert not isinstance(Price.NA, Money)
+
+    assert isinstance(_price, Price)
+    assert not isinstance(_price, SomePrice)
+    assert not isinstance(_price, NonePrice)
+
+    assert isinstance(sprice, Price)
+    assert isinstance(sprice, SomePrice)
+    assert not isinstance(sprice, NonePrice)
+
+    assert isinstance(nprice, Price)
+    assert not isinstance(nprice, SomePrice)
+    assert isinstance(nprice, NonePrice)
+
+
 def test_of() -> None:
     assert Price.of(usd, one, None) == Price.NA
     assert Price.of(usd, None, today) == Price.NA

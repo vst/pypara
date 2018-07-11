@@ -21,6 +21,39 @@ today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 
 
+def test_implementation() -> None:
+    ## Define instances:
+    _money = Money()  # type: ignore
+    smoney = SomeMoney(usd, one, today)
+    nmoney = NoneMoney()
+
+    ## Check structure:
+    assert _money.__slots__ == ()
+    assert smoney.__slots__ == ()
+    assert nmoney.__slots__ == ()
+    assert not hasattr(_money, "__dict__")
+    assert not hasattr(smoney, "__dict__")
+    assert not hasattr(nmoney, "__dict__")
+
+    ## Check types
+    assert isinstance(Money.NA, Money)
+    assert isinstance(Money.NA, NoneMoney)
+    assert not isinstance(Money.NA, SomeMoney)
+    assert not isinstance(Money.NA, Price)
+
+    assert isinstance(_money, Money)
+    assert not isinstance(_money, SomeMoney)
+    assert not isinstance(_money, NoneMoney)
+
+    assert isinstance(smoney, Money)
+    assert isinstance(smoney, SomeMoney)
+    assert not isinstance(smoney, NoneMoney)
+
+    assert isinstance(nmoney, Money)
+    assert not isinstance(nmoney, SomeMoney)
+    assert isinstance(nmoney, NoneMoney)
+
+
 def test_of() -> None:
     assert Money.of(usd, one, None) == Money.NA
     assert Money.of(usd, None, today) == Money.NA
@@ -403,10 +436,3 @@ def test_with() -> None:
     ## Extras:
     assert Money.of(usd, zero, today).with_qty(Decimal("0.005")) == Money.of(usd, zero, today)
     assert Money.of(usd, zero, today).with_qty(Decimal("0.054")) == Money.of(usd, Decimal("0.05"), today)
-
-
-def test_types() -> None:
-    assert isinstance(Money.NA, Money)
-    assert isinstance(Money.NA, NoneMoney)
-    assert not isinstance(Money.NA, SomeMoney)
-    assert not isinstance(Money.NA, Price)

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from decimal import Decimal, InvalidOperation, DivisionByZero
-from typing import Any, Optional
+from typing import Any, Optional, NamedTuple
 
 from pypara.currencies import Currency
 from pypara.exchange import FXRateService, FXRateLookupError
@@ -380,22 +380,16 @@ class Money:
         pass
 
 
-class SomeMoney(Money):
+class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
     """
     Provides a *defined* money object model.
     """
 
+    __slots__ = ()
+
     defined = True
 
     undefined = False
-
-    def __init__(self, ccy: Currency, qty: Decimal, dov: Date) -> None:
-        self.ccy = ccy
-        self.qty = qty
-        self.dov = dov
-
-    def __repr__(self) -> str:
-        return f"SomeMoney(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
 
     def is_equal(self, other: Any) -> bool:
         return (other.__class__ == SomeMoney and  # type: ignore
@@ -565,6 +559,8 @@ class SomeMoney(Money):
 
 
 class NoneMoney(Money):
+
+    __slots__ = ()
 
     defined = False
 
@@ -1042,22 +1038,16 @@ class Price:
         pass
 
 
-class SomePrice(Price):
+class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
     """
     Provides a *defined* price object model.
     """
 
+    __slots__ = ()
+
     defined = True
 
     undefined = False
-
-    def __init__(self, ccy: Currency, qty: Decimal, dov: Date) -> None:
-        self.ccy = ccy
-        self.qty = qty
-        self.dov = dov
-
-    def __repr__(self) -> str:
-        return f"SomePrice(ccy={self.ccy.code}, qty={self.qty}, dov={self.dov})"
 
     def is_equal(self, other: Any) -> bool:
         return (other.__class__ == SomePrice and  # type: ignore
@@ -1230,6 +1220,8 @@ class SomePrice(Price):
 
 
 class NonePrice(Price):
+
+    __slots__ = ()
 
     defined = False
 
