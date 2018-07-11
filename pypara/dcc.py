@@ -1,9 +1,7 @@
 import calendar
 import datetime
 from decimal import Decimal
-from typing import Dict, Callable, Set, Optional, List, Iterable
-
-from dataclasses import dataclass
+from typing import Dict, Callable, Set, Optional, List, Iterable, NamedTuple
 
 from pypara.currencies import Currency, Currencies
 from pypara.generic import Date
@@ -76,13 +74,10 @@ def _is_last_day_of_month(date: Date) -> bool:
     return date.day == calendar.monthrange(date.year, date.month)[1]
 
 
-@dataclass(frozen=True)
-class DCC:
+class DCC(NamedTuple):
     """
     Defines a day count convention model.
     """
-    ## Fix slots:
-    __slots__ = {"name", "altnames", "currencies", "calculate_fraction"}
 
     #: Defines the name of the day count convention.
     name: str
@@ -100,8 +95,7 @@ class DCC:
         """
         Calculates the interest for the given schedule.
         """
-        ## TODO: mypy gets confused by function field assuming that it is a method.
-        return principal * rate * self.calculate_fraction(start, asof, end or asof)  # type: ignore
+        return principal * rate * self[3](start, asof, end or asof)
 
 
 class DCCRegistryMachinery:
@@ -195,8 +189,7 @@ def dcc(name: str, altnames: Optional[Set[str]]=None, ccys: Optional[Set[Currenc
         :return: Registered day count fraction calculation function.
         """
         ## Create the DCC instance:
-        ## TODO: mypy gets confused by __slots__ keyword.
-        dcc = DCC(name, altnames or set([]), ccys or set([]), func)  # type: ignore
+        dcc = DCC(name, altnames or set([]), ccys or set([]), func)
 
         ## Attempt to register the DCC:
         DCCRegistry.register(dcc)
