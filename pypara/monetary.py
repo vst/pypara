@@ -392,64 +392,86 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     undefined = False
 
     def is_equal(self, other: Any) -> bool:
-        return (other.__class__ == SomeMoney and  # type: ignore
-                self.ccy == other.ccy and
-                self.qty == other.qty and
-                self.dov == other.dov)
+        return other.__class__ is SomeMoney and tuple(self) == tuple(other)
 
     def as_boolean(self) -> bool:
-        return self.qty.__bool__()
+        return self[1].__bool__()
 
     def as_float(self) -> float:
-        return self.qty.__float__()
+        return self[1].__float__()
 
     def as_integer(self) -> int:
-        return self.qty.__int__()
+        return self[1].__int__()
 
     def abs(self) -> "Money":
-        return SomeMoney(self.ccy, self.qty.__abs__(), self.dov)
+        c, q, d = self
+        return SomeMoney(c, q.__abs__(), d)
 
     def negative(self) -> "Money":
-        return SomeMoney(self.ccy, self.qty.__neg__(), self.dov)
+        c, q, d = self
+        return SomeMoney(c, q.__neg__(), d)
 
     def positive(self) -> "Money":
-        return SomeMoney(self.ccy, self.qty.__pos__(), self.dov)
+        c, q, d = self
+        return SomeMoney(c, q.__pos__(), d)
 
     def round(self, ndigits: int = 0) -> "Money":
-        return SomeMoney(self.ccy, self.qty.__round__(min(ndigits, self.ccy.decimals)), self.dov)  # type: ignore
+        c, q, d = self
+        dec = c[2]
+        return SomeMoney(c, q.__round__(ndigits if ndigits < dec else dec), d)  # type: ignore
 
     def add(self, other: "Money") -> "Money":
         if other.undefined:
             return self
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="addition")
-        return SomeMoney(self.ccy, self.qty + other.qty, max(self.dov, other.dov))
+
+        c1, q1, d1 = self
+        c2, q2, d2 = other  # type: ignore
+
+        if c1 != c2:
+            raise IncompatibleCurrencyError(ccy1=c1, ccy2=c2, operation="addition")
+
+        return SomeMoney(c1, q1 + q2, d1 if d1 > d2 else d2)
 
     def scalar_add(self, other: Numeric) -> "Money":
-        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__add__(Decimal(other))), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomeMoney(c, (q + Decimal(other)).quantize(c[4]), d)
 
     def subtract(self, other: "Money") -> "Money":
         if other.undefined:
             return self
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="subtraction")
-        return SomeMoney(self.ccy, self.qty - other.qty, max(self.dov, other.dov))
+
+        c1, q1, d1 = self
+        c2, q2, d2 = other  # type: ignore
+
+        if c1 != c2:
+            raise IncompatibleCurrencyError(ccy1=c1, ccy2=c2, operation="subtraction")
+
+        return SomeMoney(c1, q1 - q2, d1 if d1 > d2 else d2)
 
     def scalar_subtract(self, other: Numeric) -> "Money":
-        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__sub__(Decimal(other))), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomeMoney(c, (q - Decimal(other)).quantize(c[4]), d)
 
     def multiply(self, other: Numeric) -> "Money":
-        return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__mul__(Decimal(other))), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), d)
 
     def divide(self, other: Numeric) -> "Money":
+        ## TODO: **try** not casting other to Decimal.
         try:
-            return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__truediv__(Decimal(other))), self.dov)
+            c, q, d = self
+            return SomeMoney(c, (q / Decimal(other)).quantize(c[4]), d)
         except (InvalidOperation, DivisionByZero) as ex:
             return NoMoney
 
     def floor_divide(self, other: Numeric) -> "Money":
+        ## TODO: **try** not casting other to Decimal.
         try:
-            return SomeMoney(self.ccy, self.ccy.quantize(self.qty.__floordiv__(Decimal(other))), self.dov)
+            c, q, d = self
+            return SomeMoney(c, (q // Decimal(other)).quantize(c[4]), d)
         except (InvalidOperation, DivisionByZero) as ex:
             return NoMoney
 
@@ -458,41 +480,42 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
-        return self.qty.__lt__(other.qty)
+        return self.qty < other.qty
 
     def lte(self, other: "Money") -> bool:
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
-        return self.qty.__le__(other.qty)
+        return self.qty <= other.qty
 
     def gt(self, other: "Money") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
-        return self.qty.__gt__(other.qty)
+        return self.qty > other.qty
 
     def gte(self, other: "Money") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
-        return self.qty.__ge__(other.qty)
+        return self.qty >= other.qty
 
     def with_ccy(self, ccy: Currency) -> "Money":
-        return SomeMoney(ccy, self.qty, self.dov)
+        return SomeMoney(ccy, self[1], self[2])
 
     def with_qty(self, qty: Decimal) -> "Money":
-        return SomeMoney(self.ccy, self.ccy.quantize(qty), self.dov)
+        c, q, d = self
+        return SomeMoney(c, qty.quantize(c[4]), d)
 
     def with_dov(self, dov: Date) -> "Money":
-        return SomeMoney(self.ccy, self.qty, dov)
+        return SomeMoney(self[0], self[1], dov)
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         ## Get slots:
-        ccy, qty, dov = self.ccy, self.qty, self.dov
+        ccy, qty, dov = self
 
         ## Get date of conversion:
         asof = asof or dov
@@ -517,11 +540,11 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
                 return NoMoney
 
         ## Compute and return:
-        return SomeMoney(to, to.quantize(qty * rate.value), asof)
+        return SomeMoney(to, (qty * rate.value).quantize(to[4]), asof)
 
     @property
     def price(self) -> "Price":
-        return SomePrice(self.ccy, self.qty, self.dov)
+        return SomePrice(*self)
 
     __bool__ = as_boolean
 
@@ -570,7 +593,7 @@ class NoneMoney(Money):
         return False
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == NoneMoney  # type: ignore
+        return other.__class__ is NoneMoney
 
     def abs(self) -> "Money":
         return self
@@ -1050,10 +1073,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     undefined = False
 
     def is_equal(self, other: Any) -> bool:
-        return (other.__class__ == SomePrice and  # type: ignore
-                self.ccy == other.ccy and
-                self.qty == other.qty and
-                self.dov == other.dov)
+        return other.__class__ is SomePrice and tuple(self) == tuple(other)
 
     def as_boolean(self) -> bool:
         return self.qty.__bool__()
@@ -1065,52 +1085,77 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         return self.qty.__int__()
 
     def abs(self) -> "Price":
-        return SomePrice(self.ccy, self.qty.__abs__(), self.dov)
+        c, q, d = self
+        return SomePrice(c, q.__abs__(), d)
 
     def negative(self) -> "Price":
-        return SomePrice(self.ccy, self.qty.__neg__(), self.dov)
+        c, q, d = self
+        return SomePrice(c, q.__neg__(), d)
 
     def positive(self) -> "Price":
-        return SomePrice(self.ccy, self.qty.__pos__(), self.dov)
+        c, q, d = self
+        return SomePrice(c, q.__pos__(), d)
 
     def round(self, ndigits: int = 0) -> "Price":
-        return SomePrice(self.ccy, self.qty.__round__(ndigits), self.dov)  # type: ignore
+        c, q, d = self
+        return SomePrice(c, q.__round__(ndigits), d)  # type: ignore
 
     def add(self, other: "Price") -> "Price":
         if other.undefined:
             return self
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="addition")
-        return SomePrice(self.ccy, self.qty + other.qty, max(self.dov, other.dov))
+
+        c1, q1, d1 = self
+        c2, q2, d2 = other  # type: ignore
+
+        if c1 != c2:
+            raise IncompatibleCurrencyError(ccy1=c1, ccy2=c2, operation="addition")
+
+        return SomePrice(c1, q1 + q2, d1 if d1 > d2 else d2)
 
     def scalar_add(self, other: Numeric) -> "Price":
-        return SomePrice(self.ccy, self.qty.__add__(Decimal(other)), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomePrice(c, q + Decimal(other), d)
 
     def subtract(self, other: "Price") -> "Price":
         if other.undefined:
             return self
-        elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="subtraction")
-        return SomePrice(self.ccy, self.qty - other.qty, max(self.dov, other.dov))
+
+        c1, q1, d1 = self
+        c2, q2, d2 = other  # type: ignore
+
+        if c1 != c2:
+            raise IncompatibleCurrencyError(ccy1=c1, ccy2=c2, operation="subtraction")
+
+        return SomePrice(c1, q1 - q2, d1 if d1 > d2 else d2)
 
     def scalar_subtract(self, other: Numeric) -> "Price":
-        return SomePrice(self.ccy, self.qty.__sub__(Decimal(other)), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomePrice(c, q - Decimal(other), d)
 
     def multiply(self, other: Numeric) -> "Price":
-        return SomePrice(self.ccy, self.qty.__mul__(Decimal(other)), self.dov)
+        ## TODO: **try** not casting other to Decimal.
+        c, q, d = self
+        return SomePrice(c, q * Decimal(other), d)
 
     def times(self, other: Numeric) -> "Money":
-        return SomeMoney(self.ccy, self.ccy.quantize(self.qty * Decimal(other)), self.dov)
+        c, q, d = self
+        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), self.dov)
 
     def divide(self, other: Numeric) -> "Price":
+        ## TODO: **try** not casting other to Decimal.
         try:
-            return SomePrice(self.ccy, self.qty.__truediv__(Decimal(other)), self.dov)
+            c, q, d = self
+            return SomePrice(c, q / Decimal(other), d)
         except (InvalidOperation, DivisionByZero) as ex:
             return NoPrice
 
     def floor_divide(self, other: Numeric) -> "Price":
+        ## TODO: **try** not casting other to Decimal.
         try:
-            return SomePrice(self.ccy, self.qty.__floordiv__(Decimal(other)), self.dov)
+            c, q, d = self
+            return SomePrice(c, q // Decimal(other), d)
         except (InvalidOperation, DivisionByZero) as ex:
             return NoPrice
 
@@ -1119,41 +1164,41 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
-        return self.qty.__lt__(other.qty)
+        return self.qty < other.qty
 
     def lte(self, other: "Price") -> bool:
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
-        return self.qty.__le__(other.qty)
+        return self.qty <= other.qty
 
     def gt(self, other: "Price") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
-        return self.qty.__gt__(other.qty)
+        return self.qty > other.qty
 
     def gte(self, other: "Price") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
-        return self.qty.__ge__(other.qty)
+        return self.qty >= other.qty
 
     def with_ccy(self, ccy: Currency) -> "Price":
-        return SomePrice(ccy, self.qty, self.dov)
+        return SomePrice(ccy, self[1], self[2])
 
     def with_qty(self, qty: Decimal) -> "Price":
-        return SomePrice(self.ccy, qty, self.dov)
+        return SomePrice(self[0], qty, self[2])
 
     def with_dov(self, dov: Date) -> "Price":
-        return SomePrice(self.ccy, self.qty, dov)
+        return SomePrice(self[0], self[1], dov)
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         ## Get slots:
-        ccy, qty, dov = self.ccy, self.qty, self.dov
+        ccy, qty, dov = self
 
         ## Get date of conversion:
         asof = asof or dov
@@ -1182,7 +1227,8 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     @property
     def money(self) -> Money:
-        return SomeMoney(self.ccy, self.ccy.quantize(self.qty), self.dov)
+        c, q, d = self
+        return SomeMoney(c, q.quantize(c[4]), d)
 
     __bool__ = as_boolean
 
@@ -1231,7 +1277,7 @@ class NonePrice(Price):
         return False
 
     def is_equal(self, other: Any) -> bool:
-        return other.__class__ == NonePrice  # type: ignore
+        return other.__class__ is NonePrice
 
     def abs(self) -> "Price":
         return self
