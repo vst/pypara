@@ -1,5 +1,30 @@
-VERS: 2018-05-18 ------- release/0.0.8
+VERS: 2018-07-17 ------- release/0.0.9
 
+    * 2018-07-17 a94cab0 [chore] Enable Python 3.7 here and there (vst@vsthost.com)
+    * 2018-07-17 33ba963 [release] Version bumped to 0.0.9 (vst@vsthost.com)
+    * 2018-07-17 81b3267 Merge branch 'feature/overloading' into develop (vst@vsthost.com)
+    * 2018-07-17 d35e38d [chore] Added Python 3.7 support tests (vst@vsthost.com)
+    * 2018-07-12 cc8bb0c [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-11 cdeb1cb [WIP] Revisiting DCC module, no more dataclasses (vst@vsthost.com)
+    * 2018-07-11 7c8382e [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-11 b78c3f6 [WIP] Revisiting currencies module (vst@vsthost.com)
+    * 2018-07-11 d66dfde [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-10 abc22f9 [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-10 e5f1a54 [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-10 2a40606 [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-10 c7f2600 [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-10 3a8cc0d [WIP] Working on new monetary module (vst@vsthost.com)
+    * 2018-07-09 e98cad3 [WIP] Revisiting monetary module (vst@vsthost.com)
+    * 2018-07-09 b9c3ae0 [chore] Revisiting foreign exchange module (vst@vsthost.com)
+    * 2018-07-08 4756a20 [chore] Temporal/Date change, use ProgrammingError (vst@vsthost.com)
+    * 2018-07-07 2704276 [improve] Some optimisations to currency model (vst@vsthost.com)
+    * 2018-07-07 ef61cdc [improve] Day count fraction, accrual calculations (vst@vsthost.com)
+    * 2018-05-18 6caf8f6 [chore] Development version bumped to 0.0.9.dev0 (vst@vsthost.com)
+
+VERS: 2018-05-18 89cf720 0.0.8 (vst@vsthost.com)
+
+    * 2018-05-18 59f40a9 Merge branch 'release/0.0.8' (vst@vsthost.com)
+    * 2018-05-18 121c6c2 [release] Change log updated (vst@vsthost.com)
     * 2018-05-18 af45a80 [release] Version bumped to 0.0.8 (vst@vsthost.com)
     * 2018-05-18 4fd9b1a [chore] Added OMG cryptocurrency (vst@vsthost.com)
     * 2018-05-08 4808226 [chore] Development version bumped to 0.0.8.dev0 (vst@vsthost.com)
