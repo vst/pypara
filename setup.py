@@ -27,7 +27,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(BASEDIR, "README.rst")) as cfile:
     README = cfile.read()
 
-#: Defines a list of required libraries.
+#: Defines a list of required libraries (proudly no dependencies).
 REQUIREMENTS = []
 
 #: Defines extra requirements for various other purposes.
