@@ -1,10 +1,9 @@
-from decimal import Decimal
-from typing import Optional, Tuple, Iterable
-
 from abc import ABCMeta, abstractmethod
+from decimal import Decimal
+from typing import Optional, Tuple, Iterable, NamedTuple
 
 from .currencies import Currency
-from .generic import Temporal, MaxPrecisionQuantizer
+from .generic import Date
 
 
 class FXRateLookupError(LookupError):
@@ -12,7 +11,7 @@ class FXRateLookupError(LookupError):
     Provides an exception indicating that the foreign exchange rate is not found.
     """
 
-    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Temporal) -> None:
+    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Date) -> None:
         """
         Initializes the foreign exchange rate lookup error.
         """
@@ -25,73 +24,100 @@ class FXRateLookupError(LookupError):
         super().__init__(f"Foreign exchange rate for {ccy1}/{ccy2} not found as of {asof}")
 
 
-class FXRate:
+class FXRate(NamedTuple):
     """
-    Defines a foreign exchange rate class.
+    Defines a foreign exchange (FX) rate model.
+
+    Note that the constructor of this class is not safe: It does not check input. :method:`FXRate.of`, on the
+    other hand provides a safer way of creating :class:`FXRate` instances.
+
+    **Implementation Note:**
+
+    I wanted to use an immutable, compact object model with fast creation and property access. Options were
+    tweaked plain-vanilla Python class, NamedTuple and dataclasses.
+
+    NamedTuple has slightly slower property access, whereby immutable dataclasses are slow for creation.
+
+    Furthermore, as of the implementation of this class, mypy does not have proper dataclass support. Therefore,
+    I am sticking to NamedTuple implementation.
+
+    Last but not least, as objects are essentially tuples, indexed access to properties is possible and slightly
+    faster.
+
+    >>> import datetime
+    >>> from decimal import Decimal
+    >>> from pypara.currencies import Currencies
+    >>> rate = FXRate(Currencies["EUR"], Currencies["USD"], datetime.date.today(), Decimal("2"))
+    >>> ccy1, ccy2, date, value = rate
+    >>> ccy1 == Currencies["EUR"]
+    True
+    >>> ccy2 == Currencies["USD"]
+    True
+    >>> date == datetime.date.today()
+    True
+    >>> value == Decimal("2")
+    True
     """
 
-    ## Limit the slots.
-    __slots__ = ["_ccy1", "_ccy2", "_asof", "_value"]
+    #: Defines the first currency of the FX rate.
+    ccy1: Currency
 
-    def __init__(self, ccy1: Currency, ccy2: Currency, asof: Temporal, value: Decimal) -> None:
-        """
-        Initializes the foreign exchange rate class safely.
+    #: Defines the second currency of the FX rate.
+    ccy2: Currency
 
-        :param ccy1: The first currency of the foreign exchange rate.
-        :param ccy2: The second currency of the foreign exchange rate.
-        :param asof: The temporal dimension value which the foreign exchange rate is effective asof.
-        :param value: The value of the exchange rate (a :class:`Decimal` value other than ``0``).
-        """
-        ## Ensure that the value is not zero.
-        if value.is_zero():
-            ## Oops, we won't be able to proceed with this:
-            raise ValueError(f"Foreign exchange rate value can not be zero: {ccy1}/{ccy2} as of {asof}.")
+    #: Defines the date the FX rate is effective as of.
+    date: Date
 
-        ## Keep the first currency of the foreign exchange rate.
-        self._ccy1: Currency = ccy1
-
-        ## Keep the second currency of the foreign exchange rate.
-        self._ccy2: Currency = ccy2
-
-        ## Keep the temporal dimension of the foreign exchange rate.
-        self._asof: Temporal = asof
-
-        ## Keep the value of the foreign exchange rate.
-        self._value: Decimal = value.quantize(MaxPrecisionQuantizer)
-
-    @property
-    def ccy1(self) -> Currency:
-        """
-        Returns the first currency of the rate.
-        """
-        return self._ccy1
-
-    @property
-    def ccy2(self) -> Currency:
-        """
-        Returns the second currency of the foreign exchange rate.
-        """
-        return self._ccy2
-
-    @property
-    def asof(self) -> Temporal:
-        """
-        Returns the temporal dimension value which the foreign exchange rate is effective as of.
-        """
-        return self._asof
-
-    @property
-    def value(self) -> Decimal:
-        """
-        Returns the value of the foreign exchange rate.
-        """
-        return self._value
+    #: Defines the value of the FX rate.
+    value: Decimal
 
     def __invert__(self) -> "FXRate":
         """
         Returns the inverted foreign exchange rate.
+
+        >>> import datetime
+        >>> from decimal import Decimal
+        >>> from pypara.currencies import Currencies
+        >>> nrate = FXRate(Currencies["EUR"], Currencies["USD"], datetime.date.today(), Decimal("2"))
+        >>> rrate = FXRate(Currencies["USD"], Currencies["EUR"], datetime.date.today(), Decimal("0.5"))
+        >>> ~nrate == rrate
+        True
         """
-        return FXRate(self.ccy2, self.ccy1, self.asof, self.value ** -1)
+        return FXRate(self[1], self[0], self[2], self[3] ** -1)
+
+    @classmethod
+    def of(cls, ccy1: Currency, ccy2: Currency, date: Date, value: Decimal) -> "FXRate":
+        """
+        Creates and returns an FX rate instance by validating arguments.
+
+        >>> import datetime
+        >>> from decimal import Decimal
+        >>> from pypara.currencies import Currencies
+        >>> urate = FXRate(Currencies["EUR"], Currencies["USD"], datetime.date.today(), Decimal("2"))
+        >>> srate = FXRate.of(Currencies["EUR"], Currencies["USD"], datetime.date.today(), Decimal("2"))
+        >>> urate == srate
+        True
+        """
+        ## All argument must be of the respective specified type:
+        if not isinstance(ccy1, Currency):
+            raise ValueError("CCY/1 must be of type `Currency`.")
+        if not isinstance(ccy2, Currency):
+            raise ValueError("CCY/2 must be of type `Currency`.")
+        if not isinstance(ccy1, Currency):
+            raise ValueError("FX rate value must be of type `Decimal`.")
+        if not isinstance(ccy1, Currency):
+            raise ValueError("FX rate date must be of type `date`.")
+
+        ## Check the value:
+        if value <= 0:
+            raise ValueError("FX rate value can not be equal to or less than `zero`.")
+
+        ## Check consistency:
+        if ccy1 == ccy2 and value != 1:
+            raise ValueError("FX rate to the same currency must be `one`.")
+
+        ## Create and return the FX rate instance:
+        return cls(ccy1, ccy2, date, value)
 
 
 class FXRateService(metaclass=ABCMeta):
@@ -103,10 +129,10 @@ class FXRateService(metaclass=ABCMeta):
     default: Optional["FXRateService"] = None  # noqa: E704
 
     #: Defines an FX rate query tuple.
-    TQuery = Tuple[Currency, Currency, Temporal]
+    TQuery = Tuple[Currency, Currency, Date]
 
     @abstractmethod
-    def query(self, ccy1: Currency, ccy2: Currency, asof: Temporal, strict: bool=False) -> Optional[FXRate]:
+    def query(self, ccy1: Currency, ccy2: Currency, asof: Date, strict: bool=False) -> Optional[FXRate]:
         """
         Returns the foreign exchange rate of a given currency pair as of a given date.
 

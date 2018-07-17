@@ -27,7 +27,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(BASEDIR, "README.rst")) as cfile:
     README = cfile.read()
 
-#: Defines a list of required libraries.
+#: Defines a list of required libraries (proudly no dependencies).
 REQUIREMENTS = []
 
 #: Defines extra requirements for various other purposes.
@@ -53,6 +53,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     author="Vehbi Sinan Tunalioglu",
     author_email="vst@vsthost.com",
