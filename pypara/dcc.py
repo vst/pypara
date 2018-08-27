@@ -74,6 +74,84 @@ def _is_last_day_of_month(date: Date) -> bool:
     return date.day == calendar.monthrange(date.year, date.month)[1]
 
 
+def _last_payment_date(start: Date, asof: Date, frequency: int, eom: Optional[int]=None) -> Date:
+    """
+    Returns the last coupon payment date.
+
+    >>> _last_payment_date(datetime.date(2014,  1,  1), datetime.date(2015, 12, 31), 1)
+    datetime.date(2015, 1, 1)
+
+    >>> _last_payment_date(datetime.date(2015,  1,  1), datetime.date(2015, 12, 31), 1)
+    datetime.date(2015, 1, 1)
+
+    >>> _last_payment_date(datetime.date(2014,  1,  1), datetime.date(2015, 12, 31), 2)
+    datetime.date(2015, 7, 1)
+
+    >>> _last_payment_date(datetime.date(2014,  1,  1), datetime.date(2015,  8, 31), 2)
+    datetime.date(2015, 7, 1)
+
+    >>> _last_payment_date(datetime.date(2014,  1,  1), datetime.date(2015,  4, 30), 2)
+    datetime.date(2015, 1, 1)
+
+    >>> _last_payment_date(datetime.date(2014,  6,  1), datetime.date(2015,  4, 30), 1)
+    datetime.date(2014, 6, 1)
+
+    >>> _last_payment_date(datetime.date(2008,  7,  7), datetime.date(2015, 10,  6), 4)
+    datetime.date(2015, 7, 7)
+
+    >>> _last_payment_date(datetime.date(2014, 12,  9), datetime.date(2015, 12,  4), 1)
+    datetime.date(2014, 12, 9)
+
+    >>> _last_payment_date(datetime.date(2012, 12, 15), datetime.date(2016,  1,  6), 2)
+    datetime.date(2015, 12, 15)
+
+    >>> _last_payment_date(datetime.date(2012, 12, 15), datetime.date(2015, 12, 31), 2)
+    datetime.date(2015, 12, 15)
+    """
+    ## Make sure that we have eom:
+    eom = eom or start.day
+
+    ## Get the starting month:
+    s_month = start.month
+
+    ## Get the period:
+    period = int(12 / frequency)
+
+    ## Get the current day, month and year:
+    c_day, c_month, c_year = asof.day, asof.month, asof.year
+
+    ## Get the payment schedule:
+    schedule = sorted([i > 0 and i or 12 for i in sorted([(i + s_month) % 12 for i in range(0, 12, period)])])
+
+    ## Filter out previous:
+    future = [month for month in schedule if (month < c_month) or (month == c_month and eom <= c_day)]
+
+    ## Get the previous month and year:
+    p_year, p_month = (c_year, future[-1]) if future else (c_year - 1, schedule[-1])
+
+    ## Return the date:
+    if p_year < 1 or p_month < 1 or eom < 1:
+        return start
+
+    ## Construct and return the date safely:
+    return _construct_date(p_year, p_month, eom)
+
+
+def _construct_date(year: int, month: int, day: int) -> Date:
+    """
+    Constructs and returns date safely.
+    """
+    if year <= 0 or month <= 0 or day <= 0:
+        raise ValueError("year, month and day must be greater than 0.")
+    try:
+        return datetime.date(year, month, day)
+    except ValueError as exc:
+        if str(exc) == "day is out of range for month":
+            return _construct_date(year, month, day - 1)
+        else:
+            raise exc
+
+
 class DCC(NamedTuple):
     """
     Defines a day count convention model.
@@ -91,11 +169,56 @@ class DCC(NamedTuple):
     #: Defines the day count fraction calculation function.
     calculate_fraction: DCFC
 
-    def __call__(self, principal: Money, rate: Decimal, start: Date, asof: Date, end: Optional[Date]=None) -> Money:
+    def calculate_daily_fraction(self, start: Date, asof: Date, end: Date) -> Decimal:
         """
-        Calculates the interest for the given schedule.
+        Calculates daily fraction.
+        """
+        ## Get t-1 for asof:
+        asof_minus_1 = asof - datetime.timedelta(days=1)
+
+        ## Get the yesterday's factor:
+        if asof_minus_1 < start:
+            yfact = Decimal("0")
+        else:
+            yfact = self.calculate_fraction(start, asof_minus_1, end)
+
+        ## Get today's factor:
+        tfact = self.calculate_fraction(start, asof, end)
+
+        ## Get the factor and return:
+        return tfact - yfact
+
+    def interest(self,
+                 principal: Money,
+                 rate: Decimal,
+                 start: Date,
+                 asof: Date,
+                 end: Optional[Date]=None) -> Money:
+        """
+        Calculates the accrued interest.
         """
         return principal * rate * self[3](start, asof, end or asof)
+
+    def coupon(self,
+               principal: Money,
+               rate: Decimal,
+               start: Date,
+               asof: Date,
+               end: Date,
+               freq: int,
+               eom: Optional[int]=None) -> Money:
+        """
+        Calculates the accrued interest for the coupon payment.
+
+        This method is primarily used for bond coupon accruals which assumes the start date to be the first of regular
+        payment schedules.
+        """
+        ## Find the previous payment date:
+        ## TODO: compute the next payment date, too.
+        prevdate = _last_payment_date(start, asof, freq, eom)
+
+        ## Calculate the interest and return:
+        return self.interest(principal, rate, prevdate, asof, end)
 
 
 class DCCRegistryMachinery:
@@ -109,7 +232,7 @@ class DCCRegistryMachinery:
     >>> dcc = DCCRegistry.find("Act/Act")
     >>> round(dcc.calculate_fraction(start, end, end), 14)
     Decimal('0.16942884946478')
-    >>> dcc(principal, rate, start, end).qty
+    >>> dcc.interest(principal, rate, start, end, end).qty
     Decimal('1694.29')
     """
 
@@ -166,6 +289,23 @@ class DCCRegistryMachinery:
         strip and uppercase the name and try to find it as such as a last resort.
         """
         return self._find_strict(name) or self._find_strict(name.strip().upper())
+
+    @property
+    def registry(self) -> List[DCC]:
+        """
+        Returns the main registry values.
+        """
+        return list(self._buffer_main.values())
+
+    @property
+    def table(self) -> Dict[str, DCC]:
+        """
+        Returns a lookup table for available day count conventions.
+        """
+        return {
+            **{k: v for k, v in self._buffer_main.items()},
+            **{k: v for k, v in self._buffer_altn.items()}
+        }
 
 
 #: Defines the default DCC registry.
