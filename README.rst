@@ -32,3 +32,12 @@ Install ``tox``::
 And run ``tox``::
 
   tox
+
+Publishing
+----------
+
+```
+pip install --upgrade twine
+python setup.py sdist bdist_wheel
+twine upload -s dist/*
+```
