@@ -1,5 +1,15 @@
-VERS: 2018-07-17 ------- release/0.0.9
+VERS: 2018-08-28 ------- release/0.0.10
 
+    * 2018-08-28 7f69634 [release] Version bumped to 0.0.10 (vst@vsthost.com)
+    * 2018-08-28 fdf7ef0 [improve] More day count convention functionality (vst@vsthost.com)
+    * 2018-08-28 8e917af [fix] Testing fixes (vst@vsthost.com)
+    * 2018-07-20 88863a1 [chore] Trying to fix travis build (vst@vsthost.com)
+    * 2018-07-17 bc48761 [chore] Version bumped to 0.0.10.dev0 (vst@vsthost.com)
+
+VERS: 2018-07-17 6fcb70f 0.0.9 (vst@vsthost.com)
+
+    * 2018-07-17 6574d3c Merge branch 'release/0.0.9' (vst@vsthost.com)
+    * 2018-07-17 06fdce1 [release] Change log updated (vst@vsthost.com)
     * 2018-07-17 a94cab0 [chore] Enable Python 3.7 here and there (vst@vsthost.com)
     * 2018-07-17 33ba963 [release] Version bumped to 0.0.9 (vst@vsthost.com)
     * 2018-07-17 81b3267 Merge branch 'feature/overloading' into develop (vst@vsthost.com)
