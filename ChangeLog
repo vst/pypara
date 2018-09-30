@@ -1,5 +1,13 @@
-VERS: 2018-08-28 ------- release/0.0.10
+VERS: 2018-09-30 ------- release/0.0.11
 
+    * 2018-09-30 90287fe [fix] Check order of dates before DCF calculation (vst@vsthost.com)
+    * 2018-08-28 42e12fd [chore] Version bumped to 0.0.11.dev0 (vst@vsthost.com)
+
+VERS: 2018-08-28 0e2cf3c 0.0.10 (vst@vsthost.com)
+
+    * 2018-08-28 3c6d3a8 Merge branch 'release/0.0.10' (vst@vsthost.com)
+    * 2018-08-28 0c5414e [docs] Added publish instructions (vst@vsthost.com)
+    * 2018-08-28 6d9315b [release] Change log updated (vst@vsthost.com)
     * 2018-08-28 7f69634 [release] Version bumped to 0.0.10 (vst@vsthost.com)
     * 2018-08-28 fdf7ef0 [improve] More day count convention functionality (vst@vsthost.com)
     * 2018-08-28 8e917af [fix] Testing fixes (vst@vsthost.com)
