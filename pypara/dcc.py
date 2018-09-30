@@ -166,8 +166,20 @@ class DCC(NamedTuple):
     #: Defines a set of currencies which are known to use this convention by default.
     currencies: Set[Currency]
 
-    #: Defines the day count fraction calculation function.
-    calculate_fraction: DCFC
+    #: Defines the day count fraction calculation method function.
+    calculate_fraction_method: DCFC
+
+    def calculate_fraction(self, start: Date, asof: Date, end: Date) -> Decimal:
+        """
+        Calculates the day count fraction based on the underlying methodology after performing some general checks.
+        """
+        ## Checks if dates are provided properly:
+        if not start <= asof <= end:
+            ## Nope, return 0:
+            return Decimal(0)
+
+        ## Cool, we can proceed with calculation based on the methodology:
+        return self[3](start, asof, end)
 
     def calculate_daily_fraction(self, start: Date, asof: Date, end: Date) -> Decimal:
         """
@@ -178,12 +190,12 @@ class DCC(NamedTuple):
 
         ## Get the yesterday's factor:
         if asof_minus_1 < start:
-            yfact = Decimal("0")
+            yfact = Decimal(0)
         else:
-            yfact = self.calculate_fraction(start, asof_minus_1, end)
+            yfact = self.calculate_fraction_method(start, asof_minus_1, end)
 
         ## Get today's factor:
-        tfact = self.calculate_fraction(start, asof, end)
+        tfact = self.calculate_fraction_method(start, asof, end)
 
         ## Get the factor and return:
         return tfact - yfact
@@ -197,7 +209,7 @@ class DCC(NamedTuple):
         """
         Calculates the accrued interest.
         """
-        return principal * rate * self[3](start, asof, end or asof)
+        return principal * rate * self.calculate_fraction(start, asof, end or asof)
 
     def coupon(self,
                principal: Money,
@@ -234,6 +246,8 @@ class DCCRegistryMachinery:
     Decimal('0.16942884946478')
     >>> dcc.interest(principal, rate, start, end, end).qty
     Decimal('1694.29')
+    >>> dcc.interest(principal, rate, end, start, start).qty
+    Decimal('0.00')
     """
 
     def __init__(self) -> None:
