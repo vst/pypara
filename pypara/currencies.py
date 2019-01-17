@@ -300,7 +300,7 @@ class CurrencyRegistry:
         """
         return code in self.__registry
 
-    def get(self, code: str, default: Optional[Currency]=None) -> Optional[Currency]:
+    def get(self, code: str, default: Optional[Currency] = None) -> Optional[Currency]:
         """
         Returns the currency for the given code.
 

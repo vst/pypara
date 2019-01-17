@@ -13,7 +13,7 @@ class IncompatibleCurrencyError(ValueError):
     with incompatible currencies.
     """
 
-    def __init__(self, ccy1: Currency, ccy2: Currency, operation: str="<Unspecified>") -> None:
+    def __init__(self, ccy1: Currency, ccy2: Currency, operation: str = "<Unspecified>") -> None:
         """
         Initializes an incompatible currency error message.
         """
@@ -418,7 +418,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def round(self, ndigits: int = 0) -> "Money":
         c, q, d = self
         dec = c[2]
-        return SomeMoney(c, q.__round__(ndigits if ndigits < dec else dec), d)  # type: ignore
+        return SomeMoney(c, q.__round__(ndigits if ndigits < dec else dec), d)
 
     def add(self, other: "Money") -> "Money":
         if other.undefined:
@@ -464,7 +464,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         try:
             c, q, d = self
             return SomeMoney(c, (q / Decimal(other)).quantize(c[4]), d)
-        except (InvalidOperation, DivisionByZero) as ex:
+        except (InvalidOperation, DivisionByZero):
             return NoMoney
 
     def floor_divide(self, other: Numeric) -> "Money":
@@ -472,7 +472,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         try:
             c, q, d = self
             return SomeMoney(c, (q // Decimal(other)).quantize(c[4]), d)
-        except (InvalidOperation, DivisionByZero) as ex:
+        except (InvalidOperation, DivisionByZero):
             return NoMoney
 
     def lt(self, other: "Money") -> bool:
@@ -1098,7 +1098,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     def round(self, ndigits: int = 0) -> "Price":
         c, q, d = self
-        return SomePrice(c, q.__round__(ndigits), d)  # type: ignore
+        return SomePrice(c, q.__round__(ndigits), d)
 
     def add(self, other: "Price") -> "Price":
         if other.undefined:
@@ -1148,7 +1148,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         try:
             c, q, d = self
             return SomePrice(c, q / Decimal(other), d)
-        except (InvalidOperation, DivisionByZero) as ex:
+        except (InvalidOperation, DivisionByZero):
             return NoPrice
 
     def floor_divide(self, other: Numeric) -> "Price":
@@ -1156,7 +1156,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         try:
             c, q, d = self
             return SomePrice(c, q // Decimal(other), d)
-        except (InvalidOperation, DivisionByZero) as ex:
+        except (InvalidOperation, DivisionByZero):
             return NoPrice
 
     def lt(self, other: "Price") -> bool:

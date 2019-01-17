@@ -132,7 +132,7 @@ class FXRateService(metaclass=ABCMeta):
     TQuery = Tuple[Currency, Currency, Date]
 
     @abstractmethod
-    def query(self, ccy1: Currency, ccy2: Currency, asof: Date, strict: bool=False) -> Optional[FXRate]:
+    def query(self, ccy1: Currency, ccy2: Currency, asof: Date, strict: bool = False) -> Optional[FXRate]:
         """
         Returns the foreign exchange rate of a given currency pair as of a given date.
 
@@ -145,7 +145,7 @@ class FXRateService(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def queries(self, queries: Iterable[TQuery], strict: bool=False) -> Iterable[Optional[FXRate]]:
+    def queries(self, queries: Iterable[TQuery], strict: bool = False) -> Iterable[Optional[FXRate]]:
         """
         Returns foreign exchange rates for a given collection of currency pairs and dates.
 
