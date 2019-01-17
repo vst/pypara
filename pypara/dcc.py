@@ -74,7 +74,7 @@ def _is_last_day_of_month(date: Date) -> bool:
     return date.day == calendar.monthrange(date.year, date.month)[1]
 
 
-def _last_payment_date(start: Date, asof: Date, frequency: int, eom: Optional[int]=None) -> Date:
+def _last_payment_date(start: Date, asof: Date, frequency: int, eom: Optional[int] = None) -> Date:
     """
     Returns the last coupon payment date.
 
@@ -205,7 +205,7 @@ class DCC(NamedTuple):
                  rate: Decimal,
                  start: Date,
                  asof: Date,
-                 end: Optional[Date]=None) -> Money:
+                 end: Optional[Date] = None) -> Money:
         """
         Calculates the accrued interest.
         """
@@ -218,7 +218,7 @@ class DCC(NamedTuple):
                asof: Date,
                end: Date,
                freq: int,
-               eom: Optional[int]=None) -> Money:
+               eom: Optional[int] = None) -> Money:
         """
         Calculates the accrued interest for the coupon payment.
 
@@ -326,7 +326,7 @@ class DCCRegistryMachinery:
 DCCRegistry = DCCRegistryMachinery()
 
 
-def dcc(name: str, altnames: Optional[Set[str]]=None, ccys: Optional[Set[Currency]]=None) -> Callable[[DCFC], DCFC]:
+def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Currency]] = None) -> Callable[[DCFC], DCFC]:
     """
     Registers a day count fraction calculator under the given names and alternative names (if any).
 
