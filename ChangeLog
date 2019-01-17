@@ -1,5 +1,15 @@
-VERS: 2018-09-30 ------- release/0.0.11
+VERS: 2019-01-17 ------- release/0.0.12
 
+    * 2019-01-17 18f8e01 [release] Version bumped to 0.0.12 (vst@vsthost.com)
+    * 2019-01-17 0ecb114 [chore] Satisfying lint (vst@vsthost.com)
+    * 2019-01-17 1305c15 [test] Upgrade to latest pytest version (vst@vsthost.com)
+    * 2018-09-30 56bfbff [chore] Version bumped to 0.0.12.dev0 (vst@vsthost.com)
+
+VERS: 2018-09-30 6ce1742 0.0.11 (vst@vsthost.com)
+
+    * 2018-09-30 52991c9 Merge branch 'release/0.0.11' (vst@vsthost.com)
+    * 2018-09-30 a9003be [release] Change log updated (vst@vsthost.com)
+    * 2018-09-30 5b16971 [release] Version bumped to 0.0.11 (vst@vsthost.com)
     * 2018-09-30 90287fe [fix] Check order of dates before DCF calculation (vst@vsthost.com)
     * 2018-08-28 42e12fd [chore] Version bumped to 0.0.11.dev0 (vst@vsthost.com)
 
