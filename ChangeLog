@@ -1,5 +1,13 @@
-VERS: 2019-01-17 ------- release/0.0.12
+VERS: 2019-02-14 ------- 0.0.13
 
+    * 2019-02-14 4b1bbea [release] Version bumped to 0.0.13 (vst@vsthost.com)
+    * 2019-02-14 dc645fa [improve] African CFA Francs added (vst@vsthost.com)
+    * 2019-01-17 e80ebc1 [chore] Version bumped to 0.0.13.dev0 (vst@vsthost.com)
+
+VERS: 2019-01-17 1d23e4f 0.0.12 (vst@vsthost.com)
+
+    * 2019-01-17 680407f Merge branch 'release/0.0.12' (vst@vsthost.com)
+    * 2019-01-17 edd43c1 [release] Change log updated (vst@vsthost.com)
     * 2019-01-17 18f8e01 [release] Version bumped to 0.0.12 (vst@vsthost.com)
     * 2019-01-17 0ecb114 [chore] Satisfying lint (vst@vsthost.com)
     * 2019-01-17 1305c15 [test] Upgrade to latest pytest version (vst@vsthost.com)
