@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Dict, Callable, Set, Optional, List, Iterable, NamedTuple
 
 from pypara.currencies import Currency, Currencies
-from pypara.generic import Date
+from pypara.generic import Date, ZERO
 from pypara.monetary import Money
 
 #: Defines a type alias for day count fraction calculation functions.
@@ -176,7 +176,7 @@ class DCC(NamedTuple):
         ## Checks if dates are provided properly:
         if not start <= asof <= end:
             ## Nope, return 0:
-            return Decimal(0)
+            return ZERO
 
         ## Cool, we can proceed with calculation based on the methodology:
         return self[3](start, asof, end)
@@ -190,7 +190,7 @@ class DCC(NamedTuple):
 
         ## Get the yesterday's factor:
         if asof_minus_1 < start:
-            yfact = Decimal(0)
+            yfact = ZERO
         else:
             yfact = self.calculate_fraction_method(start, asof_minus_1, end)
 
