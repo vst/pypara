@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Dict, List, Tuple, Optional, Type, Any, Callable, NamedTuple
 
-from .generic import MaxPrecisionQuantizer, ProgrammingError, make_quantizer
+from .generic import MaxPrecisionQuantizer, ProgrammingError, make_quantizer, ZERO
 
 
 class CurrencyLookupError(LookupError):
@@ -157,7 +157,7 @@ class Currency(NamedTuple):
         elif decimals < 0:
             quantizer = MaxPrecisionQuantizer
         else:
-            quantizer = Decimal("0")
+            quantizer = ZERO
 
         ## By now, we should have all required instance attributes. However, we want to compute and cache the hash.
         hashcode = hash((code, name, decimals, type, quantizer))

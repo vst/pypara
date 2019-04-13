@@ -38,3 +38,9 @@ MaxPrecision: int = 12
 
 #: Defines the maximum precision quantifier.
 MaxPrecisionQuantizer: Decimal = make_quantizer(MaxPrecision)
+
+#: Defines the decimal constant for 0.
+ZERO = Decimal("0")
+
+#: Defines the decimal constant for 1.
+ONE = Decimal("1")

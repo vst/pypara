@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional, Tuple, Iterable, NamedTuple
 
 from .currencies import Currency
-from .generic import Date
+from .generic import Date, ONE, ZERO
 
 
 class FXRateLookupError(LookupError):
@@ -109,11 +109,11 @@ class FXRate(NamedTuple):
             raise ValueError("FX rate date must be of type `date`.")
 
         ## Check the value:
-        if value <= 0:
+        if value <= ZERO:
             raise ValueError("FX rate value can not be equal to or less than `zero`.")
 
         ## Check consistency:
-        if ccy1 == ccy2 and value != 1:
+        if ccy1 == ccy2 and value != ONE:
             raise ValueError("FX rate to the same currency must be `one`.")
 
         ## Create and return the FX rate instance:

@@ -5,7 +5,6 @@ This module provides the setup procedure.
 import os
 import re
 
-from setuptools import find_packages
 from setuptools import setup
 
 #: Defines the name of our package.
@@ -59,7 +58,8 @@ setup(
     author_email="vst@vsthost.com",
     url="https://github.com/vst/pypara",
     license="BSD",
-    packages=find_packages(exclude=["pypara.tests"]),
+    package_data={"pypara": ["py.typed"]},
+    packages=["pypara"],
     include_package_data=True,
     zip_safe=False,
     install_requires=REQUIREMENTS,
