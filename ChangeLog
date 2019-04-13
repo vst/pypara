@@ -1,5 +1,15 @@
-VERS: 2019-02-14 ------- 0.0.13
+VERS: 2019-04-13 ------- release/0.0.14
 
+    * 2019-04-13 7702564 [release] Version bumped to 0.0.14 (vst@vsthost.com)
+    * 2019-04-13 88d53d0 [chore] Typecheck tests, satisfy lint (vst@vsthost.com)
+    * 2019-04-13 5748a9a [chore] Reorganize package, add py.typed (PEP 561) (vst@vsthost.com)
+    * 2019-04-13 04a604b [chore] Revisit tox.ini, satisfy mypy/flake8 (vst@vsthost.com)
+    * 2019-02-14 042959f [chore] Version bumped to 0.0.14.dev0 (vst@vsthost.com)
+
+VERS: 2019-02-14 1c47d32 0.0.13 (vst@vsthost.com)
+
+    * 2019-02-14 310ed11 Merge branch 'release/0.0.13' (vst@vsthost.com)
+    * 2019-02-14 b44fbdc [release] Change log updated (vst@vsthost.com)
     * 2019-02-14 4b1bbea [release] Version bumped to 0.0.13 (vst@vsthost.com)
     * 2019-02-14 dc645fa [improve] African CFA Francs added (vst@vsthost.com)
     * 2019-01-17 e80ebc1 [chore] Version bumped to 0.0.13.dev0 (vst@vsthost.com)
