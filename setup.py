@@ -5,7 +5,6 @@ This module provides the setup procedure.
 import os
 import re
 
-from setuptools import find_packages
 from setuptools import setup
 
 #: Defines the name of our package.
