@@ -1,5 +1,12 @@
-VERS: 2019-09-16 ------- release/0.0.17
+VERS: 2019-09-16 ------- release/0.0.18
 
+    * 2019-09-16 54b9cf5 Fix Act/Act (ICMA) calculation (vst@vsthost.com)
+    * 2019-09-16 104e7bb Bump version to 0.0.18.dev0 (vst@vsthost.com)
+
+VERS: 2019-09-16 f006f80 0.0.17 (vst@vsthost.com)
+
+    * 2019-09-16 e85646a Merge branch 'release/0.0.17' (vst@vsthost.com)
+    * 2019-09-16 b91ddbf Bump version to 0.0.17, update change log (vst@vsthost.com)
     * 2019-09-16 fb3bacb Fix invalid eom on coupon calculation (vst@vsthost.com)
     * 2019-09-16 4f9db35 Bump version to 0.0.17.dev0 (vst@vsthost.com)
 
