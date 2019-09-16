@@ -444,8 +444,14 @@ def dcfc_act_act_icma(start: Date, asof: Date, end: Date, freq: Optional[Decimal
     >>> round(dcfc_act_act_icma(start=ex1_start, asof=ex1_asof, end=ex1_end), 10)
     Decimal('0.5245901639')
     """
-    ## Get actual day count:
-    return (freq or ONE) * _get_actual_day_count(start, asof) / _get_actual_day_count(start, end)
+    ## Get the number of actual days:
+    p1 = Decimal(_get_actual_day_count(start, asof))
+
+    ## Get the number of days in the period:
+    p2 = Decimal(_get_actual_day_count(start, end))
+
+    ## Compute the ratio and return:
+    return p1 / p2 / Decimal(freq or ONE)
 
 
 @dcc("Act/360", {"Actual/360", "French", "360"},
