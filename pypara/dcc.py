@@ -7,6 +7,8 @@ from pypara.currencies import Currency, Currencies
 from pypara.generic import Date, ZERO, ONE
 from pypara.monetary import Money
 
+from dateutil.relativedelta import relativedelta
+
 #: Defines a type alias for day count fraction calculation functions.
 DCFC = Callable[[Date, Date, Date, Optional[Decimal]], Decimal]
 
@@ -137,6 +139,30 @@ def _last_payment_date(start: Date, asof: Date, frequency: Union[int, Decimal], 
     return _construct_date(p_year, p_month, eom)
 
 
+def _next_payment_date(start: Date, frequency: Union[int, Decimal], eom: Optional[int] = None) -> Date:
+    """
+    Returns the last coupon payment date.
+
+    >>> _next_payment_date(datetime.date(2014,  1,  1), 1, None)
+    datetime.date(2015, 1, 1)
+
+    >>> _next_payment_date(datetime.date(2014,  1,  1), 1, 15)
+    datetime.date(2015, 1, 15)
+    """
+    ## Get the number of months to move forward:
+    months = int(12 / frequency)
+
+    ## Find the next date:
+    nextdate = start + relativedelta(months=months)
+
+    ## Do we have any end of month?
+    if eom:
+        nextdate = nextdate.replace(day=eom)
+
+    ## Done, return:
+    return nextdate
+
+
 def _construct_date(year: int, month: int, day: int) -> Date:
     """
     Constructs and returns date safely.
@@ -226,12 +252,12 @@ class DCC(NamedTuple):
         This method is primarily used for bond coupon accruals which assumes the start date to be the first of regular
         payment schedules.
         """
-        ## Find the previous payment date:
-        ## TODO: compute the next payment date, too.
+        ## Find the previous and next payment dates:
         prevdate = _last_payment_date(start, asof, freq, eom)
+        nextdate = _next_payment_date(prevdate, freq, eom)
 
         ## Calculate the interest and return:
-        return self.interest(principal, rate, prevdate, asof, end, Decimal(freq))
+        return self.interest(principal, rate, prevdate, asof, nextdate, Decimal(freq))
 
 
 class DCCRegistryMachinery:
