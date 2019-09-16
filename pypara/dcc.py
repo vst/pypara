@@ -157,7 +157,10 @@ def _next_payment_date(start: Date, frequency: Union[int, Decimal], eom: Optiona
 
     ## Do we have any end of month?
     if eom:
-        nextdate = nextdate.replace(day=eom)
+        try:
+            nextdate = nextdate.replace(day=eom)
+        except ValueError:
+            pass
 
     ## Done, return:
     return nextdate
