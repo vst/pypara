@@ -1,5 +1,13 @@
-VERS: 2019-09-16 ------- release/0.0.15
+VERS: 2019-09-16 ------- release/0.0.16
 
+    * 2019-09-16 3f33299 Fix coupon payment calculation (vst@vsthost.com)
+    * 2019-09-16 9d9c00b Bump version to 0.0.16.dev0 (vst@vsthost.com)
+
+VERS: 2019-09-16 4907990 0.0.15 (vst@vsthost.com)
+
+    * 2019-09-16 b76f0d7 Merge branch 'release/0.0.15' (vst@vsthost.com)
+    * 2019-09-16 6efc8e9 Depend on wheel for dev (vst@vsthost.com)
+    * 2019-09-16 c05e09e Bump version to 0.0.15, update change log (vst@vsthost.com)
     * 2019-09-16 a913016 Add Act/Act (ICMA) day count convention (vst@vsthost.com)
     * 2019-04-13 d154b16 [chore] Version bumped to 0.0.15.dev0 (vst@vsthost.com)
 
