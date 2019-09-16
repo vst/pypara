@@ -1,5 +1,12 @@
-VERS: 2019-04-13 ------- release/0.0.14
+VERS: 2019-09-16 ------- release/0.0.15
 
+    * 2019-09-16 a913016 Add Act/Act (ICMA) day count convention (vst@vsthost.com)
+    * 2019-04-13 d154b16 [chore] Version bumped to 0.0.15.dev0 (vst@vsthost.com)
+
+VERS: 2019-04-13 02a551e 0.0.14 (vst@vsthost.com)
+
+    * 2019-04-13 4e8e569 Merge branch 'release/0.0.14' (vst@vsthost.com)
+    * 2019-04-13 b0a8ab0 [release] Change log updated (vst@vsthost.com)
     * 2019-04-13 7702564 [release] Version bumped to 0.0.14 (vst@vsthost.com)
     * 2019-04-13 88d53d0 [chore] Typecheck tests, satisfy lint (vst@vsthost.com)
     * 2019-04-13 5748a9a [chore] Reorganize package, add py.typed (PEP 561) (vst@vsthost.com)
