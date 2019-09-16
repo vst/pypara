@@ -1,5 +1,12 @@
-VERS: 2019-09-16 ------- release/0.0.16
+VERS: 2019-09-16 ------- release/0.0.17
 
+    * 2019-09-16 fb3bacb Fix invalid eom on coupon calculation (vst@vsthost.com)
+    * 2019-09-16 4f9db35 Bump version to 0.0.17.dev0 (vst@vsthost.com)
+
+VERS: 2019-09-16 7c702a1 0.0.16 (vst@vsthost.com)
+
+    * 2019-09-16 643b4e9 Merge branch 'release/0.0.16' (vst@vsthost.com)
+    * 2019-09-16 9bb81ae Bump version to 0.0.16, update change log (vst@vsthost.com)
     * 2019-09-16 3f33299 Fix coupon payment calculation (vst@vsthost.com)
     * 2019-09-16 9d9c00b Bump version to 0.0.16.dev0 (vst@vsthost.com)
 
