@@ -37,6 +37,7 @@ REQUIREMENTS_EXTRAS = {
         "flake8",
         "tox",
         "twine",
+        "wheel",
     ],
 }
 
