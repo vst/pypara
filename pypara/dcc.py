@@ -1,14 +1,14 @@
 import calendar
 import datetime
 from decimal import Decimal
-from typing import Dict, Callable, Set, Optional, List, Iterable, NamedTuple
+from typing import Dict, Callable, Set, Optional, List, Iterable, NamedTuple, Union
 
 from pypara.currencies import Currency, Currencies
-from pypara.generic import Date, ZERO
+from pypara.generic import Date, ZERO, ONE
 from pypara.monetary import Money
 
 #: Defines a type alias for day count fraction calculation functions.
-DCFC = Callable[[Date, Date, Date], Decimal]
+DCFC = Callable[[Date, Date, Date, Optional[Decimal]], Decimal]
 
 
 def _as_ccys(codes: Set[str]) -> Set[Currency]:
@@ -74,7 +74,7 @@ def _is_last_day_of_month(date: Date) -> bool:
     return date.day == calendar.monthrange(date.year, date.month)[1]
 
 
-def _last_payment_date(start: Date, asof: Date, frequency: int, eom: Optional[int] = None) -> Date:
+def _last_payment_date(start: Date, asof: Date, frequency: Union[int, Decimal], eom: Optional[int] = None) -> Date:
     """
     Returns the last coupon payment date.
 
@@ -169,7 +169,7 @@ class DCC(NamedTuple):
     #: Defines the day count fraction calculation method function.
     calculate_fraction_method: DCFC
 
-    def calculate_fraction(self, start: Date, asof: Date, end: Date) -> Decimal:
+    def calculate_fraction(self, start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
         """
         Calculates the day count fraction based on the underlying methodology after performing some general checks.
         """
@@ -179,9 +179,9 @@ class DCC(NamedTuple):
             return ZERO
 
         ## Cool, we can proceed with calculation based on the methodology:
-        return self[3](start, asof, end)
+        return self[3](start, asof, end, freq)
 
-    def calculate_daily_fraction(self, start: Date, asof: Date, end: Date) -> Decimal:
+    def calculate_daily_fraction(self, start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
         """
         Calculates daily fraction.
         """
@@ -192,10 +192,10 @@ class DCC(NamedTuple):
         if asof_minus_1 < start:
             yfact = ZERO
         else:
-            yfact = self.calculate_fraction_method(start, asof_minus_1, end)
+            yfact = self.calculate_fraction_method(start, asof_minus_1, end, freq)
 
         ## Get today's factor:
-        tfact = self.calculate_fraction_method(start, asof, end)
+        tfact = self.calculate_fraction_method(start, asof, end, freq)
 
         ## Get the factor and return:
         return tfact - yfact
@@ -205,11 +205,12 @@ class DCC(NamedTuple):
                  rate: Decimal,
                  start: Date,
                  asof: Date,
-                 end: Optional[Date] = None) -> Money:
+                 end: Optional[Date] = None,
+                 freq: Optional[Decimal] = None) -> Money:
         """
         Calculates the accrued interest.
         """
-        return principal * rate * self.calculate_fraction(start, asof, end or asof)
+        return principal * rate * self.calculate_fraction(start, asof, end or asof, freq)
 
     def coupon(self,
                principal: Money,
@@ -217,7 +218,7 @@ class DCC(NamedTuple):
                start: Date,
                asof: Date,
                end: Date,
-               freq: int,
+               freq: Union[int, Decimal],
                eom: Optional[int] = None) -> Money:
         """
         Calculates the accrued interest for the coupon payment.
@@ -230,7 +231,7 @@ class DCC(NamedTuple):
         prevdate = _last_payment_date(start, asof, freq, eom)
 
         ## Calculate the interest and return:
-        return self.interest(principal, rate, prevdate, asof, end)
+        return self.interest(principal, rate, prevdate, asof, end, Decimal(freq))
 
 
 class DCCRegistryMachinery:
@@ -357,13 +358,14 @@ def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Curre
 
 
 @dcc("Act/Act", {"Actual/Actual", "Actual/Actual (ISDA)"})
-def dcfc_act_act(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_act_act(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for "Act/Act" convention.
 
     :param start: The start date of the period.
     :param asof: The date which the day count fraction to be calculated as of.
     :param end: The end date of the period (a.k.a. termination date).
+    :param freq: The frequency of payments in a year.
     :return: Day count fraction.
 
     >>> ex1_start, ex1_asof = datetime.date(2007, 12, 28), datetime.date(2008, 2, 28)
@@ -399,9 +401,27 @@ def dcfc_act_act(start: Date, asof: Date, end: Date) -> Decimal:
     return Decimal(buffer[0]) / Decimal(365) + Decimal(buffer[1]) / Decimal(366)
 
 
+@dcc("Act/Act (ICMA)", {"Actual/Actual (ICMA)", "ISMA-99", "Act/Act (ISMA)"})
+def dcfc_act_act_icma(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
+    """
+    Computes the day count fraction for "Act/Act (ICMA)" convention.
+
+    :param start: The start date of the period.
+    :param asof: The date which the day count fraction to be calculated as of.
+    :param end: The end date of the period (a.k.a. termination date).
+    :return: Day count fraction.
+
+    >>> ex1_start, ex1_asof, ex1_end = datetime.date(2019, 3, 2), datetime.date(2019, 9, 10), datetime.date(2020, 3, 2)
+    >>> round(dcfc_act_act_icma(start=ex1_start, asof=ex1_asof, end=ex1_end), 10)
+    Decimal('0.5245901639')
+    """
+    ## Get actual day count:
+    return (freq or ONE) * _get_actual_day_count(start, asof) / _get_actual_day_count(start, end)
+
+
 @dcc("Act/360", {"Actual/360", "French", "360"},
      _as_ccys({"AUD", "CAD", "CHF", "EUR", "USD", "DKK", "CZK", "HUF", "SEK", "IDR", "NOK", "JPY", "NZD", "THB"}))
-def dcfc_act_360(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_act_360(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for "Act/360" convention.
 
@@ -426,7 +446,7 @@ def dcfc_act_360(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("Act/365F", {"Actual/365 Fixed", "English", "365"}, _as_ccys({"GBP", "HKD", "INR", "PLN", "SGD", "ZAR", "MYR"}))
-def dcfc_act_365_f(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_act_365_f(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "Act/365F" convention.
 
@@ -452,7 +472,7 @@ def dcfc_act_365_f(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("Act/365A", {"Actual/365 Actual"})
-def dcfc_act_365_a(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_act_365_a(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "Act/365A" convention.
 
@@ -478,7 +498,7 @@ def dcfc_act_365_a(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("Act/365L", {"Actual/365 Leap Year"})
-def dcfc_act_365_l(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_act_365_l(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "Act/365L" convention.
 
@@ -504,7 +524,7 @@ def dcfc_act_365_l(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("NL/365", {"Actual/365 No Leap Year", "NL365"})
-def dcfc_nl_365(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_nl_365(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "NL/365" convention.
 
@@ -530,7 +550,7 @@ def dcfc_nl_365(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("30/360 ISDA", {"30/360 US Municipal", "Bond Basis"})
-def dcfc_30_360_isda(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_30_360_isda(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "30/360 ISDA" convention.
 
@@ -568,7 +588,7 @@ def dcfc_30_360_isda(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("30E/360", {"30/360 ISMA", "30/360 European", "30S/360 Special German", "Eurobond Basis"})
-def dcfc_30_e_360(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_30_e_360(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "30E/360" convention.
 
@@ -606,7 +626,7 @@ def dcfc_30_e_360(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("30E+/360")
-def dcfc_30_e_plus_360(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_30_e_plus_360(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "30E+/360" convention.
 
@@ -645,7 +665,7 @@ def dcfc_30_e_plus_360(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("30/360 German", {"30E/360 ISDA"})
-def dcfc_30_360_german(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_30_360_german(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction.
 
@@ -687,7 +707,7 @@ def dcfc_30_360_german(start: Date, asof: Date, end: Date) -> Decimal:
 
 
 @dcc("30/360 US", {"30U/360", "30US/360"})
-def dcfc_30_360_us(start: Date, asof: Date, end: Date) -> Decimal:
+def dcfc_30_360_us(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for the "30/360 US" convention.
 
