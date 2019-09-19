@@ -1,10 +1,11 @@
+*.iml
 .cache
+.idea
+.mypy_cache
+.pytest_cache/
 .tox
+__pycache__
 build
 dist
+pip-wheel-metadata/
 pypara.egg-info
-.mypy_cache
-.idea
-*.iml
-.pytest_cache/
-__pycache__
