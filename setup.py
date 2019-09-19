@@ -30,7 +30,10 @@ with open(os.path.join(BASEDIR, "README.rst")) as cfile:
 REQUIREMENTS = ["python-dateutil<3.0"]
 
 #: Defines extra requirements for various other purposes.
-REQUIREMENTS_EXTRAS = {"develop": ["black", "flake8", "ipython", "mypy", "tox"], "release": ["twine", "wheel"]}
+REQUIREMENTS_EXTRAS = {
+    "develop": ["black", "flake8", "ipython", "mypy", "pytest", "tox"],
+    "release": ["twine", "wheel"],
+}
 
 ## Proceed with setup:
 setup(
