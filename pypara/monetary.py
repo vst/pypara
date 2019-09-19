@@ -419,7 +419,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     def round(self, ndigits: int = 0) -> "Money":
         c, q, d = self
-        dec = c[2]
+        dec = c.decimals
         return SomeMoney(c, q.__round__(ndigits if ndigits < dec else dec), d)
 
     def add(self, other: "Money") -> "Money":
@@ -437,7 +437,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def scalar_add(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q + Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q + Decimal(other)).quantize(c.quantizer), d)
 
     def subtract(self, other: "Money") -> "Money":
         if other.undefined:
@@ -454,18 +454,18 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def scalar_subtract(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q - Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q - Decimal(other)).quantize(c.quantizer), d)
 
     def multiply(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q * Decimal(other)).quantize(c.quantizer), d)
 
     def divide(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         try:
             c, q, d = self
-            return SomeMoney(c, (q / Decimal(other)).quantize(c[4]), d)
+            return SomeMoney(c, (q / Decimal(other)).quantize(c.quantizer), d)
         except (InvalidOperation, DivisionByZero):
             return NoMoney
 
@@ -473,7 +473,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         ## TODO: **try** not casting other to Decimal.
         try:
             c, q, d = self
-            return SomeMoney(c, (q // Decimal(other)).quantize(c[4]), d)
+            return SomeMoney(c, (q // Decimal(other)).quantize(c.quantizer), d)
         except (InvalidOperation, DivisionByZero):
             return NoMoney
 
@@ -510,7 +510,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     def with_qty(self, qty: Decimal) -> "Money":
         c, q, d = self
-        return SomeMoney(c, qty.quantize(c[4]), d)
+        return SomeMoney(c, qty.quantize(c.quantizer), d)
 
     def with_dov(self, dov: Date) -> "Money":
         return SomeMoney(self[0], self[1], dov)
@@ -542,7 +542,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
                 return NoMoney
 
         ## Compute and return:
-        return SomeMoney(to, (qty * rate.value).quantize(to[4]), asof)
+        return SomeMoney(to, (qty * rate.value).quantize(to.quantizer), asof)
 
     @property
     def price(self) -> "Price":
@@ -1143,7 +1143,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     def times(self, other: Numeric) -> "Money":
         c, q, d = self
-        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), self.dov)
+        return SomeMoney(c, (q * Decimal(other)).quantize(c.quantizer), self.dov)
 
     def divide(self, other: Numeric) -> "Price":
         ## TODO: **try** not casting other to Decimal.
@@ -1230,7 +1230,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     @property
     def money(self) -> Money:
         c, q, d = self
-        return SomeMoney(c, q.quantize(c[4]), d)
+        return SomeMoney(c, q.quantize(c.quantizer), d)
 
     __bool__ = as_boolean
 

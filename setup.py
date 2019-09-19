@@ -27,7 +27,7 @@ with open(os.path.join(BASEDIR, "README.rst")) as cfile:
     README = cfile.read()
 
 #: Defines a list of required libraries.
-REQUIREMENTS = ["python-dateutil<3.0"]
+REQUIREMENTS = ["python-dateutil<3.0", 'dataclasses==0.6;python_version=="3.6"']
 
 #: Defines extra requirements for various other purposes.
 REQUIREMENTS_EXTRAS = {
