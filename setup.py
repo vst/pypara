@@ -27,21 +27,10 @@ with open(os.path.join(BASEDIR, "README.rst")) as cfile:
     README = cfile.read()
 
 #: Defines a list of required libraries.
-REQUIREMENTS = [
-    "python-dateutil<3.0"
-]
+REQUIREMENTS = ["python-dateutil<3.0"]
 
 #: Defines extra requirements for various other purposes.
-REQUIREMENTS_EXTRAS = {
-    "dev": [
-        "ipython",
-        "mypy",
-        "flake8",
-        "tox",
-        "twine",
-        "wheel",
-    ],
-}
+REQUIREMENTS_EXTRAS = {"develop": ["black", "flake8", "ipython", "mypy", "tox"], "release": ["twine", "wheel"]}
 
 ## Proceed with setup:
 setup(

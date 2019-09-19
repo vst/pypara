@@ -229,26 +229,30 @@ class DCC(NamedTuple):
         ## Get the factor and return:
         return tfact - yfact
 
-    def interest(self,
-                 principal: Money,
-                 rate: Decimal,
-                 start: Date,
-                 asof: Date,
-                 end: Optional[Date] = None,
-                 freq: Optional[Decimal] = None) -> Money:
+    def interest(
+        self,
+        principal: Money,
+        rate: Decimal,
+        start: Date,
+        asof: Date,
+        end: Optional[Date] = None,
+        freq: Optional[Decimal] = None,
+    ) -> Money:
         """
         Calculates the accrued interest.
         """
         return principal * rate * self.calculate_fraction(start, asof, end or asof, freq)
 
-    def coupon(self,
-               principal: Money,
-               rate: Decimal,
-               start: Date,
-               asof: Date,
-               end: Date,
-               freq: Union[int, Decimal],
-               eom: Optional[int] = None) -> Money:
+    def coupon(
+        self,
+        principal: Money,
+        rate: Decimal,
+        start: Date,
+        asof: Date,
+        end: Date,
+        freq: Union[int, Decimal],
+        eom: Optional[int] = None,
+    ) -> Money:
         """
         Calculates the accrued interest for the coupon payment.
 
@@ -346,10 +350,7 @@ class DCCRegistryMachinery:
         """
         Returns a lookup table for available day count conventions.
         """
-        return {
-            **{k: v for k, v in self._buffer_main.items()},
-            **{k: v for k, v in self._buffer_altn.items()}
-        }
+        return {**{k: v for k, v in self._buffer_main.items()}, **{k: v for k, v in self._buffer_altn.items()}}
 
 
 #: Defines the default DCC registry.
@@ -365,6 +366,7 @@ def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Curre
     :param ccys: A set of currencies which are known to use this convention by default, if any.
     :return: Registered day count fraction calculation function.
     """
+
     def register_and_return_dcfc(func: DCFC) -> DCFC:
         """
         Registers the given day count fraction calculator and returns it.
@@ -383,6 +385,7 @@ def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Curre
 
         ## Done, return the function (if above statment did not raise any exceptions):
         return func
+
     return register_and_return_dcfc
 
 
@@ -454,8 +457,11 @@ def dcfc_act_act_icma(start: Date, asof: Date, end: Date, freq: Optional[Decimal
     return p1 / p2 / Decimal(freq or ONE)
 
 
-@dcc("Act/360", {"Actual/360", "French", "360"},
-     _as_ccys({"AUD", "CAD", "CHF", "EUR", "USD", "DKK", "CZK", "HUF", "SEK", "IDR", "NOK", "JPY", "NZD", "THB"}))
+@dcc(
+    "Act/360",
+    {"Actual/360", "French", "360"},
+    _as_ccys({"AUD", "CAD", "CHF", "EUR", "USD", "DKK", "CZK", "HUF", "SEK", "IDR", "NOK", "JPY", "NZD", "THB"}),
+)
 def dcfc_act_360(start: Date, asof: Date, end: Date, freq: Optional[Decimal] = None) -> Decimal:
     """
     Computes the day count fraction for "Act/360" convention.

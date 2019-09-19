@@ -30,7 +30,9 @@ class MonetaryOperationException(TypeError):
     """
     Provides an exception that a certain monetary operation can not be carried on.
     """
+
     pass
+
 
 ###########################
 # BEGIN DEFINITION: Money #
