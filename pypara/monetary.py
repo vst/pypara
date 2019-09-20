@@ -382,7 +382,7 @@ class Money:
         pass
 
 
-class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
+class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
     """
     Provides a *defined* money object model.
     """
@@ -426,6 +426,12 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -443,6 +449,12 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -564,23 +576,23 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     __pos__ = positive
 
-    __add__ = add
+    __add__ = add  # type: ignore
 
     __sub__ = subtract
 
-    __mul__ = multiply
+    __mul__ = multiply  # type: ignore
 
     __truediv__ = divide
 
     __floordiv__ = floor_divide
 
-    __lt__ = lt
+    __lt__ = lt  # type: ignore
 
-    __le__ = lte
+    __le__ = lte  # type: ignore
 
-    __gt__ = gt
+    __gt__ = gt  # type: ignore
 
-    __ge__ = gte
+    __ge__ = gte  # type: ignore
 
 
 class NoneMoney(Money):
@@ -1063,7 +1075,7 @@ class Price:
         pass
 
 
-class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
+class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
     """
     Provides a *defined* price object model.
     """
@@ -1106,6 +1118,12 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -1123,6 +1141,12 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -1248,23 +1272,23 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     __pos__ = positive
 
-    __add__ = add
+    __add__ = add  # type: ignore
 
     __sub__ = subtract
 
-    __mul__ = multiply
+    __mul__ = multiply  # type: ignore
 
     __truediv__ = divide
 
     __floordiv__ = floor_divide
 
-    __lt__ = lt
+    __lt__ = lt  # type: ignore
 
-    __le__ = lte
+    __le__ = lte  # type: ignore
 
-    __gt__ = gt
+    __gt__ = gt  # type: ignore
 
-    __ge__ = gte
+    __ge__ = gte  # type: ignore
 
 
 class NonePrice(Price):
