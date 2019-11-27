@@ -28,7 +28,7 @@ with open(os.path.join(BASEDIR, "README.rst")) as cfile:
 
 #: Defines a list of required libraries.
 REQUIREMENTS = [
-    "python-dateutil==2.8.0"
+    "python-dateutil<3.0"
 ]
 
 #: Defines extra requirements for various other purposes.
