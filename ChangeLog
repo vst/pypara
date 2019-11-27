@@ -1,3 +1,7 @@
+VERS: 2019-11-28 ------- release/0.0.19
+
+    * 2019-11-28 fix: relax dateutil dependency constraint (vst@vsthost.com)
+
 VERS: 2019-09-16 ------- release/0.0.18
 
     * 2019-09-16 54b9cf5 Fix Act/Act (ICMA) calculation (vst@vsthost.com)
