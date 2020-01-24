@@ -7,48 +7,11 @@ import re
 
 from setuptools import setup
 
-#: Defines the name of our package.
-NAME = "pypara"
-
-#: Defines the description of our package.
-DESCRIPTION = "Currencies, Monetary Value Objects, Arithmetic and Conversion"
-
-#: Defines the regular expression of the version.
-VERSION_REGEXP = r"__version__\s*=\s*['\"]([^'\"]*)['\"]"
-
-#: Defines the version of our package.
-VERSION = re.search(VERSION_REGEXP, open(f"{NAME}/__init__.py", encoding="utf_8_sig").read()).group(1)
-
-#: Defines the package root directory.
-BASEDIR = os.path.abspath(os.path.dirname(__file__))
-
-#: Defines the README file contents.
-with open(os.path.join(BASEDIR, "README.rst")) as cfile:
-    README = cfile.read()
-
-#: Defines a list of required libraries.
-REQUIREMENTS = [
-    "python-dateutil<3.0"
-]
-
-#: Defines extra requirements for various other purposes.
-REQUIREMENTS_EXTRAS = {
-    "dev": [
-        "ipython",
-        "mypy",
-        "flake8",
-        "tox",
-        "twine",
-        "wheel",
-    ],
-}
-
-## Proceed with setup:
 setup(
-    name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
-    long_description=README,
+    name="pypara",
+    version=re.search(r"__version__\s*=\s*['\"]([^'\"]*)['\"]", open("pypara/__init__.py").read()).group(1),
+    description="Currencies, Monetary Value Arithmetic/Conversion and Some Type Convenience",
+    long_description=open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.rst")).read(),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -65,8 +28,21 @@ setup(
     packages=["pypara"],
     include_package_data=True,
     zip_safe=False,
-    install_requires=REQUIREMENTS,
-    extras_require=REQUIREMENTS_EXTRAS,
+    install_requires=["python-dateutil<3.0", 'dataclasses==0.6;python_version=="3.6"'],
+    extras_require={
+        "dev": [
+            "Sphinx==2.3.1",
+            "black",
+            "flake8",
+            "ipython",
+            "mypy",
+            "pytest",
+            "sphinxcontrib-apidoc==0.3.0",
+            "tox",
+            "twine",
+            "wheel",
+        ]
+    },
     dependency_links=[],
     scripts=[],
 )

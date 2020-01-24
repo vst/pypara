@@ -1,4 +1,6 @@
-"""
+pypara Documentation
+====================
+
 :py:mod:`pypara` is a Python library for
 
 - encoding currencies and monetary value objects,
@@ -7,8 +9,13 @@
 
 Furthermore, there are some type convenience for general use.
 
-The source code is organised in sub-packages and sub-modules.
-"""
+Current version is |pypara-version|.
 
-#: Defines the version of the package.
-__version__ = "0.0.20.dev0"
+.. warning:: This is an experimental library.
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   :caption: Table of Contents
+
+   api/index

@@ -195,6 +195,10 @@ def test_round() -> None:
     assert round(Money.of(usd, Decimal("0.45"), today), 1) == Money.of(usd, Decimal("0.4"), today)
     assert round(Money.of(usd, Decimal("1.45"), today), 1) == Money.of(usd, Decimal("1.4"), today)
 
+    ## TODO: Following two are not really what round function signature says. mypy can't detect it!
+    assert round(Money.of(usd, Decimal("1.4"), today)) == Money.of(usd, Decimal("1"), today)
+    assert round(Money.of(usd, Decimal("1.5"), today)) == Money.of(usd, Decimal("2"), today)
+
 
 def test_addition() -> None:
     ## First use `Money.NA`s:

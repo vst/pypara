@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from decimal import Decimal, InvalidOperation, DivisionByZero
-from typing import Any, Optional, NamedTuple
+from typing import Any, Optional, NamedTuple, overload, Union
 
 from pypara.currencies import Currency
 from pypara.exchange import FXRateService, FXRateLookupError
@@ -30,7 +30,9 @@ class MonetaryOperationException(TypeError):
     """
     Provides an exception that a certain monetary operation can not be carried on.
     """
+
     pass
+
 
 ###########################
 # BEGIN DEFINITION: Money #
@@ -331,9 +333,20 @@ class Money:
     def __int__(self) -> int:
         pass
 
-    @abstractmethod
-    def __round__(self, ndigits: int = 0) -> "Money":
-        pass
+    @overload
+    def __round__(self) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: None) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: int) -> "Money":
+        ...
+
+    def __round__(self, ndigits: Optional[int] = 0) -> Union["Money", int]:
+        return self.round(ndigits or 0)
 
     @abstractmethod
     def __neg__(self) -> "Money":
@@ -380,7 +393,7 @@ class Money:
         pass
 
 
-class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
+class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
     """
     Provides a *defined* money object model.
     """
@@ -417,13 +430,19 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     def round(self, ndigits: int = 0) -> "Money":
         c, q, d = self
-        dec = c[2]
+        dec = c.decimals
         return SomeMoney(c, q.__round__(ndigits if ndigits < dec else dec), d)
 
     def add(self, other: "Money") -> "Money":
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -435,12 +454,18 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def scalar_add(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q + Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q + Decimal(other)).quantize(c.quantizer), d)
 
     def subtract(self, other: "Money") -> "Money":
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -452,18 +477,18 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def scalar_subtract(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q - Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q - Decimal(other)).quantize(c.quantizer), d)
 
     def multiply(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         c, q, d = self
-        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), d)
+        return SomeMoney(c, (q * Decimal(other)).quantize(c.quantizer), d)
 
     def divide(self, other: Numeric) -> "Money":
         ## TODO: **try** not casting other to Decimal.
         try:
             c, q, d = self
-            return SomeMoney(c, (q / Decimal(other)).quantize(c[4]), d)
+            return SomeMoney(c, (q / Decimal(other)).quantize(c.quantizer), d)
         except (InvalidOperation, DivisionByZero):
             return NoMoney
 
@@ -471,7 +496,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         ## TODO: **try** not casting other to Decimal.
         try:
             c, q, d = self
-            return SomeMoney(c, (q // Decimal(other)).quantize(c[4]), d)
+            return SomeMoney(c, (q // Decimal(other)).quantize(c.quantizer), d)
         except (InvalidOperation, DivisionByZero):
             return NoMoney
 
@@ -508,7 +533,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     def with_qty(self, qty: Decimal) -> "Money":
         c, q, d = self
-        return SomeMoney(c, qty.quantize(c[4]), d)
+        return SomeMoney(c, qty.quantize(c.quantizer), d)
 
     def with_dov(self, dov: Date) -> "Money":
         return SomeMoney(self[0], self[1], dov)
@@ -540,7 +565,7 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
                 return NoMoney
 
         ## Compute and return:
-        return SomeMoney(to, (qty * rate.value).quantize(to[4]), asof)
+        return SomeMoney(to, (qty * rate.value).quantize(to.quantizer), asof)
 
     @property
     def price(self) -> "Price":
@@ -556,29 +581,27 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     __int__ = as_integer
 
-    __round__ = round
-
     __neg__ = negative
 
     __pos__ = positive
 
-    __add__ = add
+    __add__ = add  # type: ignore
 
     __sub__ = subtract
 
-    __mul__ = multiply
+    __mul__ = multiply  # type: ignore
 
     __truediv__ = divide
 
     __floordiv__ = floor_divide
 
-    __lt__ = lt
+    __lt__ = lt  # type: ignore
 
-    __le__ = lte
+    __le__ = lte  # type: ignore
 
-    __gt__ = gt
+    __gt__ = gt  # type: ignore
 
-    __ge__ = gte
+    __ge__ = gte  # type: ignore
 
 
 class NoneMoney(Money):
@@ -671,8 +694,6 @@ class NoneMoney(Money):
     __float__ = as_float
 
     __int__ = as_integer
-
-    __round__ = round
 
     __neg__ = negative
 
@@ -1012,9 +1033,20 @@ class Price:
     def __int__(self) -> int:
         pass
 
-    @abstractmethod
-    def __round__(self, ndigits: int = 0) -> "Price":
-        pass
+    @overload
+    def __round__(self) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: None) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: int) -> "Price":
+        ...
+
+    def __round__(self, ndigits: Optional[int] = 0) -> Union["Price", int]:
+        return self.round(ndigits or 0)
 
     @abstractmethod
     def __neg__(self) -> "Price":
@@ -1061,7 +1093,7 @@ class Price:
         pass
 
 
-class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):  # type: ignore
+class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
     """
     Provides a *defined* price object model.
     """
@@ -1104,6 +1136,12 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -1121,6 +1159,12 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return self
 
+        c1: Currency
+        q1: Decimal
+        d1: Date
+        c2: Currency
+        q2: Decimal
+        d2: Date
         c1, q1, d1 = self
         c2, q2, d2 = other  # type: ignore
 
@@ -1141,7 +1185,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     def times(self, other: Numeric) -> "Money":
         c, q, d = self
-        return SomeMoney(c, (q * Decimal(other)).quantize(c[4]), self.dov)
+        return SomeMoney(c, (q * Decimal(other)).quantize(c.quantizer), self.dov)
 
     def divide(self, other: Numeric) -> "Price":
         ## TODO: **try** not casting other to Decimal.
@@ -1228,7 +1272,7 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     @property
     def money(self) -> Money:
         c, q, d = self
-        return SomeMoney(c, q.quantize(c[4]), d)
+        return SomeMoney(c, q.quantize(c.quantizer), d)
 
     __bool__ = as_boolean
 
@@ -1240,29 +1284,27 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     __int__ = as_integer
 
-    __round__ = round
-
     __neg__ = negative
 
     __pos__ = positive
 
-    __add__ = add
+    __add__ = add  # type: ignore
 
     __sub__ = subtract
 
-    __mul__ = multiply
+    __mul__ = multiply  # type: ignore
 
     __truediv__ = divide
 
     __floordiv__ = floor_divide
 
-    __lt__ = lt
+    __lt__ = lt  # type: ignore
 
-    __le__ = lte
+    __le__ = lte  # type: ignore
 
-    __gt__ = gt
+    __gt__ = gt  # type: ignore
 
-    __ge__ = gte
+    __ge__ = gte  # type: ignore
 
 
 class NonePrice(Price):
@@ -1356,8 +1398,6 @@ class NonePrice(Price):
     __float__ = as_float
 
     __int__ = as_integer
-
-    __round__ = round
 
     __neg__ = negative
 

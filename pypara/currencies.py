@@ -1,7 +1,8 @@
 from collections import OrderedDict
+from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, List, Tuple, Optional, Type, Any, Callable, NamedTuple
+from typing import Dict, List, Tuple, Optional, Type, Any, Callable
 
 from .generic import MaxPrecisionQuantizer, ProgrammingError, make_quantizer, ZERO
 
@@ -40,7 +41,8 @@ class CurrencyType(Enum):
     ALTERNATIVE = "Alernative"
 
 
-class Currency(NamedTuple):
+@dataclass(frozen=True)
+class Currency:
     """
     Defines currency value object model which is extending ISO 4217 to embrace other currency types.
 
@@ -108,14 +110,13 @@ class Currency(NamedTuple):
         """
         Checks if the `self` and `other` are same currencies.
         """
-        ## TODO: Can we optimise this without any changes in the semantics?
-        return other.__class__ == Currency and self[5] == other[5]  # type: ignore
+        return isinstance(other, Currency) and self.hashcache == other.hashcache
 
     def __hash__(self) -> int:
         """
         Returns the pre-computed and cached hash.
         """
-        return self[5]
+        return self.hashcache
 
     def quantize(self, qty: Decimal) -> Decimal:
         """
@@ -127,10 +128,10 @@ class Currency(NamedTuple):
         explicitly passing it. Therefore, if call-site application is making changes to the default
         context, the rounding method may not be HALF-TO-EVEN anymore.
         """
-        return qty.quantize(self[4])
+        return qty.quantize(self.quantizer)
 
     @classmethod
-    def of(cls, code: str, name: str, decimals: int, type: CurrencyType) -> "Currency":
+    def of(cls, code: str, name: str, decimals: int, ctype: CurrencyType) -> "Currency":
         """
         Attempts to create a currency instance and returns it.
         """
@@ -149,7 +150,7 @@ class Currency(NamedTuple):
         ProgrammingError.passert(decimals >= -1, "Number of decimals can not be less than -1")
 
         ## Check the type:
-        ProgrammingError.passert(isinstance(type, CurrencyType), "Currency Type must be of type `CurrencyType`")
+        ProgrammingError.passert(isinstance(ctype, CurrencyType), "Currency Type must be of type `CurrencyType`")
 
         ## Define the quantizer:
         if decimals > 0:
@@ -160,10 +161,10 @@ class Currency(NamedTuple):
             quantizer = ZERO
 
         ## By now, we should have all required instance attributes. However, we want to compute and cache the hash.
-        hashcode = hash((code, name, decimals, type, quantizer))
+        hashcode = hash((code, name, decimals, ctype, quantizer))
 
         ## Done, create the currency object and return:
-        return Currency(code, name, decimals, type, quantizer, hashcode)
+        return Currency(code, name, decimals, ctype, quantizer, hashcode)
 
 
 class CurrencyRegistry:
