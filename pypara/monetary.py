@@ -1,10 +1,29 @@
+"""
+This module provides definitions and functionality related to encoding monetary values and operating on them.
+"""
+
+__all__ = [
+    "IncompatibleCurrencyError",
+    "MonetaryOperationException",
+    "Money",
+    "NoMoney",
+    "NoPrice",
+    "NoneMoney",
+    "NonePrice",
+    "Price",
+    "SomeMoney",
+    "SomePrice",
+]
+
 from abc import abstractmethod
 from decimal import Decimal, InvalidOperation, DivisionByZero
 from typing import Any, Optional, NamedTuple, overload, Union
 
-from pypara.currencies import Currency
-from pypara.exchange import FXRateService, FXRateLookupError
-from pypara.generic import Date, Numeric, ProgrammingError
+from .commons.errors import ProgrammingError
+from .commons.numbers import Numeric
+from .commons.zeitgeist import Date
+from .currencies import Currency
+from .exchange import FXRateService, FXRateLookupError
 
 
 class IncompatibleCurrencyError(ValueError):
@@ -32,11 +51,6 @@ class MonetaryOperationException(TypeError):
     """
 
     pass
-
-
-###########################
-# BEGIN DEFINITION: Money #
-###########################
 
 
 class Money:
@@ -720,14 +734,6 @@ class NoneMoney(Money):
 
 ## Define and attach undefined money singleton.
 Money.NA = NoMoney = NoneMoney()
-
-#########################
-# END DEFINITION: Money #
-#########################
-
-###########################
-# BEGIN DEFINITION: Price #
-###########################
 
 
 class Price:
@@ -1424,7 +1430,3 @@ class NonePrice(Price):
 
 ## Define and attach undefined price singleton.
 Price.NA = NoPrice = NonePrice()
-
-#########################
-# END DEFINITION: Price #
-#########################
