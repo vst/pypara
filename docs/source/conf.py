@@ -44,5 +44,5 @@ apidoc_extra_args = ["--private", "--no-toc"]
 # -- Additional configuration ------------------------------------------------
 
 rst_prolog = f"""
-.. |pypara-version| replace:: { release } 
+.. |pypara-version| replace:: { release }
 """
