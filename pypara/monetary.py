@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from decimal import Decimal, InvalidOperation, DivisionByZero
-from typing import Any, Optional, NamedTuple
+from typing import Any, Optional, NamedTuple, overload, Union
 
 from pypara.currencies import Currency
 from pypara.exchange import FXRateService, FXRateLookupError
@@ -333,9 +333,20 @@ class Money:
     def __int__(self) -> int:
         pass
 
-    @abstractmethod
-    def __round__(self, ndigits: int = 0) -> "Money":
-        pass
+    @overload
+    def __round__(self) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: None) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: int) -> "Money":
+        ...
+
+    def __round__(self, ndigits: Optional[int] = 0) -> Union["Money", int]:
+        return self.round(ndigits or 0)
 
     @abstractmethod
     def __neg__(self) -> "Money":
@@ -570,8 +581,6 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     __int__ = as_integer
 
-    __round__ = round
-
     __neg__ = negative
 
     __pos__ = positive
@@ -685,8 +694,6 @@ class NoneMoney(Money):
     __float__ = as_float
 
     __int__ = as_integer
-
-    __round__ = round
 
     __neg__ = negative
 
@@ -1026,9 +1033,20 @@ class Price:
     def __int__(self) -> int:
         pass
 
-    @abstractmethod
-    def __round__(self, ndigits: int = 0) -> "Price":
-        pass
+    @overload
+    def __round__(self) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: None) -> int:
+        ...
+
+    @overload
+    def __round__(self, ndigits: int) -> "Price":
+        ...
+
+    def __round__(self, ndigits: Optional[int] = 0) -> Union["Price", int]:
+        return self.round(ndigits or 0)
 
     @abstractmethod
     def __neg__(self) -> "Price":
@@ -1266,8 +1284,6 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     __int__ = as_integer
 
-    __round__ = round
-
     __neg__ = negative
 
     __pos__ = positive
@@ -1382,8 +1398,6 @@ class NonePrice(Price):
     __float__ = as_float
 
     __int__ = as_integer
-
-    __round__ = round
 
     __neg__ = negative
 
