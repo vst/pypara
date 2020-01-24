@@ -1,0 +1,21 @@
+name: Install and Test
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Upgrade pip and setuptools
+        run: pip install --upgrade pip setuptools
+      - name: Install with development dependencies
+        run: pip install -e ".[dev]"
+      - name: Run tox
+        run: tox --recreate
+      - name: Show Outdated Dependencies
+        run: pip list -o

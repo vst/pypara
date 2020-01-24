@@ -1,17 +1,10 @@
 Currencies, Monetary Value Objects, Arithmetic and Conversion
 =============================================================
 
-+-----------------------+------------------------+
-| MASTER                | DEVELOP                |
-+=======================+========================+
-| |BUILD_STATUS_MASTER| | |BUILD_STATUS_DEVELOP| |
-+-----------------------+------------------------+
+|BUILD_STATUS|
 
-.. |BUILD_STATUS_MASTER| image:: https://travis-ci.org/vst/pypara.svg?branch=master
-    :target: https://travis-ci.org/vst/pypara
-
-.. |BUILD_STATUS_DEVELOP| image:: https://travis-ci.org/vst/pypara.svg?branch=develop
-    :target: https://travis-ci.org/vst/pypara
+.. |BUILD_STATUS| image:: https://github.com/vst/pypara/workflows/Install%20and%20Test/badge.svg
+    :target: https://github.com/vst/pypara/actions
 
 **TODO**: Provide a complete README.
 
