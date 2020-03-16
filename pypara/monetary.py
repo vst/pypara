@@ -16,14 +16,14 @@ __all__ = [
 ]
 
 from abc import abstractmethod
-from decimal import Decimal, InvalidOperation, DivisionByZero
-from typing import Any, Optional, NamedTuple, overload, Union
+from decimal import Decimal, DivisionByZero, InvalidOperation
+from typing import Any, NamedTuple, Optional, Union, overload
 
 from .commons.errors import ProgrammingError
 from .commons.numbers import Numeric
 from .commons.zeitgeist import Date
 from .currencies import Currency
-from .exchange import FXRateService, FXRateLookupError
+from .exchange import FXRateLookupError, FXRateService
 
 
 class IncompatibleCurrencyError(ValueError):

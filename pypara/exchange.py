@@ -6,9 +6,9 @@ __all__ = ["FXRate", "FXRateLookupError", "FXRateService"]
 
 from abc import ABCMeta, abstractmethod
 from decimal import Decimal
-from typing import Optional, Tuple, Iterable, NamedTuple
+from typing import Iterable, NamedTuple, Optional, Tuple
 
-from .commons.numbers import ZERO, ONE
+from .commons.numbers import ONE, ZERO
 from .commons.zeitgeist import Date
 from .currencies import Currency
 

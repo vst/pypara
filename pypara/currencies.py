@@ -8,10 +8,10 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, List, Tuple, Optional, Type, Any, Callable
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from .commons.errors import ProgrammingError
-from .commons.numbers import make_quantizer, MaxPrecisionQuantizer, ZERO
+from .commons.numbers import ZERO, MaxPrecisionQuantizer, make_quantizer
 
 
 class CurrencyLookupError(LookupError):
