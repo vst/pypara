@@ -1,9 +1,16 @@
+"""
+This module provides definitions and functionality related to foreign-exchange conversions.
+"""
+
+__all__ = ["FXRate", "FXRateLookupError", "FXRateService"]
+
 from abc import ABCMeta, abstractmethod
 from decimal import Decimal
 from typing import Optional, Tuple, Iterable, NamedTuple
 
+from .commons.numbers import ZERO, ONE
+from .commons.zeitgeist import Date
 from .currencies import Currency
-from .generic import Date, ONE, ZERO
 
 
 class FXRateLookupError(LookupError):

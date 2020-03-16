@@ -1,13 +1,20 @@
+"""
+This module provides day-count convention definitions and functionlity.
+"""
+
+__all__ = ["DCC", "DCCRegistry"]
+
 import calendar
 import datetime
 from decimal import Decimal
 from typing import Dict, Callable, Set, Optional, List, Iterable, NamedTuple, Union
 
-from pypara.currencies import Currency, Currencies
-from pypara.generic import Date, ZERO, ONE
-from pypara.monetary import Money
-
 from dateutil.relativedelta import relativedelta
+
+from .commons.numbers import ZERO, ONE
+from .commons.zeitgeist import Date
+from .currencies import Currency, Currencies
+from .monetary import Money
 
 #: Defines a type alias for day count fraction calculation functions.
 DCFC = Callable[[Date, Date, Date, Optional[Decimal]], Decimal]
