@@ -5,7 +5,7 @@ This module provides the setup procedure.
 import os
 import re
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name="pypara",
@@ -25,7 +25,7 @@ setup(
     url="https://github.com/vst/pypara",
     license="BSD",
     package_data={"pypara": ["py.typed"]},
-    packages=["pypara"],
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=["python-dateutil<3.0", 'dataclasses==0.6;python_version=="3.6"'],
