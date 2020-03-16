@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest  # type: ignore
 
 from pypara.currencies import Currencies
-from pypara.monetary import Money, Price, NonePrice, SomePrice, NoPrice, IncompatibleCurrencyError
+from pypara.monetary import IncompatibleCurrencyError, Money, NonePrice, NoPrice, Price, SomePrice
 
 ## Define some currencies:
 eur = Currencies["EUR"]

@@ -11,11 +11,13 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
-      - name: Upgrade pip and setuptools
-        run: pip install --upgrade pip setuptools
-      - name: Install with development dependencies
-        run: pip install -e ".[dev]"
-      - name: Run tox
-        run: tox --recreate
+      - name: Setup Pipenv
+        uses: dschep/install-pipenv-action@v1
+      - name: Install Dependencies
+        run: pipenv install --dev
+      - name: Run test suite
+        run: pipenv run tox
+      - name: Run checks for security vulnerabilities and against PEP 508 markers
+        run: pipenv check
       - name: Show Outdated Dependencies
-        run: pip list -o
+        run: pipenv run pip list -o
