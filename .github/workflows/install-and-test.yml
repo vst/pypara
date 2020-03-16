@@ -15,7 +15,7 @@ jobs:
         uses: dschep/install-pipenv-action@v1
       - name: Install Dependencies
         run: pipenv install --dev
-      - name: Run test suite (without running pytest)
+      - name: Run test suite
         run: pipenv run tox
       - name: Run checks for security vulnerabilities and against PEP 508 markers
         run: pipenv check
