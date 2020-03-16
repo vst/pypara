@@ -29,20 +29,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=["python-dateutil<3.0", 'dataclasses==0.7;python_version=="3.6"'],
-    extras_require={
-        "dev": [
-            "Sphinx",
-            "black",
-            "flake8",
-            "ipython",
-            "mypy",
-            "pytest",
-            "sphinxcontrib-apidoc",
-            "tox",
-            "twine",
-            "wheel",
-        ]
-    },
     dependency_links=[],
     scripts=[],
 )
