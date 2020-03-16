@@ -48,7 +48,7 @@ class CurrencyType(Enum):
     ALTERNATIVE = "Alernative"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Currency:
     """
     Defines currency value object model which is extending ISO 4217 to embrace other currency types.
