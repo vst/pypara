@@ -5,16 +5,19 @@ This module provides data definitions and functionality related to journal entri
 __all__ = [
     "Direction",
     "JournalEntry",
+    "PostJournalEntry",
     "Posting",
+    "ReadJournalEntries",
 ]
 
+import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Generic, Iterable, List, Set, TypeVar
+from typing_extensions import Protocol
 
 from ..commons.numbers import Amount, Quantity, isum
 from ..commons.others import Guid, makeguid
-from ..commons.zeitgeist import Date
 from .accounts import Account, AccountType
 
 #: Defines a type variable.
@@ -30,7 +33,7 @@ class Direction(Enum):
     value: int
 
     #: Indicates increment events.
-    INC = 1
+    INC = +1
 
     #: Indicates decrement events.
     DEC = -1
@@ -42,9 +45,9 @@ class Direction(Enum):
 
         :param quantity: Quantity to find the direction of.
         :return: Direction for the quantity.
-        :raises AssertionError: If quantity is zero.
+        :raises AssertionError: If quantity is zero which implies a programming error.
         """
-        assert not quantity.is_zero()
+        assert not quantity.is_zero(), "Encountered a `0` quantity. This implies a programming error."
         return Direction.INC if quantity > 0 else Direction.DEC
 
 
@@ -95,7 +98,7 @@ class JournalEntry(Generic[_T]):
     """
 
     #: Date of the entry.
-    date: Date
+    date: datetime.date
 
     #: Description of the entry.
     description: str
@@ -144,3 +147,21 @@ class JournalEntry(Generic[_T]):
         :raises AssertionError: If the journal entry is inconsistent.
         """
         assert isum(i.amount for i in self.increments) == isum(i.amount for i in self.decrements)
+
+
+class ReadJournalEntries(Protocol[_T]):
+    """
+    Type of functions which read journal entries from a source.
+    """
+
+    def __call__(self, opening: datetime.date, closing: datetime.date) -> Iterable[JournalEntry[_T]]:
+        pass
+
+
+class PostJournalEntry(Protocol[_T]):
+    """
+    Type of functions which post increment and decrements events of a journal entry.
+    """
+
+    def __call__(self, entry: JournalEntry[_T]) -> JournalEntry[_T]:
+        pass

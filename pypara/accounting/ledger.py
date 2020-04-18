@@ -4,23 +4,32 @@ This module provides data definitions and related functionality for preparing ge
 
 __all__ = [
     "GeneralLedger",
+    "GeneralLedgerProgram",
+    "InitialBalances",
     "Ledger",
     "LedgerEntry",
+    "ReadInitialBalances",
     "build_general_ledger",
+    "compile_general_ledger_program",
 ]
 
+import datetime
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Dict, Generic, Iterable, List, Optional, TypeVar
+from typing_extensions import Protocol
 
 from ..commons.numbers import Amount, Quantity
-from ..commons.zeitgeist import Date
 from .accounts import Account
 from .generic import Balance
-from .journaling import JournalEntry, Posting
+from .journaling import JournalEntry, Posting, PostJournalEntry, ReadJournalEntries
 
-#: Defines a type variable.
+#: Defines a generic type variable.
 _T = TypeVar("_T")
+
+
+#: Initial balances:
+InitialBalances = Dict[Account, Balance]
 
 
 @dataclass
@@ -39,7 +48,7 @@ class LedgerEntry(Generic[_T]):
     balance: Quantity
 
     @property
-    def date(self) -> Date:
+    def date(self) -> datetime.date:
         """
         Date of the ledger entry.
         """
@@ -144,17 +153,17 @@ class GeneralLedger(Generic[_T]):
     """
 
     #: Opening date of the general ledger.
-    opening: Date
+    opening: datetime.date
 
     #: Closing date of the general ledger.
-    closing: Date
+    closing: datetime.date
 
     #: Individual account ledgers of the general ledger.
     ledgers: Dict[Account, Ledger[_T]]
 
 
 def build_general_ledger(
-    opening: Date, closing: Date, journal: Iterable[JournalEntry[_T]], initial: Dict[Account, Balance]
+    opening: datetime.date, closing: datetime.date, journal: Iterable[JournalEntry[_T]], initial: Dict[Account, Balance]
 ) -> GeneralLedger[_T]:
     """
     Builds a general ledger.
@@ -178,3 +187,57 @@ def build_general_ledger(
 
     ## Done, return general ledger.
     return GeneralLedger(opening, closing, ledgers)
+
+
+class ReadInitialBalances(Protocol):
+    """
+    Type of functions which reads and returns initial balances.
+    """
+
+    def __call__(self, asof: datetime.date) -> InitialBalances:
+        pass
+
+
+class GeneralLedgerProgram(Protocol[_T]):
+    """
+    Type definition of the program which builds general ledger.
+    """
+
+    def __call__(self, opening: datetime.date, closing: datetime.date) -> GeneralLedger[_T]:
+        pass
+
+
+def compile_general_ledger_program(
+    read_initial_balances: ReadInitialBalances,
+    read_journal_entries: ReadJournalEntries[_T],
+    post_journal_entry: PostJournalEntry[_T],
+) -> GeneralLedgerProgram[_T]:
+    """
+    Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
+    a general ledger.
+
+    :param read_initial_balances: Algebra implementation which reads initial balances.
+    :param read_journal_entries: Algebra implementation which reads journal entries.
+    :param post_journal_entry: Algebra implementation which posts journal entries.
+    :return: A function which consumes opening and closing dates and produces a general ledger
+    """
+
+    def _program(opening: datetime.date, closing: datetime.date) -> GeneralLedger[_T]:
+        """
+        Consumes the opening and closing dates and produces a general ledger.
+
+        :param opening: Opening date of the financial period.
+        :param closing: Last day of the financial period.
+        :return: A general ledger.
+        """
+        ## Get initial balances as of the end of previous financial period:
+        initial_balances = read_initial_balances(opening - datetime.timedelta(days=1))
+
+        ## Read initial entries and post each of them:
+        journal_entries = (post_journal_entry(je) for je in read_journal_entries(opening, closing))
+
+        ## Build the general ledger and return:
+        return build_general_ledger(opening, closing, journal_entries, initial_balances)
+
+    ## Return the compiled program.
+    return _program

@@ -4,10 +4,10 @@ This module provides definitions and functionality applicable to the broader acc
 
 __all__ = ["Balance"]
 
+import datetime
 from dataclasses import dataclass
 
 from pypara.commons.numbers import Quantity
-from pypara.commons.zeitgeist import Date
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class Balance:
     """
 
     #: Date of the balance.
-    date: Date
+    date: datetime.date
 
     #: Value of the balance.
     value: Quantity
