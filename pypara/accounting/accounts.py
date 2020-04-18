@@ -72,6 +72,7 @@ __all__ = [
     "AccountType",
     "COA",
     "Code",
+    "ReadChartOfAccounts",
 ]
 
 from abc import abstractmethod
@@ -373,3 +374,12 @@ class COA:
         print(f"{''.join(['    '] * level)}[{node.account.code}] {node.account.name}")
         for c in node.children:
             cls._print_node(c, level + 1)
+
+
+class ReadChartOfAccounts(Protocol):
+    """
+    Type of functions which read chart-of-accounts from a source.
+    """
+
+    def __call__(self) -> COA:
+        pass

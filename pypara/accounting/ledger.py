@@ -20,7 +20,7 @@ from typing import Dict, Generic, Iterable, List, Optional, TypeVar
 from typing_extensions import Protocol
 
 from ..commons.numbers import Amount, Quantity
-from .accounts import Account
+from .accounts import COA, Account, ReadChartOfAccounts
 from .generic import Balance
 from .journaling import JournalEntry, Posting, PostJournalEntry, ReadJournalEntries
 
@@ -194,7 +194,7 @@ class ReadInitialBalances(Protocol):
     Type of functions which reads and returns initial balances.
     """
 
-    def __call__(self, asof: datetime.date) -> InitialBalances:
+    def __call__(self, coa: COA, asof: datetime.date) -> InitialBalances:
         pass
 
 
@@ -208,6 +208,7 @@ class GeneralLedgerProgram(Protocol[_T]):
 
 
 def compile_general_ledger_program(
+    read_chart_of_accounts: ReadChartOfAccounts,
     read_initial_balances: ReadInitialBalances,
     read_journal_entries: ReadJournalEntries[_T],
     post_journal_entry: PostJournalEntry[_T],
@@ -216,6 +217,7 @@ def compile_general_ledger_program(
     Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
     a general ledger.
 
+    :param read_chart_of_accounts: Algebra implementation which reads chart of accounts.
     :param read_initial_balances: Algebra implementation which reads initial balances.
     :param read_journal_entries: Algebra implementation which reads journal entries.
     :param post_journal_entry: Algebra implementation which posts journal entries.
@@ -230,11 +232,14 @@ def compile_general_ledger_program(
         :param closing: Last day of the financial period.
         :return: A general ledger.
         """
+        ## Get chart of accounts.
+        coa = read_chart_of_accounts()
+
         ## Get initial balances as of the end of previous financial period:
-        initial_balances = read_initial_balances(opening - datetime.timedelta(days=1))
+        initial_balances = read_initial_balances(coa, opening - datetime.timedelta(days=1))
 
         ## Read initial entries and post each of them:
-        journal_entries = (post_journal_entry(je) for je in read_journal_entries(opening, closing))
+        journal_entries = (post_journal_entry(coa, je) for je in read_journal_entries(opening, closing))
 
         ## Build the general ledger and return:
         return build_general_ledger(opening, closing, journal_entries, initial_balances)
