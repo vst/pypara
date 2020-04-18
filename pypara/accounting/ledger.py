@@ -198,6 +198,15 @@ class ReadInitialBalances(Protocol):
         pass
 
 
+class LoadProgram(Protocol):
+    """
+    Type of functions which loads the program while performing initial setup.
+    """
+
+    def __call__(self, opening: datetime.date, closing: datetime.date) -> None:
+        pass
+
+
 class GeneralLedgerProgram(Protocol[_T]):
     """
     Type definition of the program which builds general ledger.
@@ -208,6 +217,7 @@ class GeneralLedgerProgram(Protocol[_T]):
 
 
 def compile_general_ledger_program(
+    load_program: LoadProgram,
     read_chart_of_accounts: ReadChartOfAccounts,
     read_initial_balances: ReadInitialBalances,
     read_journal_entries: ReadJournalEntries[_T],
@@ -217,6 +227,7 @@ def compile_general_ledger_program(
     Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
     a general ledger.
 
+    :param load_program: Algebra implementation which loads the program whie performing initial setup.
     :param read_chart_of_accounts: Algebra implementation which reads chart of accounts.
     :param read_initial_balances: Algebra implementation which reads initial balances.
     :param read_journal_entries: Algebra implementation which reads journal entries.
@@ -232,6 +243,9 @@ def compile_general_ledger_program(
         :param closing: Last day of the financial period.
         :return: A general ledger.
         """
+        ## Load the program:
+        load_program(opening, closing)
+
         ## Get chart of accounts.
         coa = read_chart_of_accounts()
 
