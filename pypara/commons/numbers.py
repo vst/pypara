@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 from decimal import Decimal
-from typing import NewType, Iterable, TypeVar, Optional, cast
+from typing import Iterable, NewType, Optional, TypeVar, cast
 
 #: Defines a new-type for non-negative (absolute, unsigned) :py:class:`decimal.Decimal` values as *amount*.
 #:

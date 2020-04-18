@@ -10,12 +10,12 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, TypeVar, Generic, Iterable, Set, Dict
+from typing import Dict, Generic, Iterable, List, Set, TypeVar
 
-from .accounts import Account, AccountType
 from ..commons.numbers import Amount, Quantity, isum
 from ..commons.others import Guid, makeguid
 from ..commons.zeitgeist import Date
+from .accounts import Account, AccountType
 
 #: Defines a type variable.
 _T = TypeVar("_T")

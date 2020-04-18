@@ -76,10 +76,9 @@ __all__ = [
 
 from abc import abstractmethod
 from collections import OrderedDict
-from dataclasses import dataclass, field, InitVar
+from dataclasses import InitVar, dataclass, field
 from enum import Enum
-from typing import Dict, NewType, Optional, Tuple, Iterator, List, Iterable
-
+from typing import Dict, Iterable, Iterator, List, NewType, Optional, Tuple
 from typing_extensions import Protocol, runtime_checkable
 
 #: Defines a new-type for account codes.

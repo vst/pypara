@@ -5,7 +5,6 @@ This module defines type definitions and functions for various purposes.
 __all__ = ["Guid", "identity", "makeguid"]
 
 from typing import NewType, TypeVar
-
 from uuid import uuid4
 
 #: Defines a new-type for globally-unique identifiers.

@@ -11,13 +11,13 @@ __all__ = [
 
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import List, Iterable, Dict, Optional, TypeVar, Generic
+from typing import Dict, Generic, Iterable, List, Optional, TypeVar
 
+from ..commons.numbers import Amount, Quantity
+from ..commons.zeitgeist import Date
 from .accounts import Account
 from .generic import Balance
 from .journaling import JournalEntry, Posting
-from ..commons.numbers import Amount, Quantity
-from ..commons.zeitgeist import Date
 
 #: Defines a type variable.
 _T = TypeVar("_T")
