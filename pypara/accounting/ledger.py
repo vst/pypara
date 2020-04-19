@@ -186,15 +186,6 @@ def build_general_ledger(
     return GeneralLedger(period, ledgers)
 
 
-class LoadProgram(Protocol):
-    """
-    Type of functions which loads the program while performing initial setup.
-    """
-
-    def __call__(self, period: DateRange) -> None:
-        pass
-
-
 class ReadInitialBalances(Protocol):
     """
     Type of functions which reads and returns initial balances.
@@ -214,7 +205,6 @@ class GeneralLedgerProgram(Protocol[_T]):
 
 
 def compile_general_ledger_program(
-    load_program: LoadProgram,
     read_initial_balances: ReadInitialBalances,
     read_journal_entries: ReadJournalEntries[_T],
     post_journal_entry: PostJournalEntry[_T],
@@ -223,7 +213,6 @@ def compile_general_ledger_program(
     Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
     a general ledger.
 
-    :param load_program: Algebra implementation which loads the program whie performing initial setup.
     :param read_initial_balances: Algebra implementation which reads initial balances.
     :param read_journal_entries: Algebra implementation which reads journal entries.
     :param post_journal_entry: Algebra implementation which posts journal entries.
@@ -237,9 +226,6 @@ def compile_general_ledger_program(
         :param period: Accounting period.
         :return: A general ledger.
         """
-        ## Load the program:
-        load_program(period)
-
         ## Get initial balances as of the end of previous financial period:
         initial_balances = read_initial_balances(period)
 
