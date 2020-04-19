@@ -176,11 +176,12 @@ def build_general_ledger(
 
     ## Iterate over journal postings and populate ledgers:
     for posting in (p for j in journal for p in j.postings if period.since <= j.date <= period.until):
-        ## Get (or create) the ledger:
-        ledger = ledgers.get(posting.account) or Ledger(posting.account, Balance(period.since, Quantity(Decimal(0))))
+        ## Check if we have the ledger yet, and create if not:
+        if posting.account not in ledgers:
+            ledgers[posting.account] = Ledger(posting.account, Balance(period.since, Quantity(Decimal(0))))
 
         ## Add the posting to the ledger:
-        ledger.add(posting)
+        ledgers[posting.account].add(posting)
 
     ## Done, return general ledger.
     return GeneralLedger(period, ledgers)
@@ -229,7 +230,7 @@ def compile_general_ledger_program(
         ## Get initial balances as of the end of previous financial period:
         initial_balances = read_initial_balances(period)
 
-        ## Read initial entries and post each of them:
+        ## Read journal entries and post each of them:
         journal_entries = (post_journal_entry(je) for je in read_journal_entries(period))
 
         ## Build the general ledger and return:
