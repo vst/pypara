@@ -20,7 +20,8 @@ from typing import Dict, Generic, Iterable, List, Optional, TypeVar
 from typing_extensions import Protocol
 
 from ..commons.numbers import Amount, Quantity
-from .accounts import COA, Account, ReadChartOfAccounts
+from ..commons.zeitgeist import DateRange
+from .accounts import Account
 from .generic import Balance
 from .journaling import JournalEntry, Posting, PostJournalEntry, ReadJournalEntries
 
@@ -152,24 +153,20 @@ class GeneralLedger(Generic[_T]):
     Provides a general ledger model.
     """
 
-    #: Opening date of the general ledger.
-    opening: datetime.date
-
-    #: Closing date of the general ledger.
-    closing: datetime.date
+    #: Accounting period.
+    period: DateRange
 
     #: Individual account ledgers of the general ledger.
     ledgers: Dict[Account, Ledger[_T]]
 
 
 def build_general_ledger(
-    opening: datetime.date, closing: datetime.date, journal: Iterable[JournalEntry[_T]], initial: Dict[Account, Balance]
+    period: DateRange, journal: Iterable[JournalEntry[_T]], initial: InitialBalances
 ) -> GeneralLedger[_T]:
     """
     Builds a general ledger.
 
-    :param opening: Opening date of the general ledger.
-    :param closing: Closing date of the general ledger.
+    :param period: Accounting period.
     :param journal: All available journal entries.
     :param initial: Opening balances for terminal accounts, if any.
     :return: A :py:class:`GeneralLedger` instance.
@@ -178,24 +175,15 @@ def build_general_ledger(
     ledgers: Dict[Account, Ledger[_T]] = {a: Ledger(a, b) for a, b in initial.items()}
 
     ## Iterate over journal postings and populate ledgers:
-    for posting in (p for j in journal for p in j.postings if opening <= j.date <= closing):
+    for posting in (p for j in journal for p in j.postings if period.since <= j.date <= period.until):
         ## Get (or create) the ledger:
-        ledger = ledgers.get(posting.account) or Ledger(posting.account, Balance(opening, Quantity(Decimal(0))))
+        ledger = ledgers.get(posting.account) or Ledger(posting.account, Balance(period.since, Quantity(Decimal(0))))
 
         ## Add the posting to the ledger:
         ledger.add(posting)
 
     ## Done, return general ledger.
-    return GeneralLedger(opening, closing, ledgers)
-
-
-class ReadInitialBalances(Protocol):
-    """
-    Type of functions which reads and returns initial balances.
-    """
-
-    def __call__(self, coa: COA, asof: datetime.date) -> InitialBalances:
-        pass
+    return GeneralLedger(period, ledgers)
 
 
 class LoadProgram(Protocol):
@@ -203,7 +191,16 @@ class LoadProgram(Protocol):
     Type of functions which loads the program while performing initial setup.
     """
 
-    def __call__(self, opening: datetime.date, closing: datetime.date) -> None:
+    def __call__(self, period: DateRange) -> None:
+        pass
+
+
+class ReadInitialBalances(Protocol):
+    """
+    Type of functions which reads and returns initial balances.
+    """
+
+    def __call__(self, period: DateRange) -> InitialBalances:
         pass
 
 
@@ -212,13 +209,12 @@ class GeneralLedgerProgram(Protocol[_T]):
     Type definition of the program which builds general ledger.
     """
 
-    def __call__(self, opening: datetime.date, closing: datetime.date) -> GeneralLedger[_T]:
+    def __call__(self, period: DateRange) -> GeneralLedger[_T]:
         pass
 
 
 def compile_general_ledger_program(
     load_program: LoadProgram,
-    read_chart_of_accounts: ReadChartOfAccounts,
     read_initial_balances: ReadInitialBalances,
     read_journal_entries: ReadJournalEntries[_T],
     post_journal_entry: PostJournalEntry[_T],
@@ -228,35 +224,30 @@ def compile_general_ledger_program(
     a general ledger.
 
     :param load_program: Algebra implementation which loads the program whie performing initial setup.
-    :param read_chart_of_accounts: Algebra implementation which reads chart of accounts.
     :param read_initial_balances: Algebra implementation which reads initial balances.
     :param read_journal_entries: Algebra implementation which reads journal entries.
     :param post_journal_entry: Algebra implementation which posts journal entries.
     :return: A function which consumes opening and closing dates and produces a general ledger
     """
 
-    def _program(opening: datetime.date, closing: datetime.date) -> GeneralLedger[_T]:
+    def _program(period: DateRange) -> GeneralLedger[_T]:
         """
         Consumes the opening and closing dates and produces a general ledger.
 
-        :param opening: Opening date of the financial period.
-        :param closing: Last day of the financial period.
+        :param period: Accounting period.
         :return: A general ledger.
         """
         ## Load the program:
-        load_program(opening, closing)
-
-        ## Get chart of accounts.
-        coa = read_chart_of_accounts()
+        load_program(period)
 
         ## Get initial balances as of the end of previous financial period:
-        initial_balances = read_initial_balances(coa, opening - datetime.timedelta(days=1))
+        initial_balances = read_initial_balances(period)
 
         ## Read initial entries and post each of them:
-        journal_entries = (post_journal_entry(coa, je) for je in read_journal_entries(opening, closing))
+        journal_entries = (post_journal_entry(je) for je in read_journal_entries(period))
 
         ## Build the general ledger and return:
-        return build_general_ledger(opening, closing, journal_entries, initial_balances)
+        return build_general_ledger(period, journal_entries, initial_balances)
 
     ## Return the compiled program.
     return _program

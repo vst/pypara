@@ -18,7 +18,8 @@ from typing_extensions import Protocol
 
 from ..commons.numbers import Amount, Quantity, isum
 from ..commons.others import Guid, makeguid
-from .accounts import COA, Account, AccountType
+from ..commons.zeitgeist import DateRange
+from .accounts import Account, AccountType
 
 #: Defines a type variable.
 _T = TypeVar("_T")
@@ -154,7 +155,7 @@ class ReadJournalEntries(Protocol[_T]):
     Type of functions which read journal entries from a source.
     """
 
-    def __call__(self, opening: datetime.date, closing: datetime.date) -> Iterable[JournalEntry[_T]]:
+    def __call__(self, period: DateRange) -> Iterable[JournalEntry[_T]]:
         pass
 
 
@@ -163,5 +164,5 @@ class PostJournalEntry(Protocol[_T]):
     Type of functions which post increment and decrements events of a journal entry.
     """
 
-    def __call__(self, coa: COA, entry: JournalEntry[_T]) -> JournalEntry[_T]:
+    def __call__(self, entry: JournalEntry[_T]) -> JournalEntry[_T]:
         pass
