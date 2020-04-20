@@ -5,7 +5,6 @@ This module provides data definitions and functionality related to journal entri
 __all__ = [
     "Direction",
     "JournalEntry",
-    "PostJournalEntry",
     "Posting",
     "ReadJournalEntries",
 ]
@@ -179,13 +178,4 @@ class ReadJournalEntries(Protocol[_T]):
     """
 
     def __call__(self, period: DateRange) -> Iterable[JournalEntry[_T]]:
-        pass
-
-
-class PostJournalEntry(Protocol[_T]):
-    """
-    Type of functions which post increment and decrements events of a journal entry.
-    """
-
-    def __call__(self, entry: JournalEntry[_T]) -> JournalEntry[_T]:
         pass

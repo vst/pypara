@@ -23,7 +23,7 @@ from ..commons.numbers import Amount, Quantity
 from ..commons.zeitgeist import DateRange
 from .accounts import Account
 from .generic import Balance
-from .journaling import JournalEntry, Posting, PostJournalEntry, ReadJournalEntries
+from .journaling import JournalEntry, Posting, ReadJournalEntries
 
 #: Defines a generic type variable.
 _T = TypeVar("_T")
@@ -206,9 +206,7 @@ class GeneralLedgerProgram(Protocol[_T]):
 
 
 def compile_general_ledger_program(
-    read_initial_balances: ReadInitialBalances,
-    read_journal_entries: ReadJournalEntries[_T],
-    post_journal_entry: PostJournalEntry[_T],
+    read_initial_balances: ReadInitialBalances, read_journal_entries: ReadJournalEntries[_T],
 ) -> GeneralLedgerProgram[_T]:
     """
     Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
@@ -216,7 +214,6 @@ def compile_general_ledger_program(
 
     :param read_initial_balances: Algebra implementation which reads initial balances.
     :param read_journal_entries: Algebra implementation which reads journal entries.
-    :param post_journal_entry: Algebra implementation which posts journal entries.
     :return: A function which consumes opening and closing dates and produces a general ledger
     """
 
@@ -231,7 +228,7 @@ def compile_general_ledger_program(
         initial_balances = read_initial_balances(period)
 
         ## Read journal entries and post each of them:
-        journal_entries = (post_journal_entry(je) for je in read_journal_entries(period))
+        journal_entries = read_journal_entries(period)
 
         ## Build the general ledger and return:
         return build_general_ledger(period, journal_entries, initial_balances)
