@@ -106,6 +106,22 @@ class AccountType(Enum):
     #: Indicates accounts for expenses resulting in decrease in :py:attr:`AccountType.EQUITIES`.
     EXPENSES = "EXPENSES"
 
+    def __lt__(self, other: "AccountType") -> bool:
+        """
+        Provides a comparison for account type enums.
+        """
+        ## Provides the order of enums:
+        order: Dict["AccountType", int] = {
+            AccountType.ASSETS: 0,
+            AccountType.LIABILITIES: 1,
+            AccountType.EQUITIES: 2,
+            AccountType.REVENUES: 3,
+            AccountType.EXPENSES: 4,
+        }
+
+        ## Compare and return the order of enums:
+        return order[self] < order[other]
+
 
 @runtime_checkable
 class Account(Protocol):
