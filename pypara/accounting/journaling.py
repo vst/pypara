@@ -68,6 +68,9 @@ class Posting(Generic[_T]):
     #: Journal entry the posting belongs to.
     journal: "JournalEntry[_T]"
 
+    #: Date of posting.
+    date: datetime.date
+
     #: Account of the posting.
     account: Account
 
@@ -127,18 +130,33 @@ class JournalEntry(Generic[_T]):
         """
         return (p for p in self.postings if p.direction == Direction.DEC)
 
-    def post(self, account: Account, quantity: Quantity) -> "JournalEntry[_T]":
+    @property
+    def debits(self) -> Iterable[Posting[_T]]:
+        """
+        Debit postings of the journal entry.
+        """
+        return (p for p in self.postings if p.is_debit)
+
+    @property
+    def credits(self) -> Iterable[Posting[_T]]:
+        """
+        Credit postings of the journal entry.
+        """
+        return (p for p in self.postings if p.is_credit)
+
+    def post(self, date: datetime.date, account: Account, quantity: Quantity) -> "JournalEntry[_T]":
         """
         Posts an increment/decrement event (depending on the sign of ``quantity``) to the given account.
 
         If the quantity is ``0``, nothing is posted.
 
+        :param date: Date of posting.
         :param account: Account to post the amount to.
         :param quantity: Signed-value to post to the account.
         :return: This journal entry (to be chained conveniently).
         """
         if not quantity.is_zero():
-            self.postings.append(Posting(self, account, Direction.of(quantity), Amount(abs(quantity))))
+            self.postings.append(Posting(self, date, account, Direction.of(quantity), Amount(abs(quantity))))
         return self
 
     def validate(self) -> None:
@@ -147,7 +165,12 @@ class JournalEntry(Generic[_T]):
 
         :raises AssertionError: If the journal entry is inconsistent.
         """
-        assert isum(i.amount for i in self.increments) == isum(i.amount for i in self.decrements)
+        ## Get total debit and credit amounts:
+        total_debit = isum(i.amount for i in self.debits)
+        total_credit = isum(i.amount for i in self.credits)
+
+        ## Check:
+        assert total_debit == total_credit, f"Total Debits and Credits are not equal: {total_debit} != {total_credit}"
 
 
 class ReadJournalEntries(Protocol[_T]):

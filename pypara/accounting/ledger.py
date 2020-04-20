@@ -53,7 +53,7 @@ class LedgerEntry(Generic[_T]):
         """
         Date of the ledger entry.
         """
-        return self.posting.journal.date
+        return self.posting.date
 
     @property
     def description(self) -> str:
