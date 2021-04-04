@@ -11,7 +11,8 @@ setup(
     name="pypara",
     version=re.search(r"__version__\s*=\s*['\"]([^'\"]*)['\"]", open("pypara/__init__.py").read()).group(1),
     description="Currencies, Monetary Value Arithmetic/Conversion and Some Type Convenience",
-    long_description=open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.rst")).read(),
+    long_description=open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")).read(),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
