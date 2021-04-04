@@ -205,7 +205,8 @@ class GeneralLedgerProgram(Protocol[_T]):
 
 
 def compile_general_ledger_program(
-    read_initial_balances: ReadInitialBalances, read_journal_entries: ReadJournalEntries[_T],
+    read_initial_balances: ReadInitialBalances,
+    read_journal_entries: ReadJournalEntries[_T],
 ) -> GeneralLedgerProgram[_T]:
     """
     Consumes implementations of the algebra and returns a program which consumes opening and closing dates and produces
