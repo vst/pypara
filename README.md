@@ -43,5 +43,6 @@ To build a package and upload to PyPI:
 ```
 pip install --upgrade twine
 python setup.py sdist bdist_wheel
+twine check dist/*
 twine upload -s dist/*
 ```
