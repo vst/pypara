@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 
-import pytest  # type: ignore
+import pytest
 
 from pypara.currencies import Currencies
 from pypara.monetary import IncompatibleCurrencyError, Money, NoMoney, NoneMoney, Price, SomeMoney

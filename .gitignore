@@ -9,4 +9,3 @@ build
 dist
 pip-wheel-metadata/
 pypara.egg-info
-vs.code-workspace

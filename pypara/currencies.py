@@ -436,6 +436,7 @@ with Currencies as register:
     register(Currency.of("KZT", "Tenge", 2, CurrencyType.MONEY))
     register(Currency.of("LAK", "Kip", 2, CurrencyType.MONEY))
     register(Currency.of("LBP", "Lebanese Pound", 2, CurrencyType.MONEY))
+    register(Currency.of("LINK", "Chainlink", -1, CurrencyType.CRYPTO))
     register(Currency.of("LKR", "Sri Lanka Rupee", 2, CurrencyType.MONEY))
     register(Currency.of("LRD", "Liberian Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("LSL", "Loti", 2, CurrencyType.MONEY))
