@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.23](https://github.com/vst/pypara/compare/0.0.22...0.0.23) (2021-04-04)
+
+
+### Features
+
+* **currency:** add new cryptocurrency LINK ([52e8ba7](https://github.com/vst/pypara/commit/52e8ba797f39e93605512a096420946740aa3989))
+
 ### [0.0.22](https://github.com/vst/pypara/compare/0.0.21...0.0.22) (2020-03-16)
 
 
