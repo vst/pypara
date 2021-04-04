@@ -12,8 +12,7 @@ __all__ = [
 import datetime
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generic, Iterable, List, Set, TypeVar
-from typing_extensions import Protocol
+from typing import Dict, Generic, Iterable, List, Protocol, Set, TypeVar
 
 from ..commons.numbers import Amount, Quantity, isum
 from ..commons.others import Guid, makeguid
