@@ -79,8 +79,7 @@ from abc import abstractmethod
 from collections import OrderedDict
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
-from typing import Dict, Iterable, Iterator, List, NewType, Optional, Tuple
-from typing_extensions import Protocol, runtime_checkable
+from typing import Dict, Iterable, Iterator, List, NewType, Optional, Protocol, Tuple, runtime_checkable
 
 #: Defines a new-type for account codes.
 Code = NewType("Code", str)
