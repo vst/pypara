@@ -12,15 +12,23 @@ Currencies, Monetary Value Objects, Arithmetic and Conversion
 Development Notes
 -----------------
 
-Make sure that `tox <https://tox.readthedocs.io/en/latest/>`_ completes successfully.
-
 Create a virtual environment::
 
-  mkvirtualenv --python=python3.6 <VIRTUAL-ENVIRONMENT-NAME>
+  python3.8 -m venv /opt/venvs/pypara3.8
 
-Install ``tox``::
+Activate the virtual environment::
 
-  pip install tox
+  source /opt/venvs/pypara3.8/bin/activate
+
+Upgrade base dependencies::
+
+  pip install --upgrade pip setuptools
+
+Install production and development dependencies:
+
+  pip install -e . -r dev-requirements.txt
+
+Make sure that `tox <https://tox.readthedocs.io/en/latest/>`_ completes successfully::
 
 And run ``tox``::
 
