@@ -42,7 +42,7 @@ from datetime import time as Time
 from datetime import timedelta as TimeDelta
 from typing import Dict, Iterable, Iterator, Literal, Optional, OrderedDict, Tuple, Union
 
-from dateutil.parser import parse
+from dateutil.parser import ParserError, parse
 from dateutil.relativedelta import relativedelta
 
 from pypara.commons.numbers import NaturalNumber, PositiveInteger
@@ -369,6 +369,42 @@ def make_financial_periods(date: Date, lookback: PositiveInteger) -> FinancialPe
 class OpenDateRange:
     """
     Defines a daterange class with inclusive but optional start and end.
+
+    For a date range with both ends open:
+
+    >>> range = OpenDateRange()
+    >>> range.start is None
+    True
+    >>> range.end is None
+    True
+    >>> range.is_finite
+    False
+    >>> range.has_start
+    False
+    >>> range.has_end
+    False
+    >>> list(range.range)
+    []
+    >>> range.endpoints
+    (None, None)
+
+    For a date range with both ends closed:
+
+    >>> range2 = OpenDateRange(Date(2018, 1, 1), Date(2018, 1, 3))
+    >>> range2.start is None
+    False
+    >>> range2.end is None
+    False
+    >>> range2.is_finite
+    True
+    >>> range2.has_start
+    True
+    >>> range2.has_end
+    True
+    >>> list(range2.range)
+    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2), datetime.date(2018, 1, 3)]
+    >>> range2.endpoints
+    (datetime.date(2018, 1, 1), datetime.date(2018, 1, 3))
     """
 
     def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None) -> None:
@@ -746,29 +782,30 @@ def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTim
     Attempts to convert the value to a `datetime.datetime` instance
     with the date/time fields replaced by `kwargs` if given.
 
+    >>> ensure_datetime(Date(2015, 10, 10))
+    datetime.datetime(2015, 10, 10, 0, 0)
     >>> ensure_datetime(DateTime(2015, 10, 10))
     datetime.datetime(2015, 10, 10, 0, 0)
-
-    >>> ensure_datetime(DateTime(2015, 10, 10))
-    datetime.datetime(2015, 10, 10, 0, 0)
-
     >>> ensure_datetime("2015-10-10")
     datetime.datetime(2015, 10, 10, 0, 0)
-
     >>> ensure_datetime(DateTime(2015, 10, 10), hour=12)
     datetime.datetime(2015, 10, 10, 12, 0)
-
     >>> ensure_datetime(DateTime(2015, 10, 10), minute=59)
     datetime.datetime(2015, 10, 10, 0, 59)
-
     >>> ensure_datetime("2015-10-10", second=30)
     datetime.datetime(2015, 10, 10, 0, 0, 30)
-
     >>> ensure_datetime("2015-10-10", second=0)
     datetime.datetime(2015, 10, 10, 0, 0)
-
     >>> ensure_datetime("2015-10-10", microsecond=10)
     datetime.datetime(2015, 10, 10, 0, 0, 0, 10)
+    >>> ensure_datetime("A")
+    Traceback (most recent call last):
+    ...
+    ValueError: Can not parse value into a date/time object: A
+    >>> ensure_datetime(1)
+    Traceback (most recent call last):
+    ...
+    ValueError: Don't know how to convert value to date/time object: 1
     """
     ## Check the type of the value and act accordinly.
     if isinstance(value, DateTime):
@@ -778,8 +815,11 @@ def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTim
         ## It is a date instance. Set to morning and return with replacement:
         return DateTime.combine(value, DateTime.min.time()).replace(**kwargs)  # type: ignore
     elif isinstance(value, str):
-        ## We have a string. Parse and return with replacement:
-        return parse(value).replace(**kwargs)  # type: ignore
+        ## We have a string. Attempt to parse and return with replacement:
+        try:
+            return parse(value).replace(**kwargs)  # type: ignore
+        except ParserError:
+            raise ValueError("Can not parse value into a date/time object: {}".format(value))
 
     ## We have a problem here: Don't know how to convert other
     ## object. Raise a value error:

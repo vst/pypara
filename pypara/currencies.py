@@ -17,6 +17,11 @@ from .commons.numbers import ZERO, MaxPrecisionQuantizer, make_quantizer
 class CurrencyLookupError(LookupError):
     """
     Provides a currency lookup error.
+
+    >>> raise CurrencyLookupError("XYZ")
+    Traceback (most recent call last):
+    ...
+    pypara.currencies.CurrencyLookupError: Currency identified by code 'XYZ' does not exist
     """
 
     def __init__(self, code: str) -> None:
@@ -268,6 +273,12 @@ class CurrencyRegistry:
     def __register(self, currency: Currency) -> None:
         """
         Attempts to add the currency to the registry.
+
+        >>> with Currencies as register:
+        ...    register(Currency.of("AED", "UAE Dirham", 2, CurrencyType.MONEY))
+        Traceback (most recent call last):
+        ...
+        ValueError: Currency AED is already registered.
         """
         ## Check of the registry population context is open:
         if not self.__ctx_open:
@@ -296,6 +307,13 @@ class CurrencyRegistry:
     def __getitem__(self, code: str) -> Currency:
         """
         Returns the currency identified by the code or raises lookup error.
+
+        >>> Currencies["USD"].code
+        'USD'
+        >>> Currencies["NON-EXISTING"].code
+        Traceback (most recent call last):
+        ...
+        pypara.currencies.CurrencyLookupError: Currency identified by code 'NON-EXISTING' does not exist
         """
         try:
             return self.__registry[code]

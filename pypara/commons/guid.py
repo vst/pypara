@@ -16,5 +16,8 @@ def makeguid() -> Guid:
     Creates a new :py:class:`Guid`.
 
     :return: :py:class:`Guid` instance.
+
+    >>> isinstance(makeguid(), str)  ## During static analysis, it is `Guid`.
+    True
     """
     return Guid(uuid4().hex)
