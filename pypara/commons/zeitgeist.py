@@ -25,6 +25,7 @@ __all__ = [
     "get_year_start",
     "make_financial_periods",
     "now",
+    "OpenDateRange",
     "PeriodStarts",
     "Time",
     "TimeDelta",
@@ -39,7 +40,7 @@ from datetime import date as Date
 from datetime import datetime as DateTime
 from datetime import time as Time
 from datetime import timedelta as TimeDelta
-from typing import Dict, Iterator, Literal, Optional, OrderedDict, Union
+from typing import Dict, Iterable, Iterator, Literal, Optional, OrderedDict, Tuple, Union
 
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
@@ -48,7 +49,7 @@ from pypara.commons.numbers import NaturalNumber, PositiveInteger
 
 
 @dataclass(frozen=True)
-class DateRange:
+class DateRange(Iterable[Date]):
     """
     Provides an encoding for date ranges with inclusive date endpoints.
 
@@ -363,6 +364,50 @@ def make_financial_periods(date: Date, lookback: PositiveInteger) -> FinancialPe
             *((f"{y}", DateRange.year(PositiveInteger(y))) for y in years),
         )
     )
+
+
+class OpenDateRange:
+    """
+    Defines a daterange class with inclusive but optional start and end.
+    """
+
+    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None) -> None:
+        ## Cast the start date:
+        self.start = start
+
+        ## Cast the end date:
+        self.end = end
+
+    @property
+    def is_finite(self) -> bool:
+        return self.start is not None and self.end is not None
+
+    @property
+    def has_start(self) -> bool:
+        return self.start is not None
+
+    @property
+    def has_end(self) -> bool:
+        return self.end is not None
+
+    @property
+    def range(self) -> Iterator[Date]:
+        if self.start is None or self.end is None:
+            return iter(())
+        return self._drange(self.start, self.end)
+
+    @property
+    def endpoints(self) -> Tuple[Optional[Date], Optional[Date]]:
+        return self.start, self.end
+
+    @staticmethod
+    def _drange(start: Date, end: Date) -> Iterator[Date]:
+        """
+        Returns a date range.
+        """
+        while start <= end:
+            yield start
+            start = start + TimeDelta(days=1)
 
 
 def now(**kwargs: int) -> DateTime:
