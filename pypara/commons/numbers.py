@@ -4,33 +4,73 @@ This module provides common numeric type definitions, constants and functions.
 
 __all__ = [
     "Amount",
-    "sign",
     "CENT",
     "DecimalLike",
     "HUNDRED",
-    "MaxPrecision",
-    "MaxPrecisionQuantizer",
-    "Numeric",
-    "ONE",
-    "Quantity",
-    "ZERO",
     "isum",
     "make_quantizer",
-    "Quantizer2",
-    "Quantizer4",
-    "Quantizer8",
-    "Quantizer12",
+    "MaxPrecision",
+    "MaxPrecisionQuantizer",
+    "NaturalNumber",
+    "Numeric",
+    "ONE",
+    "PositiveInteger",
+    "Quantity",
+    "quantize12",
     "quantize2",
     "quantize4",
     "quantize8",
-    "quantize12",
+    "Quantizer12",
+    "Quantizer2",
+    "Quantizer4",
+    "Quantizer8",
+    "sign",
+    "ZERO",
 ]
 
 import sys
 from decimal import Decimal
 from typing import Callable, Iterable, NewType, Optional, TypeVar, cast
 
-#: Defines a new-type for non-negative (absolute, unsigned) :py:class:`decimal.Decimal` values as *amount*.
+
+class NaturalNumber(int):
+    """
+    Provides a *newtype* for natural numbers ``[0, 1, ...)``.
+
+    Call-site should ensure that the constructor does not throw assertion errors.
+    """
+
+    def __new__(cls, value: int) -> "NaturalNumber":
+        """
+        Attempts to create a new instance.
+
+        :param value: A non-negative integer.
+        :raises AssertionError: If ``value`` is not a non-negative integer.
+        """
+        assert value >= 0
+        return int(value)  # type: ignore
+
+
+class PositiveInteger(int):
+    """
+    Provides a *newtype* for positive integers ``[1, ...)``.
+
+    Call-site should ensure that the constructor does not throw assertion errors.
+    """
+
+    def __new__(cls, value: int) -> "PositiveInteger":
+        """
+        Attempts to create a new instance.
+
+        :param value: A positive integer.
+        :raises AssertionError: If ``value`` is not a positive integer.
+        """
+        assert value > 0
+        return int(value)  # type: ignore
+
+
+#: Defines a new-type for non-negative (absolute, unsigned)
+#: :py:class:`decimal.Decimal` values as *amount*.
 #:
 #: This is just a convenience for adding further semantics to type signatures.
 Amount = NewType("Amount", Decimal)
@@ -43,8 +83,9 @@ Quantity = NewType("Quantity", Decimal)
 #: Defines a type alias for numeric values.
 Numeric = TypeVar("Numeric", int, float, Decimal, Amount, Quantity)
 
-#: Defines a type variable for values of type either :py:class:`decimal.Decimal` or a sub-class or new-type based on
-#: py:class:`Decimal` such as :py:class:`Amount` and a :py:class:`Quantity`.
+#: Defines a type variable for values of type either :py:class:`decimal.Decimal`
+#: or a sub-class or new-type based on : py:class:`Decimal` such as
+#: :py:class:`Amount` and a :py:class:`Quantity`.
 DecimalLike = TypeVar("DecimalLike", bound=Decimal)
 
 #: Defines the constant for :py:class:`decimal.Decimal` value ``0``.
