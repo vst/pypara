@@ -9,10 +9,23 @@ __all__ = [
     "ensure_date",
     "ensure_datetime",
     "FinancialPeriods",
+    "get_month_end",
+    "get_month_start",
+    "get_period_starts",
     "get_prev_weekday",
     "get_prev_year_end",
+    "get_quarter_end_stream",
+    "get_quarter_end",
+    "get_quarter_start",
+    "get_week_end",
+    "get_week_start",
+    "get_year_end",
+    "get_year_half_end",
+    "get_year_half_start",
+    "get_year_start",
     "make_financial_periods",
     "now",
+    "PeriodStarts",
     "Time",
     "TimeDelta",
     "today",
@@ -26,9 +39,10 @@ from datetime import date as Date
 from datetime import datetime as DateTime
 from datetime import time as Time
 from datetime import timedelta as TimeDelta
-from typing import Dict, Iterator, Optional, OrderedDict, Union
+from typing import Dict, Iterator, Literal, Optional, OrderedDict, Union
 
 from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 
 from pypara.commons.numbers import NaturalNumber, PositiveInteger
 
@@ -441,6 +455,245 @@ def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = Positiv
     datetime.date(2016, 12, 31)
     """
     return Date((x or today()).year - years, 12, 31)
+
+
+def get_year_start(x: Optional[Date] = None) -> Date:
+    """
+    Returns the start of the year as of the given date.
+
+    >>> get_year_start(Date(2017, 1, 1))
+    datetime.date(2017, 1, 1)
+    >>> get_year_start(Date(2017, 7, 29))
+    datetime.date(2017, 1, 1)
+    >>> get_year_start(Date(2017, 12, 31))
+    datetime.date(2017, 1, 1)
+    """
+    return (x or today()).replace(month=1, day=1)
+
+
+def get_year_end(x: Optional[Date] = None) -> Date:
+    """
+    Returns the start of the year as of the given date.
+
+    >>> get_year_end(Date(2017, 1, 1))
+    datetime.date(2017, 12, 31)
+    >>> get_year_end(Date(2017, 7, 29))
+    datetime.date(2017, 12, 31)
+    >>> get_year_end(Date(2017, 12, 31))
+    datetime.date(2017, 12, 31)
+    """
+    return (x or today()).replace(month=12, day=31)
+
+
+def get_year_half_start(x: Optional[Date] = None) -> Date:
+    """
+    Returns the half year start as of the given date.
+
+    >>> get_year_half_start(Date(2017, 1, 1))
+    datetime.date(2017, 1, 1)
+    >>> get_year_half_start(Date(2017, 5, 31))
+    datetime.date(2017, 1, 1)
+    >>> get_year_half_start(Date(2017, 6, 30))
+    datetime.date(2017, 1, 1)
+    >>> get_year_half_start(Date(2017, 7, 1))
+    datetime.date(2017, 7, 1)
+    >>> get_year_half_start(Date(2017, 7, 29))
+    datetime.date(2017, 7, 1)
+    >>> get_year_half_start(Date(2017, 12, 31))
+    datetime.date(2017, 7, 1)
+    """
+    asof = x or today()
+    return asof.replace(month=((asof.month - 1) // 6) * 6 + 1, day=1)
+
+
+def get_year_half_end(x: Optional[Date] = None) -> Date:
+    """
+    Returns the half year end as of the given date.
+
+    >>> get_year_half_end(Date(2017, 1, 1))
+    datetime.date(2017, 6, 30)
+    >>> get_year_half_end(Date(2017, 5, 31))
+    datetime.date(2017, 6, 30)
+    >>> get_year_half_end(Date(2017, 6, 30))
+    datetime.date(2017, 6, 30)
+    >>> get_year_half_end(Date(2017, 7, 1))
+    datetime.date(2017, 12, 31)
+    >>> get_year_half_end(Date(2017, 7, 29))
+    datetime.date(2017, 12, 31)
+    >>> get_year_half_end(Date(2017, 12, 31))
+    datetime.date(2017, 12, 31)
+    """
+    return get_year_half_start(x or today()) + relativedelta(months=+6, days=-1)
+
+
+def get_quarter_start(x: Optional[Date] = None) -> Date:
+    """
+    Returns the quarter start as of the given date.
+
+    >>> get_quarter_start(Date(2017, 1, 1))
+    datetime.date(2017, 1, 1)
+    >>> get_quarter_start(Date(2017, 5, 31))
+    datetime.date(2017, 4, 1)
+    >>> get_quarter_start(Date(2017, 6, 30))
+    datetime.date(2017, 4, 1)
+    >>> get_quarter_start(Date(2017, 7, 1))
+    datetime.date(2017, 7, 1)
+    >>> get_quarter_start(Date(2017, 7, 29))
+    datetime.date(2017, 7, 1)
+    >>> get_quarter_start(Date(2017, 12, 31))
+    datetime.date(2017, 10, 1)
+    """
+    asof = x or today()
+    return asof.replace(month=(asof.month - 1) // 3 * 3 + 1, day=1)
+
+
+def get_quarter_end(x: Optional[Date] = None) -> Date:
+    """
+    Returns the quarter end as of the given date.
+
+    >>> get_quarter_end(Date(2017, 1, 1))
+    datetime.date(2017, 3, 31)
+    >>> get_quarter_end(Date(2017, 5, 31))
+    datetime.date(2017, 6, 30)
+    >>> get_quarter_end(Date(2017, 6, 30))
+    datetime.date(2017, 6, 30)
+    >>> get_quarter_end(Date(2017, 7, 1))
+    datetime.date(2017, 9, 30)
+    >>> get_quarter_end(Date(2017, 7, 29))
+    datetime.date(2017, 9, 30)
+    >>> get_quarter_end(Date(2017, 9, 30))
+    datetime.date(2017, 9, 30)
+    >>> get_quarter_end(Date(2017, 10, 1))
+    datetime.date(2017, 12, 31)
+    >>> get_quarter_end(Date(2017, 12, 31))
+    datetime.date(2017, 12, 31)
+    """
+    return get_quarter_start(x or today()) + relativedelta(months=+3, days=-1)
+
+
+def get_month_start(x: Optional[Date] = None) -> Date:
+    """
+    Returns the start of the month as of the given date.
+
+    >>> get_month_start(Date(2017, 2, 1))
+    datetime.date(2017, 2, 1)
+    >>> get_month_start(Date(2017, 2, 2))
+    datetime.date(2017, 2, 1)
+    >>> get_month_start(Date(2017, 3, 31))
+    datetime.date(2017, 3, 1)
+    """
+    return (x or today()).replace(day=1)
+
+
+def get_month_end(x: Optional[Date] = None) -> Date:
+    """
+    Returns the end of the month as of the given date.
+
+    >>> get_month_end(Date(2017, 1, 1))
+    datetime.date(2017, 1, 31)
+    >>> get_month_end(Date(2017, 1, 2))
+    datetime.date(2017, 1, 31)
+    >>> get_month_end(Date(2017, 1, 31))
+    datetime.date(2017, 1, 31)
+    >>> get_month_end(Date(2017, 2, 1))
+    datetime.date(2017, 2, 28)
+    >>> get_month_end(Date(2017, 3, 1))
+    datetime.date(2017, 3, 31)
+    """
+    return (x or today()).replace(day=1) + relativedelta(months=+1, days=-1)
+
+
+def get_week_start(x: Optional[Date] = None) -> Date:
+    """
+    Returns the start of the week as of the given date.
+
+    >>> get_week_start(Date(2017, 1, 15))
+    datetime.date(2017, 1, 9)
+    >>> get_week_start(Date(2017, 1, 16))
+    datetime.date(2017, 1, 16)
+    >>> get_week_start(Date(2017, 1, 18))
+    datetime.date(2017, 1, 16)
+    """
+    asof = x or today()
+    return asof - TimeDelta(days=(asof.isoweekday() - 1) % 7)
+
+
+def get_week_end(x: Optional[Date] = None) -> Date:
+    """
+    Returns the end of the week as of the given date.
+
+    >>> get_week_end(Date(2017, 1, 15))
+    datetime.date(2017, 1, 15)
+    >>> get_week_end(Date(2017, 1, 16))
+    datetime.date(2017, 1, 22)
+    >>> get_week_end(Date(2017, 1, 18))
+    datetime.date(2017, 1, 22)
+    >>> get_week_end(Date(2017, 1, 17))
+    datetime.date(2017, 1, 22)
+    >>> get_week_end(Date(2017, 1, 22))
+    datetime.date(2017, 1, 22)
+    """
+    asof = x or today()
+    return asof + TimeDelta(days=6 - (asof.isoweekday() - 1) % 7)
+
+
+#: Type encoding for a lookup table of period starts.
+PeriodStarts = Dict[
+    Literal["year_start", "half_start", "quarter_start", "month_start", "week_start", "yesterday"], Date
+]
+
+
+def get_period_starts(x: Optional[Date] = None) -> PeriodStarts:
+    """
+    Returns important dates as of the given date.
+
+    >>> get_period_starts(Date(2018, 8, 19))["year_start"]
+    datetime.date(2018, 1, 1)
+    >>> get_period_starts(Date(2018, 8, 19))["half_start"]
+    datetime.date(2018, 7, 1)
+    >>> get_period_starts(Date(2018, 8, 19))["quarter_start"]
+    datetime.date(2018, 7, 1)
+    >>> get_period_starts(Date(2018, 8, 19))["month_start"]
+    datetime.date(2018, 8, 1)
+    >>> get_period_starts(Date(2018, 8, 19))["week_start"]
+    datetime.date(2018, 8, 13)
+    >>> get_period_starts(Date(2018, 8, 19))["yesterday"]
+    datetime.date(2018, 8, 18)
+    """
+    asof = x or today()
+    return OrderedDict(
+        [
+            ("year_start", get_year_start(asof)),
+            ("half_start", get_year_half_start(asof)),
+            ("quarter_start", get_quarter_start(asof)),
+            ("month_start", get_month_start(asof)),
+            ("week_start", get_week_start(asof)),
+            ("yesterday", asof - TimeDelta(days=1)),
+        ]
+    )
+
+
+def get_quarter_end_stream(x: Optional[Date] = None) -> Iterator[Date]:
+    """
+    Returns a descending stream of quarter end dates.
+
+    >>> from itertools import islice
+    >>> list(islice(get_quarter_end_stream(Date(2018, 8, 12)), 3))
+    [datetime.date(2018, 6, 30), datetime.date(2018, 3, 31), datetime.date(2017, 12, 31)]
+    """
+    ## Get asof date:
+    asof = x or today()
+
+    ## Get the last quarter end:
+    e = get_quarter_start(asof) - TimeDelta(days=1)
+
+    ## Yield this:
+    yield e
+
+    ## Forever:
+    while True:
+        e = get_month_end(e - relativedelta(months=3))
+        yield e
 
 
 def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTime:
