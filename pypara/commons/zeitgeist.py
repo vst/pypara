@@ -6,6 +6,8 @@ __all__ = [
     "Date",
     "DateRange",
     "DateTime",
+    "ensure_date",
+    "ensure_datetime",
     "FinancialPeriods",
     "get_prev_weekday",
     "get_prev_year_end",
@@ -24,7 +26,9 @@ from datetime import date as Date
 from datetime import datetime as DateTime
 from datetime import time as Time
 from datetime import timedelta as TimeDelta
-from typing import Dict, Iterator, Optional, OrderedDict
+from typing import Dict, Iterator, Optional, OrderedDict, Union
+
+from dateutil.parser import parse
 
 from pypara.commons.numbers import NaturalNumber, PositiveInteger
 
@@ -437,3 +441,80 @@ def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = Positiv
     datetime.date(2016, 12, 31)
     """
     return Date((x or today()).year - years, 12, 31)
+
+
+def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTime:
+    """
+    Attempts to convert the value to a `datetime.datetime` instance
+    with the date/time fields replaced by `kwargs` if given.
+
+    >>> ensure_datetime(DateTime(2015, 10, 10))
+    datetime.datetime(2015, 10, 10, 0, 0)
+
+    >>> ensure_datetime(DateTime(2015, 10, 10))
+    datetime.datetime(2015, 10, 10, 0, 0)
+
+    >>> ensure_datetime("2015-10-10")
+    datetime.datetime(2015, 10, 10, 0, 0)
+
+    >>> ensure_datetime(DateTime(2015, 10, 10), hour=12)
+    datetime.datetime(2015, 10, 10, 12, 0)
+
+    >>> ensure_datetime(DateTime(2015, 10, 10), minute=59)
+    datetime.datetime(2015, 10, 10, 0, 59)
+
+    >>> ensure_datetime("2015-10-10", second=30)
+    datetime.datetime(2015, 10, 10, 0, 0, 30)
+
+    >>> ensure_datetime("2015-10-10", second=0)
+    datetime.datetime(2015, 10, 10, 0, 0)
+
+    >>> ensure_datetime("2015-10-10", microsecond=10)
+    datetime.datetime(2015, 10, 10, 0, 0, 0, 10)
+    """
+    ## Check the type of the value and act accordinly.
+    if isinstance(value, DateTime):
+        ## It is a datetime instance. Nothing to be done. Just return with replacement:
+        return value.replace(**kwargs)  # type: ignore
+    elif isinstance(value, Date):
+        ## It is a date instance. Set to morning and return with replacement:
+        return DateTime.combine(value, DateTime.min.time()).replace(**kwargs)  # type: ignore
+    elif isinstance(value, str):
+        ## We have a string. Parse and return with replacement:
+        return parse(value).replace(**kwargs)  # type: ignore
+
+    ## We have a problem here: Don't know how to convert other
+    ## object. Raise a value error:
+    raise ValueError("Don't know how to convert value to date/time object: {}".format(value))
+
+
+def ensure_date(value: Union[Date, DateTime, str], **kwargs: int) -> Date:
+    """
+    Attempts to convert the value to a `datetime.date` instance with the
+    date fields replaced by `kwargs` if given.
+
+    >>> ensure_date(DateTime(2015, 10, 10))
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date(DateTime(2015, 10, 10))
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date("2015-10-10")
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date(DateTime(2015, 10, 10), hour=12)
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date(DateTime(2015, 10, 10), minute=59)
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date("2015-10-10", second=30)
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date("2015-10-10", second=0)
+    datetime.date(2015, 10, 10)
+
+    >>> ensure_date("2015-10-10", microsecond=10)
+    datetime.date(2015, 10, 10)
+    """
+    return ensure_datetime(value, **kwargs).date()
