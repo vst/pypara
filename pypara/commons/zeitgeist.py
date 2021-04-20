@@ -11,27 +11,27 @@ __all__ = [
     "FinancialPeriods",
     "get_month_end",
     "get_month_start",
+    "get_now",
     "get_period_starts",
     "get_prev_weekday",
     "get_prev_year_end",
     "get_quarter_end_stream",
     "get_quarter_end",
     "get_quarter_start",
+    "get_today",
+    "get_tomorrow",
     "get_week_end",
     "get_week_start",
     "get_year_end",
     "get_year_half_end",
     "get_year_half_start",
     "get_year_start",
+    "get_yesterday",
     "make_financial_periods",
-    "now",
     "OpenDateRange",
     "PeriodStarts",
     "Time",
     "TimeDelta",
-    "today",
-    "tomorrow",
-    "yesterday",
 ]
 
 from calendar import isleap
@@ -46,6 +46,86 @@ from dateutil.parser import ParserError, parse
 from dateutil.relativedelta import relativedelta
 
 from pypara.commons.numbers import NaturalNumber, PositiveInteger
+
+
+class OpenDateRange:
+    """
+    Defines a daterange class with inclusive but optional start and end.
+
+    For a date range with both ends open:
+
+    >>> range = OpenDateRange()
+    >>> range.start is None
+    True
+    >>> range.end is None
+    True
+    >>> range.is_finite
+    False
+    >>> range.has_start
+    False
+    >>> range.has_end
+    False
+    >>> list(range.range)
+    []
+    >>> range.endpoints
+    (None, None)
+
+    For a date range with both ends closed:
+
+    >>> range2 = OpenDateRange(Date(2018, 1, 1), Date(2018, 1, 3))
+    >>> range2.start is None
+    False
+    >>> range2.end is None
+    False
+    >>> range2.is_finite
+    True
+    >>> range2.has_start
+    True
+    >>> range2.has_end
+    True
+    >>> list(range2.range)
+    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2), datetime.date(2018, 1, 3)]
+    >>> range2.endpoints
+    (datetime.date(2018, 1, 1), datetime.date(2018, 1, 3))
+    """
+
+    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None) -> None:
+        ## Cast the start date:
+        self.start = start
+
+        ## Cast the end date:
+        self.end = end
+
+    @property
+    def is_finite(self) -> bool:
+        return self.start is not None and self.end is not None
+
+    @property
+    def has_start(self) -> bool:
+        return self.start is not None
+
+    @property
+    def has_end(self) -> bool:
+        return self.end is not None
+
+    @property
+    def range(self) -> Iterator[Date]:
+        if self.start is None or self.end is None:
+            return iter(())
+        return self._drange(self.start, self.end)
+
+    @property
+    def endpoints(self) -> Tuple[Optional[Date], Optional[Date]]:
+        return self.start, self.end
+
+    @staticmethod
+    def _drange(start: Date, end: Date) -> Iterator[Date]:
+        """
+        Returns a date range.
+        """
+        while start <= end:
+            yield start
+            start = start + TimeDelta(days=1)
 
 
 @dataclass(frozen=True)
@@ -366,128 +446,48 @@ def make_financial_periods(date: Date, lookback: PositiveInteger) -> FinancialPe
     )
 
 
-class OpenDateRange:
-    """
-    Defines a daterange class with inclusive but optional start and end.
-
-    For a date range with both ends open:
-
-    >>> range = OpenDateRange()
-    >>> range.start is None
-    True
-    >>> range.end is None
-    True
-    >>> range.is_finite
-    False
-    >>> range.has_start
-    False
-    >>> range.has_end
-    False
-    >>> list(range.range)
-    []
-    >>> range.endpoints
-    (None, None)
-
-    For a date range with both ends closed:
-
-    >>> range2 = OpenDateRange(Date(2018, 1, 1), Date(2018, 1, 3))
-    >>> range2.start is None
-    False
-    >>> range2.end is None
-    False
-    >>> range2.is_finite
-    True
-    >>> range2.has_start
-    True
-    >>> range2.has_end
-    True
-    >>> list(range2.range)
-    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2), datetime.date(2018, 1, 3)]
-    >>> range2.endpoints
-    (datetime.date(2018, 1, 1), datetime.date(2018, 1, 3))
-    """
-
-    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None) -> None:
-        ## Cast the start date:
-        self.start = start
-
-        ## Cast the end date:
-        self.end = end
-
-    @property
-    def is_finite(self) -> bool:
-        return self.start is not None and self.end is not None
-
-    @property
-    def has_start(self) -> bool:
-        return self.start is not None
-
-    @property
-    def has_end(self) -> bool:
-        return self.end is not None
-
-    @property
-    def range(self) -> Iterator[Date]:
-        if self.start is None or self.end is None:
-            return iter(())
-        return self._drange(self.start, self.end)
-
-    @property
-    def endpoints(self) -> Tuple[Optional[Date], Optional[Date]]:
-        return self.start, self.end
-
-    @staticmethod
-    def _drange(start: Date, end: Date) -> Iterator[Date]:
-        """
-        Returns a date range.
-        """
-        while start <= end:
-            yield start
-            start = start + TimeDelta(days=1)
-
-
-def now(**kwargs: int) -> DateTime:
+def get_now(**kwargs: int) -> DateTime:
     """
     Returns the current date/time with replacements if provided.
 
-    >>> now(year=1981, month=8, day=27, hour=18, minute=19, second=20, microsecond=1)
+    >>> get_now(year=1981, month=8, day=27, hour=18, minute=19, second=20, microsecond=1)
     datetime.datetime(1981, 8, 27, 18, 19, 20, 1)
     """
     return DateTime.now().replace(**kwargs)  # type: ignore
 
 
-def today(**kwargs: int) -> Date:
+def get_today(**kwargs: int) -> Date:
     """
     Returns the current date with replacements if provided.
 
-    >>> today(year=1981, month=8, day=27)
+    >>> get_today(year=1981, month=8, day=27)
     datetime.date(1981, 8, 27)
     """
     return Date.today().replace(**kwargs)
 
 
-def yesterday(x: Optional[Date] = None) -> Date:
+def get_yesterday(x: Optional[Date] = None) -> Date:
     """
     Returns yesterday as of given (optional) date.
 
-    >>> yesterday() == today() - TimeDelta(days=1)
+    >>> get_yesterday() == get_today() - TimeDelta(days=1)
     True
-    >>> yesterday(Date(2019, 1, 1))
+    >>> get_yesterday(Date(2019, 1, 1))
     datetime.date(2018, 12, 31)
     """
-    return (x or today()) - TimeDelta(days=1)
+    return (x or get_today()) - TimeDelta(days=1)
 
 
-def tomorrow(x: Optional[Date] = None) -> Date:
+def get_tomorrow(x: Optional[Date] = None) -> Date:
     """
     Returns tomorrow as of given (optional) date.
 
-    >>> tomorrow() == today() + TimeDelta(days=1)
+    >>> get_tomorrow() == get_today() + TimeDelta(days=1)
     True
-    >>> tomorrow(Date(2018, 12, 31))
+    >>> get_tomorrow(Date(2018, 12, 31))
     datetime.date(2019, 1, 1)
     """
-    return (x or today()) + TimeDelta(days=1)
+    return (x or get_today()) + TimeDelta(days=1)
 
 
 def get_prev_weekday(x: Optional[Date] = None) -> Date:
@@ -513,7 +513,7 @@ def get_prev_weekday(x: Optional[Date] = None) -> Date:
     datetime.date(2020, 1, 6)
     """
     ## Get the day:
-    x = x or today()
+    x = x or get_today()
 
     ## Define the offset:
     offset = max(1, (x.weekday() + 6) % 7 - 3)
@@ -526,7 +526,7 @@ def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = Positiv
     """
     Returns the year end of the previous year as of given (optional) date.
 
-    >>> get_prev_year_end() == Date(today().year - 1, 12, 31)
+    >>> get_prev_year_end() == Date(get_today().year - 1, 12, 31)
     True
     >>> get_prev_year_end(Date(2019, 1, 1))
     datetime.date(2018, 12, 31)
@@ -535,7 +535,7 @@ def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = Positiv
     >>> get_prev_year_end(Date(2018, 12, 31), PositiveInteger(2))
     datetime.date(2016, 12, 31)
     """
-    return Date((x or today()).year - years, 12, 31)
+    return Date((x or get_today()).year - years, 12, 31)
 
 
 def get_year_start(x: Optional[Date] = None) -> Date:
@@ -549,7 +549,7 @@ def get_year_start(x: Optional[Date] = None) -> Date:
     >>> get_year_start(Date(2017, 12, 31))
     datetime.date(2017, 1, 1)
     """
-    return (x or today()).replace(month=1, day=1)
+    return (x or get_today()).replace(month=1, day=1)
 
 
 def get_year_end(x: Optional[Date] = None) -> Date:
@@ -563,7 +563,7 @@ def get_year_end(x: Optional[Date] = None) -> Date:
     >>> get_year_end(Date(2017, 12, 31))
     datetime.date(2017, 12, 31)
     """
-    return (x or today()).replace(month=12, day=31)
+    return (x or get_today()).replace(month=12, day=31)
 
 
 def get_year_half_start(x: Optional[Date] = None) -> Date:
@@ -583,7 +583,7 @@ def get_year_half_start(x: Optional[Date] = None) -> Date:
     >>> get_year_half_start(Date(2017, 12, 31))
     datetime.date(2017, 7, 1)
     """
-    asof = x or today()
+    asof = x or get_today()
     return asof.replace(month=((asof.month - 1) // 6) * 6 + 1, day=1)
 
 
@@ -604,7 +604,7 @@ def get_year_half_end(x: Optional[Date] = None) -> Date:
     >>> get_year_half_end(Date(2017, 12, 31))
     datetime.date(2017, 12, 31)
     """
-    return get_year_half_start(x or today()) + relativedelta(months=+6, days=-1)
+    return get_year_half_start(x or get_today()) + relativedelta(months=+6, days=-1)
 
 
 def get_quarter_start(x: Optional[Date] = None) -> Date:
@@ -624,7 +624,7 @@ def get_quarter_start(x: Optional[Date] = None) -> Date:
     >>> get_quarter_start(Date(2017, 12, 31))
     datetime.date(2017, 10, 1)
     """
-    asof = x or today()
+    asof = x or get_today()
     return asof.replace(month=(asof.month - 1) // 3 * 3 + 1, day=1)
 
 
@@ -649,7 +649,7 @@ def get_quarter_end(x: Optional[Date] = None) -> Date:
     >>> get_quarter_end(Date(2017, 12, 31))
     datetime.date(2017, 12, 31)
     """
-    return get_quarter_start(x or today()) + relativedelta(months=+3, days=-1)
+    return get_quarter_start(x or get_today()) + relativedelta(months=+3, days=-1)
 
 
 def get_month_start(x: Optional[Date] = None) -> Date:
@@ -663,7 +663,7 @@ def get_month_start(x: Optional[Date] = None) -> Date:
     >>> get_month_start(Date(2017, 3, 31))
     datetime.date(2017, 3, 1)
     """
-    return (x or today()).replace(day=1)
+    return (x or get_today()).replace(day=1)
 
 
 def get_month_end(x: Optional[Date] = None) -> Date:
@@ -681,7 +681,7 @@ def get_month_end(x: Optional[Date] = None) -> Date:
     >>> get_month_end(Date(2017, 3, 1))
     datetime.date(2017, 3, 31)
     """
-    return (x or today()).replace(day=1) + relativedelta(months=+1, days=-1)
+    return (x or get_today()).replace(day=1) + relativedelta(months=+1, days=-1)
 
 
 def get_week_start(x: Optional[Date] = None) -> Date:
@@ -695,7 +695,7 @@ def get_week_start(x: Optional[Date] = None) -> Date:
     >>> get_week_start(Date(2017, 1, 18))
     datetime.date(2017, 1, 16)
     """
-    asof = x or today()
+    asof = x or get_today()
     return asof - TimeDelta(days=(asof.isoweekday() - 1) % 7)
 
 
@@ -714,7 +714,7 @@ def get_week_end(x: Optional[Date] = None) -> Date:
     >>> get_week_end(Date(2017, 1, 22))
     datetime.date(2017, 1, 22)
     """
-    asof = x or today()
+    asof = x or get_today()
     return asof + TimeDelta(days=6 - (asof.isoweekday() - 1) % 7)
 
 
@@ -741,7 +741,7 @@ def get_period_starts(x: Optional[Date] = None) -> PeriodStarts:
     >>> get_period_starts(Date(2018, 8, 19))["yesterday"]
     datetime.date(2018, 8, 18)
     """
-    asof = x or today()
+    asof = x or get_today()
     return OrderedDict(
         [
             ("year_start", get_year_start(asof)),
@@ -763,7 +763,7 @@ def get_quarter_end_stream(x: Optional[Date] = None) -> Iterator[Date]:
     [datetime.date(2018, 6, 30), datetime.date(2018, 3, 31), datetime.date(2017, 12, 31)]
     """
     ## Get asof date:
-    asof = x or today()
+    asof = x or get_today()
 
     ## Get the last quarter end:
     e = get_quarter_start(asof) - TimeDelta(days=1)
