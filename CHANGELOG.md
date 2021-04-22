@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.25](https://github.com/vst/pypara/compare/0.0.24...0.0.25) (2021-04-22)
+
+
+### Features
+
+* add {ccy,qty,dov}_or methods to Money and Price ([9b1275b](https://github.com/vst/pypara/commit/9b1275bec2a0dd659d6179002b4f32bddc53c73b))
+
 ### [0.0.24](https://github.com/vst/pypara/compare/0.0.23...0.0.24) (2021-04-04)
 
 ### [0.0.23](https://github.com/vst/pypara/compare/0.0.22...0.0.23) (2021-04-04)
