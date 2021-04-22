@@ -5,6 +5,7 @@ isort
 mypy
 pylint
 pytest
+pytest-cov
 sphinxcontrib-apidoc
 tox
 twine

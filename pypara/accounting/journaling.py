@@ -14,8 +14,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Generic, Iterable, List, Protocol, Set, TypeVar
 
+from ..commons.guid import Guid, makeguid
 from ..commons.numbers import Amount, Quantity, isum
-from ..commons.others import Guid, makeguid
 from ..commons.zeitgeist import DateRange
 from .accounts import Account, AccountType
 
