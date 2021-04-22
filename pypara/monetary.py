@@ -300,6 +300,51 @@ class Money:
         pass
 
     @abstractmethod
+    def ccy_or(self, default: Currency) -> Currency:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.ccy_or(Currencies["EUR"]).code
+        'USD'
+        >>> nonemoney = Money.of(Currencies["USD"], None, None)
+        >>> nonemoney.ccy_or(Currencies["EUR"]).code
+        'EUR'
+        """
+        pass
+
+    @abstractmethod
+    def qty_or(self, default: Decimal) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or(Decimal(0))
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or(Decimal(0))
+        Decimal('0')
+        """
+        pass
+
+    @abstractmethod
+    def dov_or(self, default: Date) -> Date:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.dov_or(Date(2001, 1, 1))
+        datetime.date(2019, 1, 1)
+        >>> nonemoney = Money.of(None, None, Date(2019, 1, 1))
+        >>> nonemoney.dov_or(Date(2001, 1, 1))
+        datetime.date(2001, 1, 1)
+        """
+        pass
+
+    @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         """
         Converts the monetary value from one currency to another.
@@ -552,6 +597,15 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def with_dov(self, dov: Date) -> "Money":
         return SomeMoney(self[0], self[1], dov)
 
+    def ccy_or(self, default: Currency) -> Currency:
+        return self[0]
+
+    def qty_or(self, default: Decimal) -> Decimal:
+        return self[1]
+
+    def dov_or(self, default: Date) -> Date:
+        return self[2]
+
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         ## Get slots:
         ccy, qty, dov = self
@@ -691,6 +745,15 @@ class NoneMoney(Money):
 
     def with_dov(self, dov: Date) -> "Money":
         return self
+
+    def ccy_or(self, default: Currency) -> Currency:
+        return default
+
+    def qty_or(self, default: Decimal) -> Decimal:
+        return default
+
+    def dov_or(self, default: Date) -> Date:
+        return default
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         return self
@@ -992,6 +1055,51 @@ class Price:
         pass
 
     @abstractmethod
+    def ccy_or(self, default: Currency) -> Currency:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.ccy_or(Currencies["EUR"]).code
+        'USD'
+        >>> someprice = Price.of(Currencies["USD"], None, None)
+        >>> someprice.ccy_or(Currencies["EUR"]).code
+        'EUR'
+        """
+        pass
+
+    @abstractmethod
+    def qty_or(self, default: Decimal) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or(Decimal(0))
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or(Decimal(0))
+        Decimal('0')
+        """
+        pass
+
+    @abstractmethod
+    def dov_or(self, default: Date) -> Date:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``default`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.dov_or(Date(2001, 1, 1))
+        datetime.date(2019, 1, 1)
+        >>> noneprice = Price.of(None, None, Date(2019, 1, 1))
+        >>> noneprice.dov_or(Date(2001, 1, 1))
+        datetime.date(2001, 1, 1)
+        """
+        pass
+
+    @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         """
         Converts the monetary value from one currency to another.
@@ -1246,6 +1354,15 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def with_dov(self, dov: Date) -> "Price":
         return SomePrice(self[0], self[1], dov)
 
+    def ccy_or(self, default: Currency) -> Currency:
+        return self[0]
+
+    def qty_or(self, default: Decimal) -> Decimal:
+        return self[1]
+
+    def dov_or(self, default: Date) -> Date:
+        return self[2]
+
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         ## Get slots:
         ccy, qty, dov = self
@@ -1389,6 +1506,15 @@ class NonePrice(Price):
 
     def with_dov(self, dov: Date) -> "Price":
         return self
+
+    def ccy_or(self, default: Currency) -> Currency:
+        return default
+
+    def qty_or(self, default: Decimal) -> Decimal:
+        return default
+
+    def dov_or(self, default: Date) -> Date:
+        return default
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         return self
