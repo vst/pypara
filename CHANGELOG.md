@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.26](https://github.com/vst/pypara/compare/0.0.25...0.0.26) (2021-05-06)
+
+
+### Features
+
+* add DOGE (dogecoin) to currency list ([9063ac7](https://github.com/vst/pypara/commit/9063ac7dbe085a28eebadcdcbf45ecc4d9dc7637))
+* add XLC (ethereum lite cash) to currency list ([d46e3c6](https://github.com/vst/pypara/commit/d46e3c639936638bc2048ae3c2adb9b0ad9aed85))
+
 ### [0.0.25](https://github.com/vst/pypara/compare/0.0.24...0.0.25) (2021-04-22)
 
 

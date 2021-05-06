@@ -11,4 +11,4 @@ The source code is organised in sub-packages and sub-modules.
 """
 
 #: Defines the version of the package.
-__version__ = "0.0.26.dev0"
+__version__ = "0.0.26"
