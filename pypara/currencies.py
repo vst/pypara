@@ -409,6 +409,7 @@ with Currencies as register:
     register(Currency.of("DASH", "Dash", -1, CurrencyType.CRYPTO))
     register(Currency.of("DJF", "Djibouti Franc", 0, CurrencyType.MONEY))
     register(Currency.of("DKK", "Danish Krone", 2, CurrencyType.MONEY))
+    register(Currency.of("DOGE", "Dogecoin", -1, CurrencyType.CRYPTO))
     register(Currency.of("DOP", "Dominican Peso", 2, CurrencyType.MONEY))
     register(Currency.of("DZD", "Algerian Dinar", 2, CurrencyType.MONEY))
     register(Currency.of("EGP", "Egyptian Pound", 2, CurrencyType.MONEY))
