@@ -535,6 +535,7 @@ with Currencies as register:
     register(Currency.of("XAG", "Silver", -1, CurrencyType.METAL))
     register(Currency.of("XAU", "Gold", -1, CurrencyType.METAL))
     register(Currency.of("XCD", "East Caribbean Dollar", 2, CurrencyType.MONEY))
+    register(Currency.of("XLC", "Ethereum Lite Cash", -1, CurrencyType.CRYPTO))
     register(Currency.of("XLM", "Stellar", -1, CurrencyType.CRYPTO))
     register(Currency.of("XMR", "Monero", -1, CurrencyType.CRYPTO))
     register(Currency.of("XOF", "West African CFA Franc BCEAO", 2, CurrencyType.MONEY))
