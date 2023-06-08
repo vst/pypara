@@ -10,5 +10,7 @@ Furthermore, there are some type convenience for general use.
 The source code is organised in sub-packages and sub-modules.
 """
 
-#: Defines the version of the package.
-__version__ = "0.0.27.dev0"
+import importlib.metadata
+
+#: :py:mod:`pypara` version as per `Semantic Versioning <http://semver.org/>`_.
+__version__ = importlib.metadata.version("pypara")
