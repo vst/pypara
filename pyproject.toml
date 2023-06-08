@@ -1,7 +1,75 @@
+#############
+## PROJECT ##
+#############
+
+[project]
+
+name = "pypara"
+version = "0.0.26"
+
+description = "Currencies, Monetary Value Arithmetic/Conversion and Some Type Convenience"
+keywords = ["finance"]
+readme = "README.md"
+license = { text = "BSD License" }
+authors = [{ name = "Vehbi Sinan Tunalioglu", email = "vst@vsthost.com" }]
+
+requires-python = ">=3.8"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = ["python-dateutil<3.0"]
+
+[project.urls]
+
+Homepage = "https://github.com/vst/pypara"
+Documentation = "https://github.com/vst/pypara#readme"
+Repository = "https://github.com/vst/pypara.git"
+Changelog = "https://github.com/vst/pypara/blob/main/CHANGELOG.md"
+
+##################
+## BUILD SYSTEM ##
+##################
+
+[build-system]
+
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+######################
+## TOOL: SETUPTOOLS ##
+######################
+
+[tool.setuptools.packages.find]
+
+where = ["."]
+include = ["pypara*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+
+pypara = ["py.typed"]
+
+#################
+## TOOL: BLACK ##
+#################
+
 [tool.black]
 
 line-length = 120
 target_version = ["py38"]
+
+#################
+## TOOL: ISORT ##
+#################
 
 [tool.isort]
 
