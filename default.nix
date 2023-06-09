@@ -9,6 +9,37 @@ let
   ## Our base Python:
   thisPython = pkgs.${python}.override {
     packageOverrides = pself: psuper: {
+      flake8-comprehensions = pself.buildPythonPackage rec {
+        pname = "flake8_comprehensions";
+        version = "3.12.0";
+        format = "wheel";
+        src = pself.fetchPypi {
+          inherit pname version format;
+          dist = "py3";
+          python = "py3";
+          sha256 = "sha256-ATI0Y37H38t80pAFePtTxRL4HbkJzv43HAGSMmlcNi0=";
+        };
+        propagatedBuildInputs = [
+          pself.flake8
+        ];
+      };
+
+      flake8-print = pself.buildPythonPackage rec {
+        pname = "flake8_print";
+        version = "5.0.0";
+        format = "wheel";
+        src = pself.fetchPypi {
+          inherit pname version format;
+          dist = "py3";
+          python = "py3";
+          sha256 = "sha256-hKGm6hDXBWuAQiGsXmKxzuGu/Il84W8uXELTBGBo9dg=";
+        };
+        propagatedBuildInputs = [
+          pself.flake8
+          pself.pycodestyle
+        ];
+      };
+
       flake8-pyproject = pself.buildPythonPackage rec {
         pname = "flake8_pyproject";
         version = "1.2.3";
@@ -21,6 +52,23 @@ let
         propagatedBuildInputs = [
           pself.flake8
           pself.tomli
+        ];
+      };
+
+      flake8-type-checking = pself.buildPythonPackage rec {
+        pname = "flake8_type_checking";
+        version = "2.4.0";
+        format = "wheel";
+        src = pself.fetchPypi {
+          inherit pname version format;
+          dist = "py3";
+          python = "py3";
+          sha256 = "sha256-Le4SfzALuVt/F7fD//T2M29eS6kggsFZKMbhm2Zs+6Q=";
+        };
+        propagatedBuildInputs = [
+          pself.astor
+          pself.classify-imports
+          pself.flake8
         ];
       };
     };
@@ -49,7 +97,11 @@ let
       ps.black
       ps.build
       ps.flake8
+      ps.flake8-bugbear
+      ps.flake8-comprehensions
+      ps.flake8-print
       ps.flake8-pyproject
+      ps.flake8-type-checking
       ps.ipython
       ps.isort
       ps.mypy
