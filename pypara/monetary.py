@@ -1,5 +1,6 @@
 """
-This module provides definitions and functionality related to encoding monetary values and operating on them.
+This module provides definitions and functionality related to encoding monetary
+values and operating on them.
 """
 
 __all__ = [
@@ -28,15 +29,15 @@ from .exchange import FXRateLookupError, FXRateService
 
 class IncompatibleCurrencyError(ValueError):
     """
-    Provides an exception indicating that there is an attempt for performing monetary operations
-    with incompatible currencies.
+    Provides an exception indicating that there is an attempt for performing
+    monetary operations with incompatible currencies.
     """
 
     def __init__(self, ccy1: Currency, ccy2: Currency, operation: str = "<Unspecified>") -> None:
         """
         Initializes an incompatible currency error message.
         """
-        ## Keep sloys:
+        ## Keep slots:
         self.ccy1 = ccy1
         self.ccy2 = ccy2
         self.operation = operation
@@ -47,7 +48,8 @@ class IncompatibleCurrencyError(ValueError):
 
 class MonetaryOperationException(TypeError):
     """
-    Provides an exception that a certain monetary operation can not be carried on.
+    Provides an exception that a certain monetary operation can not be carried
+    on.
     """
 
     pass
@@ -112,14 +114,16 @@ class Money:
     @abstractmethod
     def as_float(self) -> float:
         """
-        Returns the quantity as a ``float`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        Returns the quantity as a ``float`` if *defined*, raises
+        :class:`MonetaryOperationException` otherwise.
         """
         raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
         """
-        Returns the quantity as an ``int`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        Returns the quantity as an ``int`` if *defined*, raises
+        :class:`MonetaryOperationException` otherwise.
         """
         raise NotImplementedError
 
@@ -133,7 +137,8 @@ class Money:
     @abstractmethod
     def negative(self) -> "Money":
         """
-        Negates the quantity of the monetary value if *defined*, itself otherwise.
+        Negates the quantity of the monetary value if *defined*, itself
+        otherwise.
         """
         raise NotImplementedError
 
@@ -147,8 +152,8 @@ class Money:
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Money":
         """
-        Rounds the quantity of the monetary value to ``ndigits`` by using ``HALF_EVEN`` method if *defined*, itself
-        otherwise.
+        Rounds the quantity of the monetary value to ``ndigits`` by using
+        ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
         raise NotImplementedError
 
@@ -157,7 +162,7 @@ class Money:
         """
         Performs monetary addition on the money object and the given ``other`` money object.
 
-        Note that::
+        Note that:
 
         1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
         2. If any of the operands are undefined, returns the other one conveniently.
@@ -177,13 +182,16 @@ class Money:
     @abstractmethod
     def subtract(self, other: "Money") -> "Money":
         """
-        Performs monetary subtraction on the money object and the given ``other`` money object.
+        Performs monetary subtraction on the money object and the given
+        ``other`` money object.
 
-        Note that::
+        Note that:
 
         1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
-        2. If any of the operands are undefined, returns the other one conveniently.
-        3. Dates are carried forward as a result of addition of two defined money objects.
+        2. If any of the operands are undefined, returns the other one
+           conveniently.
+        3. Dates are carried forward as a result of addition of two defined
+           money objects.
         """
         raise NotImplementedError
 
@@ -208,7 +216,8 @@ class Money:
     @abstractmethod
     def divide(self, other: Numeric) -> "Money":
         """
-        Performs ordinary division on the money object if *defined*, itself otherwise.
+        Performs ordinary division on the money object if *defined*, itself
+        otherwise.
 
         Note that division by zero yields an undefined money object.
         """
@@ -217,10 +226,10 @@ class Money:
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Money":
         """
-        Performs floor division on the money object if *defined*, itself otherwise.
+        Performs floor division on the money object if *defined*, itself
+        otherwise.
 
         Note that division by zero yields an undefined money object.
-
         """
         raise NotImplementedError
 
@@ -229,11 +238,12 @@ class Money:
         """
         Applies "less than" comparison against ``other`` money.
 
-        Note that::
+        Note that:
 
-        1. Undefined money objects are always less than ``other`` if ``other`` is not undefined, and
-        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
-        currencies.
+        1. Undefined money objects are always less than ``other`` if ``other``
+           is not undefined, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined money objects with different currencies.
         """
         pass
 
@@ -242,11 +252,12 @@ class Money:
         """
         Applies "less than or equal to" comparison against ``other`` money.
 
-        Note that::
+        Note that:
 
-        1. Undefined money objects are always less than or equal to ``other``, and
-        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
-        currencies.
+        1. Undefined money objects are always less than or equal to ``other``,
+           and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined money objects with different currencies.
         """
         pass
 
@@ -255,12 +266,13 @@ class Money:
         """
         Applies "greater than" comparison against ``other`` money.
 
-        Note that::
+        Note that:
 
         1. Undefined money objects are never greater than ``other``,
-        2. Defined money objects are always greater than ``other`` if other is undefined, and
-        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
-        currencies.
+        2. Defined money objects are always greater than ``other`` if other is
+           undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined money objects with different currencies.
         """
         pass
 
@@ -269,40 +281,46 @@ class Money:
         """
         Applies "greater than or equal to" comparison against ``other`` money.
 
-        Note that::
+        Note that:
 
-        1. Undefined money objects are never greater than or equal to ``other`` if ``other`` is defined,
-        2. Undefined money objects are greater than or equal to ``other`` if ``other is undefined, and
-        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined money objects with different
-        currencies.
+        1. Undefined money objects are never greater than or equal to ``other``
+           if ``other`` is defined,
+        2. Undefined money objects are greater than or equal to ``other`` if
+           ``other`` is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined money objects with different currencies.
         """
         pass
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Money":
         """
-        Creates a new money object with the given currency if money is *defined*, returns itself otherwise.
+        Creates a new money object with the given currency if money is
+        *defined*, returns itself otherwise.
         """
         pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Money":
         """
-        Creates a new money object with the given quantity if money is *defined*, returns itself otherwise.
+        Creates a new money object with the given quantity if money is
+        *defined*, returns itself otherwise.
         """
         pass
 
     @abstractmethod
     def with_dov(self, dov: Date) -> "Money":
         """
-        Creates a new money object with the given value date if money is *defined*, returns itself otherwise.
+        Creates a new money object with the given value date if money is
+        *defined*, returns itself otherwise.
         """
         pass
 
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
         """
-        Returns the ``ccy`` if the monetary value is *defined*, ``default`` otherwise.
+        Returns the ``ccy`` if the monetary value is *defined*, ``default``
+        otherwise.
 
         >>> from pypara.currencies import Currencies
         >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
@@ -349,7 +367,8 @@ class Money:
         """
         Converts the monetary value from one currency to another.
 
-        Raises :class:`FXRateLookupError` if no foreign exchange rate can be found for conversion.
+        Raises :class:`FXRateLookupError` if no foreign exchange rate can be
+        found for conversion.
 
         Note that we will carry the date forward as per ``asof`` date.
         """
@@ -673,7 +692,6 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
 
 class NoneMoney(Money):
-
     __slots__ = ()
 
     defined = False
@@ -858,14 +876,16 @@ class Price:
     @abstractmethod
     def as_float(self) -> float:
         """
-        Returns the quantity as a ``float`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        Returns the quantity as a ``float`` if *defined*, raises
+        class:`MonetaryOperationException` otherwise.
         """
         raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
         """
-        Returns the quantity as an ``int`` if *defined*, raises class:`MonetaryOperationException` otherwise.
+        Returns the quantity as an ``int`` if *defined*, raises
+        class:`MonetaryOperationException` otherwise.
         """
         raise NotImplementedError
 
@@ -879,7 +899,8 @@ class Price:
     @abstractmethod
     def negative(self) -> "Price":
         """
-        Negates the quantity of the monetary value if *defined*, itself otherwise.
+        Negates the quantity of the monetary value if *defined*, itself
+        otherwise.
         """
         raise NotImplementedError
 
@@ -893,21 +914,24 @@ class Price:
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Price":
         """
-        Rounds the quantity of the monetary value to ``ndigits`` by using ``HALF_EVEN`` method if *defined*, itself
-        otherwise.
+        Rounds the quantity of the monetary value to ``ndigits`` by using
+        ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
         raise NotImplementedError
 
     @abstractmethod
     def add(self, other: "Price") -> "Price":
         """
-        Performs monetary addition on the price object and the given ``other`` price object.
+        Performs monetary addition on the price object and the given ``other``
+        price object.
 
-        Note that::
+        Note that:
 
         1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
-        2. If any of the operands are undefined, returns the other one conveniently.
-        3. Dates are carried forward as a result of addition of two defined price objects.
+        2. If any of the operands are undefined, returns the other one
+           conveniently.
+        3. Dates are carried forward as a result of addition of two defined
+           price objects.
         """
         raise NotImplementedError
 
@@ -923,13 +947,16 @@ class Price:
     @abstractmethod
     def subtract(self, other: "Price") -> "Price":
         """
-        Performs monetary subtraction on the price object and the given ``other`` price object.
+        Performs monetary subtraction on the price object and the given
+        ``other`` price object.
 
-        Note that::
+        Note that:
 
         1. Raises :class:`IncompatibleCurrencyError` if currencies do not match.
-        2. If any of the operands are undefined, returns the other one conveniently.
-        3. Dates are carried forward as a result of addition of two defined price objects.
+        2. If any of the operands are undefined, returns the other one
+           conveniently.
+        3. Dates are carried forward as a result of addition of two defined
+           price objects.
         """
         raise NotImplementedError
 
@@ -963,7 +990,8 @@ class Price:
     @abstractmethod
     def divide(self, other: Numeric) -> "Price":
         """
-        Performs ordinary division on the price object if *defined*, itself otherwise.
+        Performs ordinary division on the price object if *defined*, itself
+        otherwise.
 
         Note that division by zero yields an undefined price object.
         """
@@ -972,7 +1000,8 @@ class Price:
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Price":
         """
-        Performs floor division on the price object if *defined*, itself otherwise.
+        Performs floor division on the price object if *defined*, itself
+        otherwise.
 
         Note that division by zero yields an undefined price object.
 
@@ -984,11 +1013,12 @@ class Price:
         """
         Applies "less than" comparison against ``other`` price.
 
-        Note that::
+        Note that:
 
-        1. Undefined price objects are always less than ``other`` if ``other`` is not undefined, and
-        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
-        currencies.
+        1. Undefined price objects are always less than ``other`` if ``other``
+           is not undefined, and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined price objects with different currencies.
         """
         pass
 
@@ -997,11 +1027,12 @@ class Price:
         """
         Applies "less than or equal to" comparison against ``other`` price.
 
-        Note that::
+        Note that:
 
-        1. Undefined price objects are always less than or equal to ``other``, and
-        2. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
-        currencies.
+        1. Undefined price objects are always less than or equal to ``other``,
+           and
+        2. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined price objects with different currencies.
         """
         pass
 
@@ -1010,12 +1041,13 @@ class Price:
         """
         Applies "greater than" comparison against ``other`` price.
 
-        Note that::
+        Note that:
 
         1. Undefined price objects are never greater than ``other``,
-        2. Defined price objects are always greater than ``other`` if other is undefined, and
-        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
-        currencies.
+        2. Defined price objects are always greater than ``other`` if other is
+           undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined price objects with different currencies.
         """
         pass
 
@@ -1024,26 +1056,30 @@ class Price:
         """
         Applies "greater than or equal to" comparison against ``other`` price.
 
-        Note that::
+        Note that:
 
-        1. Undefined price objects are never greater than or equal to ``other`` if ``other`` is defined,
-        2. Undefined price objects are greater than or equal to ``other`` if ``other is undefined, and
-        3. :class:`IncompatibleCurrencyError` is raised when comparing two defined price objects with different
-        currencies.
+        1. Undefined price objects are never greater than or equal to ``other``
+           if ``other`` is defined,
+        2. Undefined price objects are greater than or equal to ``other`` if
+           ``other`` is undefined, and
+        3. :class:`IncompatibleCurrencyError` is raised when comparing two
+           defined price objects with different currencies.
         """
         pass
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Price":
         """
-        Creates a new price object with the given currency if price is *defined*, returns itself otherwise.
+        Creates a new price object with the given currency if price is
+        *defined*, returns itself otherwise.
         """
         pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Price":
         """
-        Creates a new price object with the given quantity if price is *defined*, returns itself otherwise.
+        Creates a new price object with the given quantity if price is
+        *defined*, returns itself otherwise.
         """
         pass
 
@@ -1057,7 +1093,8 @@ class Price:
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
         """
-        Returns the ``ccy`` if the monetary value is *defined*, ``default`` otherwise.
+        Returns the ``ccy`` if the monetary value is *defined*, ``default``
+        otherwise.
 
         >>> from pypara.currencies import Currencies
         >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
@@ -1072,7 +1109,8 @@ class Price:
     @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
         """
-        Returns the ``qty`` if the monetary value is *defined*, ``default`` otherwise.
+        Returns the ``qty`` if the monetary value is *defined*, ``default``
+        otherwise.
 
         >>> from pypara.currencies import Currencies
         >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
@@ -1087,7 +1125,8 @@ class Price:
     @abstractmethod
     def dov_or(self, default: Date) -> Date:
         """
-        Returns the ``dov`` if the monetary value is *defined*, ``default`` otherwise.
+        Returns the ``dov`` if the monetary value is *defined*, ``default``
+        otherwise.
 
         >>> from pypara.currencies import Currencies
         >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
@@ -1104,7 +1143,8 @@ class Price:
         """
         Converts the monetary value from one currency to another.
 
-        Raises :class:`FXRateLookupError` if no foreign exchange rate can be found for conversion.
+        Raises :class:`FXRateLookupError` if no foreign exchange rate can be
+        found for conversion.
 
         Note that we will carry the date forward as per ``asof`` date.
         """
@@ -1431,7 +1471,6 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
 
 class NonePrice(Price):
-
     __slots__ = ()
 
     defined = False
@@ -1554,5 +1593,5 @@ class NonePrice(Price):
     __ge__ = gte
 
 
-## Define and attach undefined price singleton.
+#: Undefined price singleton.
 Price.NA = NoPrice = NonePrice()

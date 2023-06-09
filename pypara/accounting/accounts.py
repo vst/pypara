@@ -386,7 +386,7 @@ class COA:
         :param node: Node to print.
         :param level: Level to print node at.
         """
-        print(f"{''.join(['    '] * level)}[{node.account.code}] {node.account.name}")
+        print(f"{''.join(['    '] * level)}[{node.account.code}] {node.account.name}")  # noqa: T201
         for c in node.children:
             cls._print_node(c, level + 1)
 

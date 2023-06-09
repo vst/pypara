@@ -50,16 +50,18 @@ class CurrencyType(Enum):
     CRYPTO = "Crypto Currency"
 
     #: Defines alternative currency type.
-    ALTERNATIVE = "Alernative"
+    ALTERNATIVE = "Alternative"
 
 
 @dataclass(frozen=True, order=True)
 class Currency:
     """
-    Defines currency value object model which is extending ISO 4217 to embrace other currency types.
+    Defines currency value object model which is extending ISO 4217 to embrace
+    other currency types.
 
-    Note that you should not call :class:`Currency` constructor directly, but instead use the :method:`Currency.build`.
-    :method:`Currency.build` is responsible of performing some checks before creating the currency.
+    Note that you should not call :class:`Currency` constructor directly, but
+    instead use the :func:`Currency.of`. :func:`Currency.of` is responsible of
+    performing some checks before creating the currency.
 
     Try with USD:
 
@@ -259,7 +261,7 @@ class CurrencyRegistry:
         self.__registry = OrderedDict([(c.code, c) for c in sorted(self.__registry.values(), key=lambda x: x.code)])
 
         ## Re-sort currencies buffer:
-        self.__currencies = [c for c in self.__registry.values()]
+        self.__currencies = list(self.__registry.values())
 
         ## Re-sort the currency codes buffer:
         self.__codes = [c.code for c in self.__currencies]

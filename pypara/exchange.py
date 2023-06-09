@@ -35,7 +35,7 @@ class FXRate(NamedTuple):
     """
     Defines a foreign exchange (FX) rate model.
 
-    Note that the constructor of this class is not safe: It does not check input. :method:`FXRate.of`, on the
+    Note that the constructor of this class is not safe: It does not check input. :func:`FXRate.of`, on the
     other hand provides a safer way of creating :class:`FXRate` instances.
 
     **Implementation Note:**

@@ -1,3 +1,7 @@
+import sys, os
+
+sys.path.append(os.path.abspath('../../'))
+
 import pypara
 
 # -- Project information -----------------------------------------------------

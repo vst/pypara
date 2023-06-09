@@ -47,6 +47,9 @@ from dateutil.relativedelta import relativedelta
 
 from pypara.commons.numbers import NaturalNumber, PositiveInteger
 
+#: Positive integer 1.
+_POS_INT_1 = PositiveInteger(1)
+
 
 class OpenDateRange:
     """
@@ -369,7 +372,7 @@ class DateRange(Iterable[Date]):
         """
         return DateRange(min(first, *rest, key=lambda x: x.since).since, max(first, *rest, key=lambda x: x.until).until)
 
-    def since_prev_year_end(self, years: PositiveInteger = PositiveInteger(1), weekday: bool = False) -> "DateRange":
+    def since_prev_year_end(self, years: PositiveInteger = _POS_INT_1, weekday: bool = False) -> "DateRange":
         """
         Re-creates the date range starting from the previous ``years`` number of
         years as per :py:attr:`DateRange.since`.
@@ -522,7 +525,7 @@ def get_prev_weekday(x: Optional[Date] = None) -> Date:
     return x - TimeDelta(days=offset)
 
 
-def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = PositiveInteger(1)) -> Date:
+def get_prev_year_end(x: Optional[Date] = None, years: PositiveInteger = _POS_INT_1) -> Date:
     """
     Returns the year end of the previous year as of given (optional) date.
 
