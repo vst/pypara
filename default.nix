@@ -99,6 +99,7 @@ let
       ps.flake8
       ps.flake8-bugbear
       ps.flake8-comprehensions
+      ps.flake8-docstrings
       ps.flake8-print
       ps.flake8-pyproject
       ps.flake8-type-checking

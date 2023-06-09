@@ -56,10 +56,12 @@ class CurrencyType(Enum):
 @dataclass(frozen=True, order=True)
 class Currency:
     """
-    Defines currency value object model which is extending ISO 4217 to embrace other currency types.
+    Defines currency value object model which is extending ISO 4217 to embrace
+    other currency types.
 
-    Note that you should not call :class:`Currency` constructor directly, but instead use the :method:`Currency.build`.
-    :method:`Currency.build` is responsible of performing some checks before creating the currency.
+    Note that you should not call :class:`Currency` constructor directly, but
+    instead use the :func:`Currency.of`. :func:`Currency.of` is responsible of
+    performing some checks before creating the currency.
 
     Try with USD:
 

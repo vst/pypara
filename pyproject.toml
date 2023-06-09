@@ -154,13 +154,24 @@ source = ["."]
 
 ## Define error messages to be ignored:
 ignore = [
-    "E266", ## We want double hash to be allowed for comments.
-    "F811", ## Still problem with @overload.
-    "T202", ## We are not on Python 2.x.
-    "TC001", ## We won't use TYPE_CHECKING block for a while.
-    "TC002", ## We won't use TYPE_CHECKING block for a while.
-    "TC003", ## We won't use TYPE_CHECKING block for a while.
+    "E266",  ## We want double hash to be allowed for comments.
+    "F811",  ## Still problem with @overload.
+    "T202",  ## We are not on Python 2.x.
+    "TC001", ## We will not use TYPE_CHECKING block for a while.
+    "TC002", ## We will not use TYPE_CHECKING block for a while.
+    "TC003", ## We will not use TYPE_CHECKING block for a while.
     "TC006", ## Needs testing.
+    "D100",  ## We do not intend to add docstring to all definitions yet.
+    "D101",  ## We do not intend to add docstring to all definitions yet.
+    "D102",  ## We do not intend to add docstring to all definitions yet.
+    "D103",  ## We do not intend to add docstring to all definitions yet.
+    "D104",  ## We do not intend to add docstring to all definitions yet.
+    "D105",  ## We do not intend to add docstring to all definitions yet.
+    "D107",  ## We do not intend to add docstring to all definitions yet.
+    "D200",  ## No need to fit one-line docstrings on one line with quotes.
+    "D205",  ## We are starting with a blank line.
+    "D400",  ## Plugin is a little confused.
+    "D401",  ## We will be imperative later.
 ]
 
 ## Define files and directories to be excluded from checking:
