@@ -97,6 +97,39 @@ warn_redundant_casts = true
 warn_return_any = true
 warn_unused_ignores = true
 
+
+###################
+## TOOL: pyright ##
+###################
+
+[tool.pyright]
+
+## Provide platform information:
+pythonPlatform = "Linux"
+pythonVersion = "3.10"
+
+## Typecheck following directories:
+include = ["pypara", "tests"]
+
+## Exclude following directories from typechecking:
+exclude = []
+
+## Ignore some files:
+ignore = []
+
+## We want strict type-checking mode:
+typeCheckingMode = "basic"
+
+## Demote (some) report groups to "warning" because mypy is our primary source:
+reportGeneralTypeIssues = "warning"
+reportMissingImports = "warning"
+reportMissingTypeStubs = "warning"
+reportPropertyTypeMismatch = "warning"
+reportUnusedImport = "warning"
+
+## Ignore some report groups:
+# reportSelfClsParameterName = false # Pylint handles this and pyright is not PEP-8 compliant.
+
 ####################
 ## TOOL: coverage ##
 ####################
