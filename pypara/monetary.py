@@ -673,7 +673,6 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
 
 class NoneMoney(Money):
-
     __slots__ = ()
 
     defined = False
@@ -1431,7 +1430,6 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
 
 class NonePrice(Price):
-
     __slots__ = ()
 
     defined = False

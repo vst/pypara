@@ -7,6 +7,7 @@ __all__ = ["DCC", "DCCRegistry"]
 import calendar
 import datetime
 from decimal import Decimal
+from itertools import chain
 from typing import Callable, Dict, Iterable, List, NamedTuple, Optional, Set, Union
 
 from dateutil.relativedelta import relativedelta
@@ -356,8 +357,47 @@ class DCCRegistryMachinery:
     def table(self) -> Dict[str, DCC]:
         """
         Returns a lookup table for available day count conventions.
+
+        >>> for k in sorted(DCCRegistry.table.keys()):
+        ...     print(k)
+        30/360 European
+        30/360 German
+        30/360 ISDA
+        30/360 ISMA
+        30/360 US
+        30/360 US Municipal
+        30E+/360
+        30E/360
+        30E/360 ISDA
+        30S/360 Special German
+        30U/360
+        30US/360
+        360
+        365
+        Act/360
+        Act/365A
+        Act/365F
+        Act/365L
+        Act/Act
+        Act/Act (ICMA)
+        Act/Act (ISMA)
+        Actual/360
+        Actual/365 Actual
+        Actual/365 Fixed
+        Actual/365 Leap Year
+        Actual/365 No Leap Year
+        Actual/Actual
+        Actual/Actual (ICMA)
+        Actual/Actual (ISDA)
+        Bond Basis
+        English
+        Eurobond Basis
+        French
+        ISMA-99
+        NL/365
+        NL365
         """
-        return {**{k: v for k, v in self._buffer_main.items()}, **{k: v for k, v in self._buffer_altn.items()}}
+        return dict(chain(self._buffer_main.items(), self._buffer_altn.items()))
 
 
 #: Defines the default DCC registry.
@@ -382,13 +422,13 @@ def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Curre
         :return: Registered day count fraction calculation function.
         """
         ## Create the DCC instance:
-        dcc = DCC(name, altnames or set([]), ccys or set([]), func)
+        dcc = DCC(name, altnames or set(), ccys or set(), func)
 
         ## Attempt to register the DCC:
         DCCRegistry.register(dcc)
 
         ## Attach the dcc instance to the day count fraction calculation function (for whatever it is worth):
-        setattr(func, "__dcc", dcc)
+        setattr(func, "__dcc", dcc)  # noqa: B010
 
         ## Done, return the function (if above statment did not raise any exceptions):
         return func

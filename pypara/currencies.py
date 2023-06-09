@@ -259,7 +259,7 @@ class CurrencyRegistry:
         self.__registry = OrderedDict([(c.code, c) for c in sorted(self.__registry.values(), key=lambda x: x.code)])
 
         ## Re-sort currencies buffer:
-        self.__currencies = [c for c in self.__registry.values()]
+        self.__currencies = list(self.__registry.values())
 
         ## Re-sort the currency codes buffer:
         self.__codes = [c.code for c in self.__currencies]
