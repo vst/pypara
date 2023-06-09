@@ -76,3 +76,112 @@ target_version = ["py38"]
 line_length = 120
 multi_line_output = 3
 include_trailing_comma = true
+
+################
+## TOOL: mypy ##
+################
+
+[tool.mypy]
+
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true
+strict_optional = true
+warn_incomplete_stub = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
+
+####################
+## TOOL: coverage ##
+####################
+
+[tool.coverage.run]
+
+source = ["."]
+
+##################
+## TOOL: flake8 ##
+##################
+
+## Note: When this section was added, there was no pyproject.toml
+## support of flake8 which is a very disputed issue:
+##
+## https://github.com/PyCQA/flake8/issues/234
+##
+## We are now using Flake8-pyproject flake8 plugin to use
+## `pyproject.toml`.
+
+[tool.flake8]
+
+## Define error messages to be ignored:
+ignore = [
+    "E266", ## We want double hash to be allowed for comments.
+    "F811", ## Still problem with @overload
+]
+
+## Define files and directories to be excluded from checking:
+exclude = [
+    "__pycache__",
+    "__static",
+    ".cache",
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    "*.egg-info",
+    "*.py[codi]",
+    "build",
+    "dev",
+    "dist",
+]
+
+## Defines maximum MCCABE complexity allowed (TODO: Gradually reduce to 5).
+max-complexity = 7
+
+## Defines the maximum line length.
+max-line-length = 120
+
+## Indicates that doctests to be run.
+doctests = true
+
+## Indicates that we want summary statistics of error messages, if any.
+statistics = true
+
+## Set Python version (for flake8-typing-imports flake8 plugin):
+min_python_version = "3.10"
+
+###############
+## TOOL: tox ##
+###############9
+
+[tool.tox]
+
+legacy_tox_ini = """
+[tox]
+
+skipsdist = True
+isolated_build = True
+
+[testenv]
+
+## We will explicitly call these executables:
+allowlist_externals =
+    black
+    flake8
+    isort
+    mypy
+    pytest
+
+commands =
+    black --check pypara tests
+    isort --check-only pypara tests
+    flake8 pypara tests
+    mypy pypara tests
+    pytest --verbose --cov --ignore=docs/source/conf.py --doctest-modules
+"""
