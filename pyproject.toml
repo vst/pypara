@@ -155,7 +155,12 @@ source = ["."]
 ## Define error messages to be ignored:
 ignore = [
     "E266", ## We want double hash to be allowed for comments.
-    "F811", ## Still problem with @overload
+    "F811", ## Still problem with @overload.
+    "T202", ## We are not on Python 2.x.
+    "TC001", ## We won't use TYPE_CHECKING block for a while.
+    "TC002", ## We won't use TYPE_CHECKING block for a while.
+    "TC003", ## We won't use TYPE_CHECKING block for a while.
+    "TC006", ## Needs testing.
 ]
 
 ## Define files and directories to be excluded from checking:
