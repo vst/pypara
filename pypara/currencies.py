@@ -50,7 +50,7 @@ class CurrencyType(Enum):
     CRYPTO = "Crypto Currency"
 
     #: Defines alternative currency type.
-    ALTERNATIVE = "Alernative"
+    ALTERNATIVE = "Alternative"
 
 
 @dataclass(frozen=True, order=True)
