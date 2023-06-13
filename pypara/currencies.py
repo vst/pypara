@@ -210,7 +210,7 @@ class CurrencyRegistry:
     """
 
     #: Defines the singleton instance.
-    __instance = None  # type: CurrencyRegistry
+    __instance: "CurrencyRegistry" = None  # type: ignore
 
     def __new__(cls) -> "CurrencyRegistry":
         """
