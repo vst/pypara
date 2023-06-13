@@ -53,7 +53,7 @@ _POS_INT_1 = PositiveInteger(1)
 
 class OpenDateRange:
     """
-    Defines a daterange class with inclusive but optional start and end.
+    Defines a date-range class with inclusive but optional start and end.
 
     For a date range with both ends open:
 
@@ -411,7 +411,7 @@ def make_financial_periods(date: Date, lookback: PositiveInteger) -> FinancialPe
 
     :param date: Date to create financial periods for.
     :param lookback: A positive integer describing the number of years to go back.
-    :return: A dictionary of financial period label and date range for the financual period.
+    :return: A dictionary of financial period label and date range for the financial period.
 
     >>> sorted(make_financial_periods(Date(2019, 1, 10), PositiveInteger(1)).keys())
     ['2018', 'DTD', 'MTD', 'YTD']
@@ -810,7 +810,7 @@ def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTim
     ...
     ValueError: Don't know how to convert value to date/time object: 1
     """
-    ## Check the type of the value and act accordinly.
+    ## Check the type of the value and act accordingly.
     if isinstance(value, DateTime):
         ## It is a datetime instance. Nothing to be done. Just return with replacement:
         return value.replace(**kwargs)  # type: ignore

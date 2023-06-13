@@ -218,7 +218,7 @@ class CurrencyRegistry:
         """
         ## Do we have the singleton instance?
         if CurrencyRegistry.__instance is None:
-            ## Nope, not yet. Creat one:
+            ## Nope, not yet. Create one:
             CurrencyRegistry.__instance = object.__new__(cls)
 
         ## Return the singleton instance.

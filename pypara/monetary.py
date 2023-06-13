@@ -582,28 +582,28 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Money") -> bool:
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Money") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Money") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
     def with_ccy(self, ccy: Currency) -> "Money":
@@ -1361,28 +1361,28 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Price") -> bool:
         if other.undefined:
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Price") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Price") -> bool:
         if other.undefined:
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
     def with_ccy(self, ccy: Currency) -> "Price":

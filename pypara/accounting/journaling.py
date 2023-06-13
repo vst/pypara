@@ -117,7 +117,7 @@ class JournalEntry(Generic[_T]):
     @property
     def increments(self) -> Iterable[Posting[_T]]:
         """
-        Incerement event postings of the journal entry.
+        Increment event postings of the journal entry.
         """
         return (p for p in self.postings if p.direction == Direction.INC)
 

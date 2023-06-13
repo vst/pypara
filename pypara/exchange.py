@@ -147,7 +147,7 @@ class FXRateService(metaclass=ABCMeta):
         :param ccy2: The second currency of foreign exchange rate.
         :param asof: Temporal dimension the foreign exchange rate is effective as of.
         :param strict: Indicates if we should raise a lookup error if that the foreign exchange rate can not be found.
-        :return: The foreign exhange rate as a :class:`Decimal` instance or None.
+        :return: The foreign exchange rate as a :class:`Decimal` instance or None.
         """
         pass
 
