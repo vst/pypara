@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.0.27](https://github.com/vst/pypara/compare/0.0.26...0.0.27) (2023-06-13)
+
+
+### Bug Fixes
+
+* fix typo in currency type label ([200efb6](https://github.com/vst/pypara/commit/200efb66cbf5179d4e2b31b279b9d8b0d50236c7))
+
+
+### Documentation
+
+* revisit auto-generated documentation ([47f494c](https://github.com/vst/pypara/commit/47f494c65ff623c06178c64cdb379f70c2d373f3))
+* update README ([cecf630](https://github.com/vst/pypara/commit/cecf6303dd76c25f50b0e5979f5671ad66a49b92))
+
 ### [0.0.26](https://github.com/vst/pypara/compare/0.0.25...0.0.26) (2021-05-06)
 
 
