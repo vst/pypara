@@ -32,7 +32,11 @@ nix-shell --argstr python python311 --run tox
 
 ## Publishing
 
-To build a package and upload to PyPI:
+Building a package and uploading it to PyPI is handled by the GitHub Action upon
+successful GitHub Release (using Release Please Action).
+
+However, in the event of emergency, you can still manually build a package and
+upload it to PyPI:
 
 ```sh
 rm -Rf dist/
