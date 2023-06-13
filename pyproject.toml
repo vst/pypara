@@ -5,7 +5,7 @@
 [project]
 
 name = "pypara"
-version = "0.0.26"
+version = "0.0.27"
 
 description = "Currencies, Monetary Value Arithmetic/Conversion and Some Type Convenience"
 keywords = ["finance"]
