@@ -127,6 +127,9 @@ let
     packages = [
       ## Python dependency with packages for development purposes:
       thisPythonWithDeps
+
+      ## Further development dependencies:
+      pkgs.nodePackages.pyright
     ];
 
     shellHook = ''

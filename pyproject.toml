@@ -121,14 +121,11 @@ ignore = []
 typeCheckingMode = "basic"
 
 ## Demote (some) report groups to "warning" because mypy is our primary source:
-reportGeneralTypeIssues = "warning"
-reportMissingImports = "warning"
-reportMissingTypeStubs = "warning"
-reportPropertyTypeMismatch = "warning"
-reportUnusedImport = "warning"
-
-## Ignore some report groups:
-# reportSelfClsParameterName = false # Pylint handles this and pyright is not PEP-8 compliant.
+# reportGeneralTypeIssues = "warning"
+# reportMissingImports = "warning"
+# reportMissingTypeStubs = "warning"
+# reportPropertyTypeMismatch = "warning"
+# reportUnusedImport = "warning"
 
 ####################
 ## TOOL: coverage ##
