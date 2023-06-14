@@ -245,7 +245,14 @@ disable = [
     ## REAL IGNORES ##
     ##################
 
+    ## There are some valid reasons that we duplicated code:
     "duplicate-code",
+
+    ## Allow locally disabling some messages:
+    "locally-disabled",
+
+    ## Toggle once in a while to see what we suppressed:
+    "suppressed-message",
 
     ####################
     ## TO BE ATTENDED ##
