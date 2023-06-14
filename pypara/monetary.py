@@ -1558,7 +1558,9 @@ class NonePrice(Price):
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         return self
 
-    money = NoMoney
+    @property
+    def money(self) -> Money:
+        return NoMoney
 
     __bool__ = as_boolean
 
