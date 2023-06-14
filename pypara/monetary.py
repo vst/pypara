@@ -64,21 +64,6 @@ class Money(ABC):
     ## No need for slots.
     __slots__ = ()
 
-    #: Returns the currency of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    ccy: Currency
-
-    #: Returns the quantity of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    qty: Decimal
-
-    #: Returns the value date of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    dov: Date
-
     @property
     @abstractmethod
     def defined(self) -> bool:
@@ -733,28 +718,28 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
             return NoMoney
 
     def lt(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
@@ -1036,21 +1021,6 @@ class Price(ABC):
 
     ## No need for slots.
     __slots__ = ()
-
-    #: Returns the currency of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    ccy: Currency
-
-    #: Returns the quantity of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    qty: Decimal
-
-    #: Returns the value date of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    dov: Date
 
     @property
     @abstractmethod
@@ -1724,28 +1694,28 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
             return NoPrice
 
     def lt(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return False
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return True
         elif self.ccy != other.ccy:
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
