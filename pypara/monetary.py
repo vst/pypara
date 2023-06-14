@@ -52,8 +52,6 @@ class MonetaryOperationException(TypeError):
     on.
     """
 
-    pass
-
 
 _T = TypeVar("_T")
 
@@ -100,7 +98,6 @@ class Money:
         1. ``True`` if ``other`` is a money object **and** all slots are same.
         2. ``False`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_boolean(self) -> bool:
@@ -112,7 +109,6 @@ class Money:
         1. ``False`` if money is *undefined* **or** money quantity is ``zero``.
         2. ``True`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_float(self) -> float:
@@ -120,7 +116,6 @@ class Money:
         Returns the quantity as a ``float`` if *defined*, raises
         :class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
@@ -128,14 +123,12 @@ class Money:
         Returns the quantity as an ``int`` if *defined*, raises
         :class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def abs(self) -> "Money":
         """
         Returns the absolute money if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def negative(self) -> "Money":
@@ -143,14 +136,12 @@ class Money:
         Negates the quantity of the monetary value if *defined*, itself
         otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def positive(self) -> "Money":
         """
         Returns same monetary value if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Money":
@@ -158,7 +149,6 @@ class Money:
         Rounds the quantity of the monetary value to ``ndigits`` by using
         ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def add(self, other: "Money") -> "Money":
@@ -171,7 +161,6 @@ class Money:
         2. If any of the operands are undefined, returns the other one conveniently.
         3. Dates are carried forward as a result of addition of two defined money objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_add(self, other: Numeric) -> "Money":
@@ -180,7 +169,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def subtract(self, other: "Money") -> "Money":
@@ -196,7 +184,6 @@ class Money:
         3. Dates are carried forward as a result of addition of two defined
            money objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_subtract(self, other: Numeric) -> "Money":
@@ -205,7 +192,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def multiply(self, other: Numeric) -> "Money":
@@ -214,7 +200,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def divide(self, other: Numeric) -> "Money":
@@ -224,7 +209,6 @@ class Money:
 
         Note that division by zero yields an undefined money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Money":
@@ -234,7 +218,6 @@ class Money:
 
         Note that division by zero yields an undefined money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def lt(self, other: "Money") -> bool:
@@ -248,7 +231,6 @@ class Money:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def lte(self, other: "Money") -> bool:
@@ -262,7 +244,6 @@ class Money:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gt(self, other: "Money") -> bool:
@@ -277,7 +258,6 @@ class Money:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gte(self, other: "Money") -> bool:
@@ -293,7 +273,6 @@ class Money:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def or_else(self, e: Callable[[], "Money"]) -> "Money":
@@ -310,7 +289,6 @@ class Money:
         >>> nonemoney.or_else(lambda: fallback) is fallback
         True
         """
-        pass
 
     @abstractmethod
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
@@ -333,7 +311,6 @@ class Money:
         >>> nonemoney.fmap(lambda sm: Money.of(sm.ccy, sm.qty + Decimal('1'), sm.dov)) is Money.NA
         True
         """
-        pass
 
     @abstractmethod
     def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
@@ -350,7 +327,6 @@ class Money:
         >>> nonemoney.dimap(lambda x: x.ccy.code, lambda: "EUR")
         'EUR'
         """
-        pass
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Money":
@@ -358,7 +334,6 @@ class Money:
         Creates a new money object with the given currency if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Money":
@@ -366,7 +341,6 @@ class Money:
         Creates a new money object with the given quantity if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_dov(self, dov: Date) -> "Money":
@@ -374,7 +348,6 @@ class Money:
         Creates a new money object with the given value date if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
@@ -390,7 +363,6 @@ class Money:
         >>> nonemoney.ccy_or(Currencies["EUR"]).code
         'EUR'
         """
-        pass
 
     @abstractmethod
     def ccy_or_none(self) -> Optional[Currency]:
@@ -406,7 +378,6 @@ class Money:
         >>> nonemoney.ccy_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
@@ -421,7 +392,6 @@ class Money:
         >>> nonemoney.qty_or(Decimal(0))
         Decimal('0')
         """
-        pass
 
     @abstractmethod
     def qty_or_zero(self) -> Decimal:
@@ -436,7 +406,6 @@ class Money:
         >>> nonemoney.qty_or_zero()
         Decimal('0')
         """
-        pass
 
     @abstractmethod
     def qty_or_none(self) -> Optional[Decimal]:
@@ -451,7 +420,6 @@ class Money:
         >>> nonemoney.qty_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
@@ -471,7 +439,6 @@ class Money:
         >>> nonemoney.qty_or_else(lambda: False)
         False
         """
-        pass
 
     @abstractmethod
     def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
@@ -488,7 +455,6 @@ class Money:
         >>> nonemoney.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
         Decimal('42')
         """
-        pass
 
     @abstractmethod
     def dov_or(self, default: Date) -> Date:
@@ -503,7 +469,6 @@ class Money:
         >>> nonemoney.dov_or(Date(2001, 1, 1))
         datetime.date(2001, 1, 1)
         """
-        pass
 
     @abstractmethod
     def dov_or_none(self) -> Optional[Date]:
@@ -519,7 +484,6 @@ class Money:
         >>> nonemoney.dov_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
@@ -531,7 +495,6 @@ class Money:
 
         Note that we will carry the date forward as per ``asof`` date.
         """
-        raise NotImplementedError
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
@@ -548,27 +511,26 @@ class Money:
         """
         Returns the price representation of the money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def __bool__(self) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __eq__(self, other: Any) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __abs__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __float__(self) -> float:
-        pass
+        ...
 
     @abstractmethod
     def __int__(self) -> int:
-        pass
+        ...
 
     @overload
     def __round__(self) -> int:
@@ -587,47 +549,47 @@ class Money:
 
     @abstractmethod
     def __neg__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __pos__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __add__(self, other: "Money") -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __sub__(self, other: "Money") -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __mul__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __truediv__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __floordiv__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __lt__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __le__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __gt__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __ge__(self, other: "Money") -> bool:
-        pass
+        ...
 
 
 class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
@@ -1072,7 +1034,6 @@ class Price:
         1. ``True`` if ``other`` is a price object **and** all slots are same.
         2. ``False`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_boolean(self) -> bool:
@@ -1084,7 +1045,6 @@ class Price:
         1. ``False`` if price is *undefined* **or** price quantity is ``zero``.
         2. ``True`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_float(self) -> float:
@@ -1092,7 +1052,6 @@ class Price:
         Returns the quantity as a ``float`` if *defined*, raises
         class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
@@ -1100,14 +1059,12 @@ class Price:
         Returns the quantity as an ``int`` if *defined*, raises
         class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def abs(self) -> "Price":
         """
         Returns the absolute price if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def negative(self) -> "Price":
@@ -1115,14 +1072,12 @@ class Price:
         Negates the quantity of the monetary value if *defined*, itself
         otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def positive(self) -> "Price":
         """
         Returns same monetary value if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Price":
@@ -1130,7 +1085,6 @@ class Price:
         Rounds the quantity of the monetary value to ``ndigits`` by using
         ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def add(self, other: "Price") -> "Price":
@@ -1146,7 +1100,6 @@ class Price:
         3. Dates are carried forward as a result of addition of two defined
            price objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_add(self, other: Numeric) -> "Price":
@@ -1155,7 +1108,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def subtract(self, other: "Price") -> "Price":
@@ -1171,7 +1123,6 @@ class Price:
         3. Dates are carried forward as a result of addition of two defined
            price objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_subtract(self, other: Numeric) -> "Price":
@@ -1180,7 +1131,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def multiply(self, other: Numeric) -> "Price":
@@ -1189,7 +1139,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def times(self, other: Numeric) -> "Money":
@@ -1198,7 +1147,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def divide(self, other: Numeric) -> "Price":
@@ -1208,7 +1156,6 @@ class Price:
 
         Note that division by zero yields an undefined price object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Price":
@@ -1219,7 +1166,6 @@ class Price:
         Note that division by zero yields an undefined price object.
 
         """
-        raise NotImplementedError
 
     @abstractmethod
     def lt(self, other: "Price") -> bool:
@@ -1233,7 +1179,6 @@ class Price:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def lte(self, other: "Price") -> bool:
@@ -1247,7 +1192,6 @@ class Price:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gt(self, other: "Price") -> bool:
@@ -1262,7 +1206,6 @@ class Price:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gte(self, other: "Price") -> bool:
@@ -1278,7 +1221,6 @@ class Price:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def or_else(self, e: Callable[[], "Price"]) -> "Price":
@@ -1295,7 +1237,6 @@ class Price:
         >>> noneprice.or_else(lambda: fallback) is fallback
         True
         """
-        pass
 
     @abstractmethod
     def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
@@ -1318,7 +1259,6 @@ class Price:
         >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.NA
         True
         """
-        pass
 
     @abstractmethod
     def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
@@ -1335,7 +1275,6 @@ class Price:
         >>> noneprice.dimap(lambda x: x.ccy.code, lambda: "EUR")
         'EUR'
         """
-        pass
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Price":
@@ -1343,7 +1282,6 @@ class Price:
         Creates a new price object with the given currency if price is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Price":
@@ -1351,14 +1289,12 @@ class Price:
         Creates a new price object with the given quantity if price is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_dov(self, dov: Date) -> "Price":
         """
         Creates a new price object with the given value date if price is *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
@@ -1374,7 +1310,6 @@ class Price:
         >>> someprice.ccy_or(Currencies["EUR"]).code
         'EUR'
         """
-        pass
 
     @abstractmethod
     def ccy_or_none(self) -> Optional[Currency]:
@@ -1390,7 +1325,6 @@ class Price:
         >>> someprice.ccy_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
@@ -1406,7 +1340,6 @@ class Price:
         >>> noneprice.qty_or(Decimal(0))
         Decimal('0')
         """
-        pass
 
     @abstractmethod
     def qty_or_zero(self) -> Decimal:
@@ -1422,7 +1355,6 @@ class Price:
         >>> noneprice.qty_or_zero()
         Decimal('0')
         """
-        pass
 
     @abstractmethod
     def qty_or_none(self) -> Optional[Decimal]:
@@ -1438,7 +1370,6 @@ class Price:
         >>> noneprice.qty_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
@@ -1458,7 +1389,6 @@ class Price:
         >>> noneprice.qty_or_else(lambda: False)
         False
         """
-        pass
 
     @abstractmethod
     def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
@@ -1475,7 +1405,6 @@ class Price:
         >>> noneprice.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
         Decimal('42')
         """
-        pass
 
     @abstractmethod
     def dov_or(self, default: Date) -> Date:
@@ -1491,7 +1420,6 @@ class Price:
         >>> noneprice.dov_or(Date(2001, 1, 1))
         datetime.date(2001, 1, 1)
         """
-        pass
 
     @abstractmethod
     def dov_or_none(self) -> Optional[Date]:
@@ -1507,7 +1435,6 @@ class Price:
         >>> noneprice.dov_or_none() is None
         True
         """
-        pass
 
     @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
@@ -1519,7 +1446,6 @@ class Price:
 
         Note that we will carry the date forward as per ``asof`` date.
         """
-        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -1527,7 +1453,6 @@ class Price:
         """
         Returns the money representation of the price object.
         """
-        raise NotImplementedError
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
@@ -1540,23 +1465,23 @@ class Price:
 
     @abstractmethod
     def __bool__(self) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __eq__(self, other: Any) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __abs__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __float__(self) -> float:
-        pass
+        ...
 
     @abstractmethod
     def __int__(self) -> int:
-        pass
+        ...
 
     @overload
     def __round__(self) -> int:
@@ -1575,47 +1500,47 @@ class Price:
 
     @abstractmethod
     def __neg__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __pos__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __add__(self, other: "Price") -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __sub__(self, other: "Price") -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __mul__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __truediv__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __floordiv__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __lt__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __le__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __gt__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __ge__(self, other: "Price") -> bool:
-        pass
+        ...
 
 
 class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
