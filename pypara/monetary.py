@@ -296,6 +296,29 @@ class Money:
         pass
 
     @abstractmethod
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, undefined
+        monetary value otherwise.
+
+        >>> import datetime
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> new = somemoney.fmap(lambda x: Money.of(x.ccy, x.qty + Decimal('1'), x.dov + datetime.timedelta(days=10)))
+        >>> new.ccy.code
+        'USD'
+        >>> new.qty
+        Decimal('2.00')
+        >>> new.dov
+        datetime.date(2019, 1, 11)
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.fmap(lambda sm: Money.of(sm.ccy, sm.qty + Decimal('1'), sm.dov)) is Money.NA
+        True
+        """
+        pass
+
+    @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Money":
         """
         Creates a new money object with the given currency if money is
@@ -676,6 +699,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        return f(self)
+
     def with_ccy(self, ccy: Currency) -> "Money":
         return SomeMoney(ccy, self[1], self[2])
 
@@ -836,6 +862,9 @@ class NoneMoney(Money):
 
     def gte(self, other: "Money") -> bool:
         return other.undefined
+
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        return self
 
     def with_ccy(self, ccy: Currency) -> "Money":
         return self
@@ -1158,6 +1187,29 @@ class Price:
            ``other`` is undefined, and
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
+        """
+        pass
+
+    @abstractmethod
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, undefined
+        monetary value otherwise.
+
+        >>> import datetime
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> new = someprice.fmap(lambda x: Price.of(x.ccy, x.qty + Decimal('1'), x.dov + datetime.timedelta(days=10)))
+        >>> new.ccy.code
+        'USD'
+        >>> new.qty
+        Decimal('2')
+        >>> new.dov
+        datetime.date(2019, 1, 11)
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.NA
+        True
         """
         pass
 
@@ -1548,6 +1600,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        return f(self)
+
     def with_ccy(self, ccy: Currency) -> "Price":
         return SomePrice(ccy, self[1], self[2])
 
@@ -1711,6 +1766,9 @@ class NonePrice(Price):
 
     def gte(self, other: "Price") -> bool:
         return other.undefined
+
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        return self
 
     def with_ccy(self, ccy: Currency) -> "Price":
         return self
