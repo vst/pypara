@@ -376,6 +376,22 @@ class Money:
         pass
 
     @abstractmethod
+    def ccy_or_none(self) -> Optional[Currency]:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.ccy_or_none().code
+        'USD'
+        >>> nonemoney = Money.of(Currencies["USD"], None, None)
+        >>> nonemoney.ccy_or_none() is None
+        True
+        """
+        pass
+
+    @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
         """
         Returns the ``qty`` if the monetary value is *defined*, ``default`` otherwise.
@@ -735,6 +751,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def ccy_or(self, default: Currency) -> Currency:
         return self[0]
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return self[0]
+
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
@@ -900,6 +919,9 @@ class NoneMoney(Money):
 
     def ccy_or(self, default: Currency) -> Currency:
         return default
+
+    def ccy_or_none(self) -> Optional[Currency]:
+        return None
 
     def qty_or(self, default: Decimal) -> Decimal:
         return default
@@ -1293,6 +1315,22 @@ class Price:
         pass
 
     @abstractmethod
+    def ccy_or_none(self) -> Optional[Currency]:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.ccy_or_none().code
+        'USD'
+        >>> someprice = Price.of(Currencies["USD"], None, None)
+        >>> someprice.ccy_or_none() is None
+        True
+        """
+        pass
+
+    @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
         """
         Returns the ``qty`` if the monetary value is *defined*, ``default``
@@ -1658,6 +1696,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def ccy_or(self, default: Currency) -> Currency:
         return self[0]
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return self[0]
+
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
@@ -1827,6 +1868,9 @@ class NonePrice(Price):
 
     def ccy_or(self, default: Currency) -> Currency:
         return default
+
+    def ccy_or_none(self) -> Optional[Currency]:
+        return None
 
     def qty_or(self, default: Decimal) -> Decimal:
         return default
