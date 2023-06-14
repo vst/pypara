@@ -319,6 +319,23 @@ class Money:
         pass
 
     @abstractmethod
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, the result of
+        the application of the given combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'USD'
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'EUR'
+        """
+        pass
+
+    @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Money":
         """
         Creates a new money object with the given currency if money is
@@ -702,6 +719,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
         return f(self)
 
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        return f(self)
+
     def with_ccy(self, ccy: Currency) -> "Money":
         return SomeMoney(ccy, self[1], self[2])
 
@@ -865,6 +885,9 @@ class NoneMoney(Money):
 
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
         return self
+
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        return e()
 
     def with_ccy(self, ccy: Currency) -> "Money":
         return self
@@ -1210,6 +1233,23 @@ class Price:
         >>> noneprice = Price.of(None, Decimal('1'), None)
         >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.NA
         True
+        """
+        pass
+
+    @abstractmethod
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, the result of
+        the application of the given combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'USD'
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'EUR'
         """
         pass
 
@@ -1603,6 +1643,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
         return f(self)
 
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        return f(self)
+
     def with_ccy(self, ccy: Currency) -> "Price":
         return SomePrice(ccy, self[1], self[2])
 
@@ -1769,6 +1812,9 @@ class NonePrice(Price):
 
     def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
         return self
+
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        return e()
 
     def with_ccy(self, ccy: Currency) -> "Price":
         return self
