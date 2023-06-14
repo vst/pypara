@@ -296,6 +296,23 @@ class Money:
         pass
 
     @abstractmethod
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        """
+        Returns itself if the monetary value is defined, the value of the given
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> fallback = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney = Money.of(Currencies["EUR"], Decimal('2'), Date(2019, 1, 2))
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> somemoney.or_else(lambda: fallback) is somemoney
+        True
+        >>> nonemoney.or_else(lambda: fallback) is fallback
+        True
+        """
+        pass
+
+    @abstractmethod
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
         """
         Consumes a given function that consumes a defined monetary value and
@@ -748,6 +765,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        return self
+
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
         return f(self)
 
@@ -920,6 +940,9 @@ class NoneMoney(Money):
 
     def gte(self, other: "Money") -> bool:
         return other.undefined
+
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        return e()
 
     def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
         return self
@@ -1254,6 +1277,23 @@ class Price:
            ``other`` is undefined, and
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
+        """
+        pass
+
+    @abstractmethod
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        """
+        Returns itself if the monetary value is defined, the value of the given
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> fallback = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice = Price.of(Currencies["EUR"], Decimal('2'), Date(2019, 1, 2))
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> someprice.or_else(lambda: fallback) is someprice
+        True
+        >>> noneprice.or_else(lambda: fallback) is fallback
+        True
         """
         pass
 
@@ -1716,6 +1756,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
             raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
 
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        return self
+
     def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
         return f(self)
 
@@ -1891,6 +1934,9 @@ class NonePrice(Price):
 
     def gte(self, other: "Price") -> bool:
         return other.undefined
+
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        return e()
 
     def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
         return self
