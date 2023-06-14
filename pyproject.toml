@@ -182,7 +182,6 @@ exclude = [
     ".eggs",
     ".git",
     ".mypy_cache",
-    ".tox",
     "*.egg-info",
     "*.py[codi]",
     "build",
@@ -204,33 +203,3 @@ statistics = true
 
 ## Set Python version (for flake8-typing-imports flake8 plugin):
 min_python_version = "3.10"
-
-###############
-## TOOL: tox ##
-###############9
-
-[tool.tox]
-
-legacy_tox_ini = """
-[tox]
-
-skipsdist = True
-isolated_build = True
-
-[testenv]
-
-## We will explicitly call these executables:
-allowlist_externals =
-    black
-    flake8
-    isort
-    mypy
-    pytest
-
-commands =
-    black --check pypara tests
-    isort --check-only pypara tests
-    flake8 pypara tests
-    mypy pypara tests
-    pytest --verbose --cov --ignore=docs/source/conf.py --doctest-modules
-"""

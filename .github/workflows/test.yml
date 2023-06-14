@@ -21,4 +21,4 @@ jobs:
           extra_nix_config: "system-features = benchmark, big-parallel, nixos-test, uid-range, kvm"
 
       - name: Run Tests
-        run: nix-shell --argstr python ${{ matrix.python-version }} --run tox
+        run: nix-shell --argstr python ${{ matrix.python-version }} --run "python -m nox"
