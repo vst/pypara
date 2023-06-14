@@ -397,4 +397,4 @@ class ReadChartOfAccounts(Protocol):
     """
 
     def __call__(self) -> COA:
-        pass
+        ...

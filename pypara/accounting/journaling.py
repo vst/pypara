@@ -177,4 +177,4 @@ class ReadJournalEntries(Protocol[_T]):
     """
 
     def __call__(self, period: DateRange) -> Iterable[JournalEntry[_T]]:
-        pass
+        ...
