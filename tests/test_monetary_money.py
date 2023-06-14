@@ -23,15 +23,12 @@ yesterday = today - datetime.timedelta(days=1)
 
 def test_implementation() -> None:
     ## Define instances:
-    _money = Money()  # type: ignore
     smoney = SomeMoney(usd, one, today)
     nmoney = NoneMoney()
 
     ## Check structure:
-    assert _money.__slots__ == ()
     assert smoney.__slots__ == ()
     assert nmoney.__slots__ == ()
-    assert not hasattr(_money, "__dict__")
     assert not hasattr(smoney, "__dict__")
     assert not hasattr(nmoney, "__dict__")
 
@@ -40,10 +37,6 @@ def test_implementation() -> None:
     assert isinstance(Money.NA, NoneMoney)
     assert not isinstance(Money.NA, SomeMoney)
     assert not isinstance(Money.NA, Price)
-
-    assert isinstance(_money, Money)
-    assert not isinstance(_money, SomeMoney)
-    assert not isinstance(_money, NoneMoney)
 
     assert isinstance(smoney, Money)
     assert isinstance(smoney, SomeMoney)

@@ -16,7 +16,7 @@ __all__ = [
     "SomePrice",
 ]
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from decimal import Decimal, DivisionByZero, InvalidOperation
 from typing import Any, Callable, NamedTuple, Optional, TypeVar, Union, overload
 
@@ -56,7 +56,7 @@ class MonetaryOperationException(TypeError):
 _T = TypeVar("_T")
 
 
-class Money:
+class Money(ABC):
     """
     Provides an abstract money model and its semantics.
     """
@@ -992,7 +992,7 @@ class NoneMoney(Money):
 Money.NA = NoMoney = NoneMoney()
 
 
-class Price:
+class Price(ABC):
     """
     Provides an abstract price model and its semantics.
     """
