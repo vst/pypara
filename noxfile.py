@@ -45,9 +45,9 @@ def isort(session: nox.Session) -> None:
     session.run("isort", "--check-only", *paths, external=True)
 
 
-# @nox.session(python=False)
-# def pylint(session: nox.Session) -> None:
-#     session.run("pylint", "pypara", "tests", external=True)
+@nox.session(python=False)
+def pylint(session: nox.Session) -> None:
+    session.run("pylint", "pypara", "tests", external=True)
 
 
 @nox.session(python=False)

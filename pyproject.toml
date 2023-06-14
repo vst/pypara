@@ -200,3 +200,79 @@ statistics = true
 
 ## Set Python version (for flake8-typing-imports flake8 plugin):
 min_python_version = "3.10"
+
+##########################
+## PYLINT CONFIGURATION ##
+##########################
+
+[tool.pylint."messages control"]
+
+## Set the line length:
+max-line-length = 120
+
+# ## Allow some special names which occur often due to our domain:
+good-names = ["gt", "lt", "of", "to"]
+
+
+# ## Allow some names defined by regular expressions:
+good-names-rgxs = [
+    "^[_abcdefghjkmnopqrstuvwxyz][_0-9]?$", ## Allow single letter or single letter followed by a single number (including underscore, excludign i,l).
+    "^[pqrx]s$",                            ## Allow plurals of some letters.
+]
+
+## Enable report summary:
+reports = true
+
+## Recurse into directories:
+recursive = true
+
+## Ignore some files:
+ignore = []
+
+## Enable all checks:
+enable = ["all"]
+
+## NOTE: Below list is compiled from a sample pylint run with all checks enabled.
+## We will attend this list on an ongoing basis up until we enable all but a
+## selected group of checks which we really want to ignore (REAL IGNORES). Such
+## checks are grouped on the top of the list.
+##
+## Disable checks selectively:
+disable = [
+    ##################
+    ## REAL IGNORES ##
+    ##################
+
+    ####################
+    ## TO BE ATTENDED ##
+    ####################
+
+    "missing-function-docstring",             ## 46
+    "unnecessary-pass",                       ## 41
+    "superfluous-parens",                     ## 24
+    "unused-argument",                        ## 22
+    "unnecessary-dunder-call",                ## 14
+    "fixme",                                  ## 12
+    "no-else-return",                         ## 11
+    "unidiomatic-typecheck",                  ## 8
+    "use-implicit-booleaness-not-comparison", ## 6
+    "too-many-public-methods",                ## 6
+    "unsubscriptable-object",                 ## 5
+    "unnecessary-ellipsis",                   ## 5
+    "unneeded-not",                           ## 4
+    "too-few-public-methods",                 ## 4
+    "raise-missing-from",                     ## 4
+    "no-else-raise",                          ## 4
+    "missing-module-docstring",               ## 4
+    "unused-variable",                        ## 2
+    "too-many-arguments",                     ## 2
+    "redefined-outer-name",                   ## 2
+    "missing-class-docstring",                ## 2
+    "consider-using-f-string",                ## 2
+    "too-many-lines",                         ## 1
+    "redefined-builtin",                      ## 1
+    "line-too-long",                          ## 1
+    "duplicate-code",                         ## 1
+    "consider-using-in",                      ## 1
+    "comparison-with-itself",                 ## 1
+]
