@@ -18,7 +18,7 @@ __all__ = [
 
 from abc import abstractmethod
 from decimal import Decimal, DivisionByZero, InvalidOperation
-from typing import Any, NamedTuple, Optional, Union, overload
+from typing import Any, Callable, NamedTuple, Optional, TypeVar, Union, overload
 
 from .commons.errors import ProgrammingError
 from .commons.numbers import ZERO, Numeric
@@ -53,6 +53,9 @@ class MonetaryOperationException(TypeError):
     """
 
     pass
+
+
+_T = TypeVar("_T")
 
 
 class Money:
@@ -378,6 +381,26 @@ class Money:
         pass
 
     @abstractmethod
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, the value of the
+        call of provided combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or_else(lambda: Decimal('42'))
+        Decimal('1.00')
+        >>> somemoney.qty_or_else(lambda: True)
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or_else(lambda: Decimal('42'))
+        Decimal('42')
+        >>> nonemoney.qty_or_else(lambda: False)
+        False
+        """
+        pass
+
+    @abstractmethod
     def dov_or(self, default: Date) -> Date:
         """
         Returns the ``dov`` if the monetary value is *defined*, ``default`` otherwise.
@@ -658,6 +681,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def qty_or_none(self) -> Optional[Decimal]:
         return self[1]
 
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return self[1]
+
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
@@ -811,6 +837,9 @@ class NoneMoney(Money):
 
     def qty_or_none(self) -> Optional[Decimal]:
         return None
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return e()
 
     def dov_or(self, default: Date) -> Date:
         return default
@@ -1197,6 +1226,26 @@ class Price:
         pass
 
     @abstractmethod
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, the value of the
+        call of provided combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or_else(lambda: Decimal('42'))
+        Decimal('1')
+        >>> someprice.qty_or_else(lambda: True)
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or_else(lambda: Decimal('42'))
+        Decimal('42')
+        >>> noneprice.qty_or_else(lambda: False)
+        False
+        """
+        pass
+
+    @abstractmethod
     def dov_or(self, default: Date) -> Date:
         """
         Returns the ``dov`` if the monetary value is *defined*, ``default``
@@ -1480,6 +1529,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def qty_or_none(self) -> Optional[Decimal]:
         return self[1]
 
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return self[1]
+
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
@@ -1637,6 +1689,9 @@ class NonePrice(Price):
 
     def qty_or_none(self) -> Optional[Decimal]:
         return None
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return e()
 
     def dov_or(self, default: Date) -> Date:
         return default
