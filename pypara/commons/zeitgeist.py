@@ -276,21 +276,21 @@ class DateRange(Iterable[Date]):
         DateRange(since=datetime.date(2019, 2, 28), until=datetime.date(2021, 2, 28))
         """
         ## Get the target since date:
-        sy, sm, sd = pivot.year - prev, pivot.month, pivot.day
+        s_y, s_m, s_d = pivot.year - prev, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
-        if not isleap(sy) and sm == 2 and sd == 29:
-            sd = 28
+        if not isleap(s_y) and s_m == 2 and s_d == 29:
+            s_d = 28
 
         ## Get the target until date:
-        uy, um, ud = pivot.year + next, pivot.month, pivot.day
+        u_y, u_m, u_d = pivot.year + next, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
-        if not isleap(uy) and um == 2 and ud == 29:
-            ud = 28
+        if not isleap(u_y) and u_m == 2 and u_d == 29:
+            u_d = 28
 
         ## Create the date range and return:
-        return cls(Date(sy, sm, sd), Date(uy, um, ud))
+        return cls(Date(s_y, s_m, s_d), Date(u_y, u_m, u_d))
 
     @classmethod
     def dtd(cls, date: Date) -> "DateRange":

@@ -38,5 +38,5 @@ def chunk(lst: List[_T], n: int) -> Iterable[List[_T]]:
     >>> list(chunk([1, 2, 3, 4, 5], 2))
     [[1, 2], [3, 4], [5]]
     """
-    for i in range(0, len(lst), n):
-        yield lst[i : i + n]  # noqa: E203
+    for x in range(0, len(lst), n):
+        yield lst[x : x + n]  # noqa: E203

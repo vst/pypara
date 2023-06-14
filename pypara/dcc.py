@@ -36,8 +36,8 @@ def _get_date_range(start: Date, end: Date) -> Iterable[Date]:
     :param end: The end date of the period.
     :return: A generator of dates.
     """
-    for i in range((end - start).days):
-        yield start + datetime.timedelta(days=i)
+    for d in range((end - start).days):
+        yield start + datetime.timedelta(days=d)
 
 
 def _get_actual_day_count(start: Date, end: Date) -> int:
