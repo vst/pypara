@@ -82,11 +82,31 @@ class Money(ABC):
     #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
     dov: Date
 
-    #: Indicates that the money is a *defined* monetary value.
-    defined: bool  # noqa: E704
+    @property
+    @abstractmethod
+    def defined(self) -> bool:
+        """
+        Indicates that the money is a *defined* monetary value.
 
-    #: Indicates that the money is an *undefined* monetary value.
-    undefined: bool
+        >>> from pypara.currencies import Currencies
+        >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
+        True
+        >>> Money.NA.defined
+        False
+        """
+
+    @property
+    @abstractmethod
+    def undefined(self) -> bool:
+        """
+        Indicates that the money is a *undefined* monetary value.
+
+        >>> from pypara.currencies import Currencies
+        >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
+        False
+        >>> Money.NA.undefined
+        True
+        """
 
     @abstractmethod
     def is_equal(self, other: Any) -> bool:
@@ -599,9 +619,13 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     __slots__ = ()
 
-    defined = True
+    @property
+    def defined(self) -> bool:
+        return True
 
-    undefined = False
+    @property
+    def undefined(self) -> bool:
+        return False
 
     def is_equal(self, other: Any) -> bool:
         return other.__class__ is SomeMoney and tuple(self) == tuple(other)
@@ -842,9 +866,13 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 class NoneMoney(Money):
     __slots__ = ()
 
-    defined = False
+    @property
+    def defined(self) -> bool:
+        return False
 
-    undefined = True
+    @property
+    def undefined(self) -> bool:
+        return True
 
     def as_boolean(self) -> bool:
         return False
@@ -1018,11 +1046,31 @@ class Price(ABC):
     #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
     dov: Date
 
-    #: Indicates that the price is a *defined* monetary value.
-    defined: bool  # noqa: E704
+    @property
+    @abstractmethod
+    def defined(self) -> bool:
+        """
+        Indicates that the price is a *defined* monetary value.
 
-    #: Indicates that the price is an *undefined* monetary value.
-    undefined: bool
+        >>> from pypara.currencies import Currencies
+        >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
+        True
+        >>> Price.NA.defined
+        False
+        """
+
+    @property
+    @abstractmethod
+    def undefined(self) -> bool:
+        """
+        Indicates that the price is a *undefined* monetary value.
+
+        >>> from pypara.currencies import Currencies
+        >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
+        False
+        >>> Price.NA.undefined
+        True
+        """
 
     @abstractmethod
     def is_equal(self, other: Any) -> bool:
@@ -1550,9 +1598,13 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     __slots__ = ()
 
-    defined = True
+    @property
+    def defined(self) -> bool:
+        return True
 
-    undefined = False
+    @property
+    def undefined(self) -> bool:
+        return False
 
     def is_equal(self, other: Any) -> bool:
         return other.__class__ is SomePrice and tuple(self) == tuple(other)
@@ -1796,9 +1848,13 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 class NonePrice(Price):
     __slots__ = ()
 
-    defined = False
+    @property
+    def defined(self) -> bool:
+        return False
 
-    undefined = True
+    @property
+    def undefined(self) -> bool:
+        return True
 
     def as_boolean(self) -> bool:
         return False
