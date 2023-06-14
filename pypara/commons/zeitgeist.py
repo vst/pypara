@@ -248,14 +248,14 @@ class DateRange(Iterable[Date]):
         return cls(date1, date2) if date1 <= date2 else cls(date2, date1)
 
     @classmethod
-    def pivotal(cls, pivot: Date, prev: NaturalNumber, next: NaturalNumber) -> "DateRange":
+    def pivotal(cls, pivot: Date, n_prev: NaturalNumber, n_next: NaturalNumber) -> "DateRange":
         """
         Creates a :py:class:`DateRange` as per given ``pivot`` date in time to create date range since ``prev`` years
         back and ``next`` years forward.
 
         :param pivot: Pivot date in time.
-        :param prev: Numbers to go back in years.
-        :param next: Numbers to go forward in years.
+        :param n_prev: Numbers to go back in years.
+        :param n_next: Numbers to go forward in years.
         :return: A :py:class:`DateRange` instance.
 
         >>> DateRange.pivotal(Date(2019, 12, 31), NaturalNumber(0), NaturalNumber(0))
@@ -276,14 +276,14 @@ class DateRange(Iterable[Date]):
         DateRange(since=datetime.date(2019, 2, 28), until=datetime.date(2021, 2, 28))
         """
         ## Get the target since date:
-        s_y, s_m, s_d = pivot.year - prev, pivot.month, pivot.day
+        s_y, s_m, s_d = pivot.year - n_prev, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
         if not isleap(s_y) and s_m == 2 and s_d == 29:
             s_d = 28
 
         ## Get the target until date:
-        u_y, u_m, u_d = pivot.year + next, pivot.month, pivot.day
+        u_y, u_m, u_d = pivot.year + n_next, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
         if not isleap(u_y) and u_m == 2 and u_d == 29:
@@ -367,7 +367,7 @@ class DateRange(Iterable[Date]):
         :param rest: Rest of date ranges.
         :return: A new date range which covers all given date ranges.
 
-        >>> DateRange.cover(DateRange.dtd(Date(2019, 4, 1)), DateRange.mtd(Date(2020, 2, 29)), DateRange.ytd(Date(2018, 3, 6)))  # noqa: E501
+        >>> DateRange.cover(DateRange.dtd(Date(2019, 4, 1)), DateRange.mtd(Date(2020, 2, 29)), DateRange.ytd(Date(2018, 3, 6)))  # noqa: E501 pylint: disable=line-too-long
         DateRange(since=datetime.date(2018, 1, 1), until=datetime.date(2020, 2, 29))
         """
         return DateRange(

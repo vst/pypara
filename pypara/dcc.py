@@ -831,7 +831,7 @@ def dcfc_30_360_us(start: Date, asof: Date, end: Date, freq: Optional[Decimal] =
             d2 = 30
 
     ## Revisit d2:
-    if d2 == 31 and (d1 == 30 or d1 == 31):
+    if d2 == 31 and (d1 in {30, 31}):
         d2 = 30
 
     ## Revisit d1:
