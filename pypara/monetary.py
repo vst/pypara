@@ -21,7 +21,7 @@ from decimal import Decimal, DivisionByZero, InvalidOperation
 from typing import Any, NamedTuple, Optional, Union, overload
 
 from .commons.errors import ProgrammingError
-from .commons.numbers import Numeric
+from .commons.numbers import ZERO, Numeric
 from .commons.zeitgeist import Date
 from .currencies import Currency
 from .exchange import FXRateLookupError, FXRateService
@@ -348,6 +348,21 @@ class Money:
         pass
 
     @abstractmethod
+    def qty_or_zero(self) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``0`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or_zero()
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or_zero()
+        Decimal('0')
+        """
+        pass
+
+    @abstractmethod
     def dov_or(self, default: Date) -> Date:
         """
         Returns the ``dov`` if the monetary value is *defined*, ``default`` otherwise.
@@ -622,6 +637,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
+    def qty_or_zero(self) -> Decimal:
+        return self[1]
+
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
@@ -769,6 +787,9 @@ class NoneMoney(Money):
 
     def qty_or(self, default: Decimal) -> Decimal:
         return default
+
+    def qty_or_zero(self) -> Decimal:
+        return ZERO
 
     def dov_or(self, default: Date) -> Date:
         return default
@@ -1123,6 +1144,22 @@ class Price:
         pass
 
     @abstractmethod
+    def qty_or_zero(self) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``0``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or_zero()
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or_zero()
+        Decimal('0')
+        """
+        pass
+
+    @abstractmethod
     def dov_or(self, default: Date) -> Date:
         """
         Returns the ``dov`` if the monetary value is *defined*, ``default``
@@ -1400,6 +1437,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
+    def qty_or_zero(self) -> Decimal:
+        return self[1]
+
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
@@ -1551,6 +1591,9 @@ class NonePrice(Price):
 
     def qty_or(self, default: Decimal) -> Decimal:
         return default
+
+    def qty_or_zero(self) -> Decimal:
+        return ZERO
 
     def dov_or(self, default: Date) -> Date:
         return default
