@@ -489,6 +489,22 @@ class Money:
         pass
 
     @abstractmethod
+    def dov_or_none(self) -> Optional[Date]:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.dov_or_none()
+        datetime.date(2019, 1, 1)
+        >>> nonemoney = Money.of(None, None, Date(2019, 1, 1))
+        >>> nonemoney.dov_or_none() is None
+        True
+        """
+        pass
+
+    @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         """
         Converts the monetary value from one currency to another.
@@ -772,6 +788,9 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
+    def dov_or_none(self) -> Optional[Date]:
+        return self[2]
+
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         ## Get slots:
         ccy, qty, dov = self
@@ -940,6 +959,9 @@ class NoneMoney(Money):
 
     def dov_or(self, default: Date) -> Date:
         return default
+
+    def dov_or_none(self) -> Optional[Date]:
+        return None
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         return self
@@ -1432,6 +1454,22 @@ class Price:
         pass
 
     @abstractmethod
+    def dov_or_none(self) -> Optional[Date]:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.dov_or_none()
+        datetime.date(2019, 1, 1)
+        >>> noneprice = Price.of(None, None, Date(2019, 1, 1))
+        >>> noneprice.dov_or_none() is None
+        True
+        """
+        pass
+
+    @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         """
         Converts the monetary value from one currency to another.
@@ -1717,6 +1755,9 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def dov_or(self, default: Date) -> Date:
         return self[2]
 
+    def dov_or_none(self) -> Optional[Date]:
+        return self[2]
+
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         ## Get slots:
         ccy, qty, dov = self
@@ -1889,6 +1930,9 @@ class NonePrice(Price):
 
     def dov_or(self, default: Date) -> Date:
         return default
+
+    def dov_or_none(self) -> Optional[Date]:
+        return None
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         return self
