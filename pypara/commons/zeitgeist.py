@@ -370,7 +370,10 @@ class DateRange(Iterable[Date]):
         >>> DateRange.cover(DateRange.dtd(Date(2019, 4, 1)), DateRange.mtd(Date(2020, 2, 29)), DateRange.ytd(Date(2018, 3, 6)))  # noqa: E501
         DateRange(since=datetime.date(2018, 1, 1), until=datetime.date(2020, 2, 29))
         """
-        return DateRange(min(first, *rest, key=lambda x: x.since).since, max(first, *rest, key=lambda x: x.until).until)
+        return DateRange(
+            min(first, *rest, key=lambda x: x.since).since,  # pyright: ignore [reportGeneralTypeIssues]
+            max(first, *rest, key=lambda x: x.until).until,  # pyright: ignore [reportGeneralTypeIssues]
+        )
 
     def since_prev_year_end(self, years: PositiveInteger = _POS_INT_1, weekday: bool = False) -> "DateRange":
         """
