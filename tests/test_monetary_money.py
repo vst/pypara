@@ -33,10 +33,10 @@ def test_implementation() -> None:
     assert not hasattr(nmoney, "__dict__")
 
     ## Check types
-    assert isinstance(Money.NA, Money)
-    assert isinstance(Money.NA, NoneMoney)
-    assert not isinstance(Money.NA, SomeMoney)
-    assert not isinstance(Money.NA, Price)
+    assert isinstance(Money.na(), Money)
+    assert isinstance(Money.na(), NoneMoney)
+    assert not isinstance(Money.na(), SomeMoney)
+    assert not isinstance(Money.na(), Price)
 
     assert isinstance(smoney, Money)
     assert isinstance(smoney, SomeMoney)
@@ -48,9 +48,9 @@ def test_implementation() -> None:
 
 
 def test_of() -> None:
-    assert Money.of(usd, one, None) == Money.NA
-    assert Money.of(usd, None, today) == Money.NA
-    assert Money.of(usd, one, None) == Money.NA
+    assert Money.of(usd, one, None) == Money.na()
+    assert Money.of(usd, None, today) == Money.na()
+    assert Money.of(usd, one, None) == Money.na()
     assert Money.of(usd, one, today) == SomeMoney(usd, one, today)
     assert Money.of(usd, Decimal("0.055"), today) == Money.of(usd, Decimal("0.06"), today)
     assert Money.of(usd, Decimal("0.045"), today) == Money.of(usd, Decimal("0.04"), today)
@@ -58,9 +58,9 @@ def test_of() -> None:
 
 def test_is_equal() -> None:
     ## Vanilla:
-    assert Money.NA.is_equal(NoMoney)
-    assert Money.NA.is_equal(NoneMoney())
-    assert not Money.NA.is_equal(Money.of(usd, zero, today))
+    assert Money.na().is_equal(NoMoney)
+    assert Money.na().is_equal(NoneMoney())
+    assert not Money.na().is_equal(Money.of(usd, zero, today))
     assert Money.of(usd, zero, today).is_equal(Money.of(usd, zero, today))
     assert Money.of(usd, half, today).is_equal(Money.of(usd, half, today))
     assert not Money.of(usd, zero, today).is_equal(Money.of(eur, zero, today))
@@ -68,8 +68,8 @@ def test_is_equal() -> None:
     assert not Money.of(usd, zero, today).is_equal(Money.of(usd, zero, yesterday))
 
     ## With operator overload:
-    assert Money.NA == NoneMoney()
-    assert Money.NA != Money.of(usd, zero, today)
+    assert Money.na() == NoneMoney()
+    assert Money.na() != Money.of(usd, zero, today)
     assert Money.of(usd, zero, today) == Money.of(usd, zero, today)
     assert Money.of(usd, half, today) == Money.of(usd, half, today)
     assert Money.of(usd, zero, today) != Money.of(eur, zero, today)
@@ -79,13 +79,13 @@ def test_is_equal() -> None:
 
 def test_to_boolean() -> None:
     ## Vanilla:
-    assert not Money.NA.as_boolean()
+    assert not Money.na().as_boolean()
     assert not Money.of(usd, zero, today).as_boolean()
     assert Money.of(usd, half, today).as_boolean()
     assert Money.of(usd, -half, today).as_boolean()
 
     ## With semantic overload
-    assert not bool(Money.NA)
+    assert not bool(Money.na())
     assert not Money.of(usd, zero, today)
     assert Money.of(usd, half, today)
     assert Money.of(usd, -half, today)
@@ -94,13 +94,13 @@ def test_to_boolean() -> None:
 def test_to_float() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
-        Money.NA.as_float()
+        Money.na().as_float()
     assert Money.of(usd, half, today).as_float() == 0.5
     assert type(Money.of(usd, half, today).as_float()) == float
 
     ## With overload:
     with pytest.raises(TypeError):
-        float(Money.NA)
+        float(Money.na())
     assert float(Money.of(usd, half, today)) == 0.5
     assert type(float(Money.of(usd, half, today))) == float
 
@@ -108,26 +108,26 @@ def test_to_float() -> None:
 def test_to_integer() -> None:
     ## Vanilla:
     with pytest.raises(TypeError):
-        int(Money.NA)
+        int(Money.na())
     assert int(Money.of(usd, half, today)) == 0
     assert type(int(Money.of(usd, half, today))) == int
 
     ## With overload:
     with pytest.raises(TypeError):
-        Money.NA.as_integer()
+        Money.na().as_integer()
     assert Money.of(usd, half, today).as_integer() == 0
     assert type(Money.of(usd, half, today).as_integer()) == int
 
 
 def test_abs() -> None:
     ## Vanilla:
-    assert Money.NA.abs() == Money.NA
+    assert Money.na().abs() == Money.na()
     assert Money.of(usd, zero, today).abs() == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today).abs() == Money.of(usd, +one, today)
     assert Money.of(usd, +one, today).abs() == Money.of(usd, +one, today)
 
     ## With overload:
-    assert abs(Money.NA) == Money.NA
+    assert abs(Money.na()) == Money.na()
     assert abs(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
     assert abs(Money.of(usd, -one, today)) == Money.of(usd, +one, today)
     assert abs(Money.of(usd, +one, today)) == Money.of(usd, +one, today)
@@ -135,13 +135,13 @@ def test_abs() -> None:
 
 def test_negative() -> None:
     ## Vanilla:
-    assert Money.NA.negative() == Money.NA
+    assert Money.na().negative() == Money.na()
     assert Money.of(usd, zero, today).negative() == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today).negative() == Money.of(usd, +one, today)
     assert Money.of(usd, +one, today).negative() == Money.of(usd, -one, today)
 
     ## With overload:
-    assert -Money.NA == Money.NA
+    assert -Money.na() == Money.na()
     assert -Money.of(usd, zero, today) == Money.of(usd, zero, today)
     assert -Money.of(usd, -one, today) == Money.of(usd, +one, today)
     assert -Money.of(usd, +one, today) == Money.of(usd, -one, today)
@@ -149,13 +149,13 @@ def test_negative() -> None:
 
 def test_positive() -> None:
     ## Vanilla:
-    assert Money.NA.positive() == Money.NA
+    assert Money.na().positive() == Money.na()
     assert Money.of(usd, zero, today).positive() == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today).positive() == Money.of(usd, -one, today)
     assert Money.of(usd, +one, today).positive() == Money.of(usd, +one, today)
 
     ## With overload:
-    assert +Money.NA == Money.NA
+    assert +Money.na() == Money.na()
     assert +Money.of(usd, zero, today) == Money.of(usd, zero, today)
     assert +Money.of(usd, -one, today) == Money.of(usd, -one, today)
     assert +Money.of(usd, +one, today) == Money.of(usd, +one, today)
@@ -163,7 +163,7 @@ def test_positive() -> None:
 
 def test_round() -> None:
     ## Vanilla:
-    assert Money.NA.round(2) == Money.NA
+    assert Money.na().round(2) == Money.na()
     assert Money.of(usd, zero, today).round(2) == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today).round(2) == Money.of(usd, -one, today)
     assert Money.of(usd, +one, today).round(2) == Money.of(usd, +one, today)
@@ -173,7 +173,7 @@ def test_round() -> None:
     assert Money.of(usd, Decimal("1.545"), today).round(2) == Money.of(usd, Decimal("1.54"), today)
 
     ## With overload:
-    assert round(Money.NA, 2) == Money.NA
+    assert round(Money.na(), 2) == Money.na()
     assert round(Money.of(usd, zero, today), 2) == Money.of(usd, zero, today)
     assert round(Money.of(usd, -one, today), 2) == Money.of(usd, -one, today)
     assert round(Money.of(usd, +one, today), 2) == Money.of(usd, +one, today)
@@ -194,10 +194,10 @@ def test_round() -> None:
 
 
 def test_addition() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.add(Money.NA) == Money.NA
-    assert Money.NA.add(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
-    assert Money.of(usd, zero, today).add(Money.NA) == Money.of(usd, zero, today)
+    ## First use `Money.na()`s:
+    assert Money.na().add(Money.na()) == Money.na()
+    assert Money.na().add(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
+    assert Money.of(usd, zero, today).add(Money.na()) == Money.of(usd, zero, today)
 
     ## Vanilla addition:
     assert Money.of(usd, zero, today).add(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
@@ -214,15 +214,15 @@ def test_addition() -> None:
         Money.of(usd, zero, today).add(Money.of(eur, zero, today))
 
     ## Operator overload:
-    assert Money.NA + Money.NA == Money.NA
-    assert Money.NA + Money.of(usd, zero, today) == Money.of(usd, zero, today)
-    assert Money.of(usd, zero, today) + Money.NA == Money.of(usd, zero, today)
+    assert Money.na() + Money.na() == Money.na()
+    assert Money.na() + Money.of(usd, zero, today) == Money.of(usd, zero, today)
+    assert Money.of(usd, zero, today) + Money.na() == Money.of(usd, zero, today)
     assert Money.of(usd, zero, today) + Money.of(usd, one, today) == Money.of(usd, one, today)
 
 
 def test_scalar_addition() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.scalar_add(1) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().scalar_add(1) == Money.na()
 
     ## Vanilla addition:
     assert Money.of(usd, zero, today).scalar_add(1) == Money.of(usd, one, today)
@@ -238,10 +238,10 @@ def test_scalar_addition() -> None:
 
 
 def test_subtraction() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.subtract(Money.NA) == Money.NA
-    assert Money.NA.subtract(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
-    assert Money.of(usd, zero, today).subtract(Money.NA) == Money.of(usd, zero, today)
+    ## First use `Money.na()`s:
+    assert Money.na().subtract(Money.na()) == Money.na()
+    assert Money.na().subtract(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
+    assert Money.of(usd, zero, today).subtract(Money.na()) == Money.of(usd, zero, today)
 
     ## Vanilla subtraction:
     assert Money.of(usd, zero, today).subtract(Money.of(usd, zero, today)) == Money.of(usd, zero, today)
@@ -259,14 +259,14 @@ def test_subtraction() -> None:
 
     ## Operator overload:
     assert Money.of(usd, zero, today) - Money.of(usd, one, today) == Money.of(usd, -one, today)
-    assert Money.NA - Money.NA == Money.NA
-    assert Money.NA - Money.of(usd, zero, today) == Money.of(usd, zero, today)
-    assert Money.of(usd, zero, today) - Money.NA == Money.of(usd, zero, today)
+    assert Money.na() - Money.na() == Money.na()
+    assert Money.na() - Money.of(usd, zero, today) == Money.of(usd, zero, today)
+    assert Money.of(usd, zero, today) - Money.na() == Money.of(usd, zero, today)
 
 
 def test_scalar_subtraction() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.scalar_subtract(1) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().scalar_subtract(1) == Money.na()
 
     ## Vanilla subtraction:
     assert Money.of(usd, zero, today).scalar_subtract(1) == Money.of(usd, -one, today)
@@ -286,8 +286,8 @@ def test_scalar_subtraction() -> None:
 
 
 def test_scalar_multiplication() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.multiply(1) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().multiply(1) == Money.na()
 
     ## Vanilla subtraction:
     assert Money.of(usd, one, today).multiply(1) == Money.of(usd, one, today)
@@ -301,7 +301,7 @@ def test_scalar_multiplication() -> None:
     assert Money.of(usd, one, today).multiply(one) == Money.of(usd, one, today)
 
     ## Operator overload:
-    assert Money.NA * 1 == Money.NA
+    assert Money.na() * 1 == Money.na()
     assert Money.of(usd, one, today) * 1 == Money.of(usd, one, today)
     assert Money.of(usd, one, today) * 2 == Money.of(usd, two, today)
     assert Money.of(usd, -one, today) * 1 == Money.of(usd, -one, today)
@@ -314,8 +314,8 @@ def test_scalar_multiplication() -> None:
 
 
 def test_division() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.divide(1) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().divide(1) == Money.na()
 
     ## Vanilla subtraction:
     assert Money.of(usd, one, today).divide(1) == Money.of(usd, one, today)
@@ -329,17 +329,17 @@ def test_division() -> None:
     assert Money.of(usd, one, today).divide(two) == Money.of(usd, half, today)
 
     ## Division by zero:
-    assert Money.of(usd, one, today).divide(0) == Money.NA
-    assert Money.of(usd, one, today).divide(zero) == Money.NA
-    assert Money.of(usd, one, today).divide(0.0) == Money.NA
+    assert Money.of(usd, one, today).divide(0) == Money.na()
+    assert Money.of(usd, one, today).divide(zero) == Money.na()
+    assert Money.of(usd, one, today).divide(0.0) == Money.na()
 
     ## Operator overload:
-    assert Money.NA / 1 == Money.NA
+    assert Money.na() / 1 == Money.na()
     assert Money.of(usd, one, today) / 1 == Money.of(usd, one, today)
     assert Money.of(usd, one, today) / 2 == Money.of(usd, half, today)
     assert Money.of(usd, -one, today) / 1 == Money.of(usd, -one, today)
     assert Money.of(usd, -one, today) / 2 == Money.of(usd, -half, today)
-    assert Money.of(usd, -one, today) / 0 == Money.NA
+    assert Money.of(usd, -one, today) / 0 == Money.na()
 
     ## Extras
     assert Money.of(usd, one, today).divide(Decimal("10")) == Money.of(usd, Decimal("0.10"), today)
@@ -349,8 +349,8 @@ def test_division() -> None:
 
 
 def test_floor_division() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.floor_divide(1) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().floor_divide(1) == Money.na()
 
     ## Vanilla subtraction:
     assert Money.of(usd, one, today).floor_divide(1) == Money.of(usd, one, today)
@@ -364,17 +364,17 @@ def test_floor_division() -> None:
     assert Money.of(usd, one, today).floor_divide(two) == Money.of(usd, zero, today)
 
     ## Division by zero:
-    assert Money.of(usd, one, today).floor_divide(0) == Money.NA
-    assert Money.of(usd, one, today).floor_divide(zero) == Money.NA
-    assert Money.of(usd, one, today).floor_divide(0.0) == Money.NA
+    assert Money.of(usd, one, today).floor_divide(0) == Money.na()
+    assert Money.of(usd, one, today).floor_divide(zero) == Money.na()
+    assert Money.of(usd, one, today).floor_divide(0.0) == Money.na()
 
     ## Operator overload:
-    assert Money.NA / 1 == Money.NA
+    assert Money.na() / 1 == Money.na()
     assert Money.of(usd, one, today) // 1 == Money.of(usd, one, today)
     assert Money.of(usd, one, today) // 2 == Money.of(usd, zero, today)
     assert Money.of(usd, -one, today) // 1 == Money.of(usd, -one, today)
     assert Money.of(usd, -one, today) // 2 == Money.of(usd, zero, today)
-    assert Money.of(usd, -one, today) // 0 == Money.NA
+    assert Money.of(usd, -one, today) // 0 == Money.na()
 
     ## Extras
     assert Money.of(usd, Decimal("10"), today).floor_divide(Decimal("10")) == Money.of(usd, Decimal("1.00"), today)
@@ -382,23 +382,23 @@ def test_floor_division() -> None:
 
 
 def test_comparisons() -> None:
-    ## First use `Money.NA`s:
-    assert not (Money.NA < Money.NA)
-    assert Money.NA <= Money.NA
-    assert not (Money.NA > Money.NA)
-    assert Money.NA >= Money.NA
+    ## First use `Money.na()`s:
+    assert not (Money.na() < Money.na())
+    assert Money.na() <= Money.na()
+    assert not (Money.na() > Money.na())
+    assert Money.na() >= Money.na()
 
     ## Try mixed:
-    assert Money.NA < Money.of(usd, -one, today)
-    assert Money.NA <= Money.of(usd, -one, today)
-    assert not (Money.NA > Money.of(usd, -one, today))
-    assert not (Money.NA >= Money.of(usd, -one, today))
+    assert Money.na() < Money.of(usd, -one, today)
+    assert Money.na() <= Money.of(usd, -one, today)
+    assert not (Money.na() > Money.of(usd, -one, today))
+    assert not (Money.na() >= Money.of(usd, -one, today))
 
     ## ... and:
-    assert not (Money.of(usd, -one, today) < Money.NA)
-    assert not (Money.of(usd, -one, today) <= Money.NA)
-    assert Money.of(usd, -one, today) > Money.NA
-    assert Money.of(usd, -one, today) >= Money.NA
+    assert not (Money.of(usd, -one, today) < Money.na())
+    assert not (Money.of(usd, -one, today) <= Money.na())
+    assert Money.of(usd, -one, today) > Money.na()
+    assert Money.of(usd, -one, today) >= Money.na()
 
     ## With defined values:
     assert not (Money.of(usd, zero, today) < Money.of(usd, zero, today))
@@ -420,10 +420,10 @@ def test_comparisons() -> None:
 
 
 def test_with() -> None:
-    ## First use `Money.NA`s:
-    assert Money.NA.with_ccy(usd) == Money.NA
-    assert Money.NA.with_qty(one) == Money.NA
-    assert Money.NA.with_dov(today) == Money.NA
+    ## First use `Money.na()`s:
+    assert Money.na().with_ccy(usd) == Money.na()
+    assert Money.na().with_qty(one) == Money.na()
+    assert Money.na().with_dov(today) == Money.na()
 
     ## Now with some:
     assert Money.of(usd, zero, today).with_ccy(eur) == Money.of(eur, zero, today)

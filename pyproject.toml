@@ -211,7 +211,7 @@ min_python_version = "3.10"
 max-line-length = 120
 
 # ## Allow some special names which occur often due to our domain:
-good-names = ["gt", "lt", "of", "to"]
+good-names = ["gt", "lt", "na", "of", "to"]
 
 # ## Allow some names defined by regular expressions:
 good-names-rgxs = [

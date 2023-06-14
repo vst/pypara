@@ -64,9 +64,6 @@ class Money(ABC):
     ## No need for slots.
     __slots__ = ()
 
-    #: Defines the *undefined* money object as a singleton.
-    NA: "Money"
-
     #: Returns the currency of the money object, if defined.
     #:
     #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
@@ -91,7 +88,7 @@ class Money(ABC):
         >>> from pypara.currencies import Currencies
         >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
         True
-        >>> Money.NA.defined
+        >>> Money.na().defined
         False
         """
 
@@ -104,7 +101,7 @@ class Money(ABC):
         >>> from pypara.currencies import Currencies
         >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
         False
-        >>> Money.NA.undefined
+        >>> Money.na().undefined
         True
         """
 
@@ -328,7 +325,7 @@ class Money(ABC):
         >>> new.dov
         datetime.date(2019, 1, 11)
         >>> nonemoney = Money.of(None, Decimal('1'), None)
-        >>> nonemoney.fmap(lambda sm: Money.of(sm.ccy, sm.qty + Decimal('1'), sm.dov)) is Money.NA
+        >>> nonemoney.fmap(lambda sm: Money.of(sm.ccy, sm.qty + Decimal('1'), sm.dov)) is Money.na()
         True
         """
 
@@ -515,6 +512,18 @@ class Money(ABC):
 
         Note that we will carry the date forward as per ``asof`` date.
         """
+
+    @classmethod
+    def na(cls) -> "Money":
+        """
+        Undefined money instance.
+
+        >>> Money.na().defined
+        False
+        >>> Money.na().undefined
+        True
+        """
+        return NoMoney
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
@@ -1016,8 +1025,8 @@ class NoneMoney(Money):
     __ge__ = gte
 
 
-## Define and attach undefined money singleton.
-Money.NA = NoMoney = NoneMoney()
+#: Undefined money instance.
+NoMoney = NoneMoney()
 
 
 class Price(ABC):
@@ -1027,9 +1036,6 @@ class Price(ABC):
 
     ## No need for slots.
     __slots__ = ()
-
-    #: Defines the *undefined* price object as a singleton.
-    NA: "Price"
 
     #: Returns the currency of the price object, if defined.
     #:
@@ -1055,7 +1061,7 @@ class Price(ABC):
         >>> from pypara.currencies import Currencies
         >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
         True
-        >>> Price.NA.defined
+        >>> Price.na().defined
         False
         """
 
@@ -1068,7 +1074,7 @@ class Price(ABC):
         >>> from pypara.currencies import Currencies
         >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
         False
-        >>> Price.NA.undefined
+        >>> Price.na().undefined
         True
         """
 
@@ -1304,7 +1310,7 @@ class Price(ABC):
         >>> new.dov
         datetime.date(2019, 1, 11)
         >>> noneprice = Price.of(None, Decimal('1'), None)
-        >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.NA
+        >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.na()
         True
         """
 
@@ -1501,6 +1507,18 @@ class Price(ABC):
         """
         Returns the money representation of the price object.
         """
+
+    @classmethod
+    def na(cls) -> "Price":
+        """
+        Undefined price instance.
+
+        >>> Price.na().defined
+        False
+        >>> Price.na().undefined
+        True
+        """
+        return NoPrice
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
@@ -2001,5 +2019,5 @@ class NonePrice(Price):
     __ge__ = gte
 
 
-#: Undefined price singleton.
-Price.NA = NoPrice = NonePrice()
+#: Undefined price instance.
+NoPrice = NonePrice()
