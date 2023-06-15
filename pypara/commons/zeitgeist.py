@@ -53,7 +53,7 @@ _POS_INT_1 = PositiveInteger(1)
 
 class OpenDateRange:
     """
-    Defines a daterange class with inclusive but optional start and end.
+    Defines a date-range class with inclusive but optional start and end.
 
     For a date range with both ends open:
 
@@ -248,14 +248,14 @@ class DateRange(Iterable[Date]):
         return cls(date1, date2) if date1 <= date2 else cls(date2, date1)
 
     @classmethod
-    def pivotal(cls, pivot: Date, prev: NaturalNumber, next: NaturalNumber) -> "DateRange":
+    def pivotal(cls, pivot: Date, n_prev: NaturalNumber, n_next: NaturalNumber) -> "DateRange":
         """
         Creates a :py:class:`DateRange` as per given ``pivot`` date in time to create date range since ``prev`` years
         back and ``next`` years forward.
 
         :param pivot: Pivot date in time.
-        :param prev: Numbers to go back in years.
-        :param next: Numbers to go forward in years.
+        :param n_prev: Numbers to go back in years.
+        :param n_next: Numbers to go forward in years.
         :return: A :py:class:`DateRange` instance.
 
         >>> DateRange.pivotal(Date(2019, 12, 31), NaturalNumber(0), NaturalNumber(0))
@@ -276,21 +276,21 @@ class DateRange(Iterable[Date]):
         DateRange(since=datetime.date(2019, 2, 28), until=datetime.date(2021, 2, 28))
         """
         ## Get the target since date:
-        sy, sm, sd = pivot.year - prev, pivot.month, pivot.day
+        s_y, s_m, s_d = pivot.year - n_prev, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
-        if not isleap(sy) and sm == 2 and sd == 29:
-            sd = 28
+        if not isleap(s_y) and s_m == 2 and s_d == 29:
+            s_d = 28
 
         ## Get the target until date:
-        uy, um, ud = pivot.year + next, pivot.month, pivot.day
+        u_y, u_m, u_d = pivot.year + n_next, pivot.month, pivot.day
 
         ## Check if (m, d) is a valid one:
-        if not isleap(uy) and um == 2 and ud == 29:
-            ud = 28
+        if not isleap(u_y) and u_m == 2 and u_d == 29:
+            u_d = 28
 
         ## Create the date range and return:
-        return cls(Date(sy, sm, sd), Date(uy, um, ud))
+        return cls(Date(s_y, s_m, s_d), Date(u_y, u_m, u_d))
 
     @classmethod
     def dtd(cls, date: Date) -> "DateRange":
@@ -367,10 +367,13 @@ class DateRange(Iterable[Date]):
         :param rest: Rest of date ranges.
         :return: A new date range which covers all given date ranges.
 
-        >>> DateRange.cover(DateRange.dtd(Date(2019, 4, 1)), DateRange.mtd(Date(2020, 2, 29)), DateRange.ytd(Date(2018, 3, 6)))  # noqa: E501
+        >>> DateRange.cover(DateRange.dtd(Date(2019, 4, 1)), DateRange.mtd(Date(2020, 2, 29)), DateRange.ytd(Date(2018, 3, 6)))  # noqa: E501 pylint: disable=line-too-long
         DateRange(since=datetime.date(2018, 1, 1), until=datetime.date(2020, 2, 29))
         """
-        return DateRange(min(first, *rest, key=lambda x: x.since).since, max(first, *rest, key=lambda x: x.until).until)
+        return DateRange(
+            min(first, *rest, key=lambda x: x.since).since,  # pyright: ignore [reportGeneralTypeIssues]
+            max(first, *rest, key=lambda x: x.until).until,  # pyright: ignore [reportGeneralTypeIssues]
+        )
 
     def since_prev_year_end(self, years: PositiveInteger = _POS_INT_1, weekday: bool = False) -> "DateRange":
         """
@@ -411,7 +414,7 @@ def make_financial_periods(date: Date, lookback: PositiveInteger) -> FinancialPe
 
     :param date: Date to create financial periods for.
     :param lookback: A positive integer describing the number of years to go back.
-    :return: A dictionary of financial period label and date range for the financual period.
+    :return: A dictionary of financial period label and date range for the financial period.
 
     >>> sorted(make_financial_periods(Date(2019, 1, 10), PositiveInteger(1)).keys())
     ['2018', 'DTD', 'MTD', 'YTD']
@@ -810,7 +813,7 @@ def ensure_datetime(value: Union[Date, DateTime, str], **kwargs: int) -> DateTim
     ...
     ValueError: Don't know how to convert value to date/time object: 1
     """
-    ## Check the type of the value and act accordinly.
+    ## Check the type of the value and act accordingly.
     if isinstance(value, DateTime):
         ## It is a datetime instance. Nothing to be done. Just return with replacement:
         return value.replace(**kwargs)  # type: ignore

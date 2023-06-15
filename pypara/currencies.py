@@ -210,7 +210,7 @@ class CurrencyRegistry:
     """
 
     #: Defines the singleton instance.
-    __instance = None  # type: CurrencyRegistry
+    __instance: "CurrencyRegistry" = None  # type: ignore
 
     def __new__(cls) -> "CurrencyRegistry":
         """
@@ -218,7 +218,7 @@ class CurrencyRegistry:
         """
         ## Do we have the singleton instance?
         if CurrencyRegistry.__instance is None:
-            ## Nope, not yet. Creat one:
+            ## Nope, not yet. Create one:
             CurrencyRegistry.__instance = object.__new__(cls)
 
         ## Return the singleton instance.
@@ -373,7 +373,7 @@ with Currencies as register:
     register(Currency.of("ARS", "Argentine Peso", 2, CurrencyType.MONEY))
     register(Currency.of("AUD", "Australian Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("AWG", "Aruban Florin", 2, CurrencyType.MONEY))
-    register(Currency.of("AZN", "Azerbaijanian Manat", 2, CurrencyType.MONEY))
+    register(Currency.of("AZN", "Azerbaijani Manat", 2, CurrencyType.MONEY))
     register(Currency.of("BAM", "Convertible Mark", 2, CurrencyType.MONEY))
     register(Currency.of("BBD", "Barbados Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("BCH", "Bitcoin Cash", -1, CurrencyType.CRYPTO))
@@ -390,7 +390,7 @@ with Currencies as register:
     register(Currency.of("BTC", "Bitcoin", -1, CurrencyType.CRYPTO))
     register(Currency.of("BTN", "Ngultrum", 2, CurrencyType.MONEY))
     register(Currency.of("BWP", "Pula", 2, CurrencyType.MONEY))
-    register(Currency.of("BYR", "Belarussian Ruble", 0, CurrencyType.MONEY))
+    register(Currency.of("BYR", "Belarusian Ruble", 0, CurrencyType.MONEY))
     register(Currency.of("BZD", "Belize Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("CAD", "Canadian Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("CDF", "Congolese Franc", 2, CurrencyType.MONEY))
@@ -406,7 +406,7 @@ with Currencies as register:
     register(Currency.of("CRC", "Costa Rican Colon", 2, CurrencyType.MONEY))
     register(Currency.of("CUC", "Peso Convertible", 2, CurrencyType.MONEY))
     register(Currency.of("CUP", "Cuban Peso", 2, CurrencyType.MONEY))
-    register(Currency.of("CVE", "Cabo Verde Escudo", 2, CurrencyType.MONEY))
+    register(Currency.of("CVE", "Cape Verdean Escudo", 2, CurrencyType.MONEY))
     register(Currency.of("CZK", "Czech Koruna", 2, CurrencyType.MONEY))
     register(Currency.of("DASH", "Dash", -1, CurrencyType.CRYPTO))
     register(Currency.of("DJF", "Djibouti Franc", 0, CurrencyType.MONEY))
@@ -528,7 +528,7 @@ with Currencies as register:
     register(Currency.of("USD", "US Dollar", 2, CurrencyType.MONEY))
     register(Currency.of("USN", "US Dollar (Next day)", 2, CurrencyType.MONEY))
     register(Currency.of("UYI", "Uruguay Peso en Unidades Indexadas", 0, CurrencyType.MONEY))
-    register(Currency.of("UYU", "Peso Uruguayo", 2, CurrencyType.MONEY))
+    register(Currency.of("UYU", "Uruguayan Peso", 2, CurrencyType.MONEY))
     register(Currency.of("UZS", "Uzbekistan Sum", 2, CurrencyType.MONEY))
     register(Currency.of("VEF", "Bolivar", 2, CurrencyType.MONEY))
     register(Currency.of("VND", "Dong", 0, CurrencyType.MONEY))

@@ -20,14 +20,18 @@ nix-shell
 Run the test suite:
 
 ```sh
-tox
+python -m nox
 ```
+
+> **Note:** Since we are under Nix shell, `nox` command will attempt to use its
+> own Python interpreter pinned during `nox` installation. We want our own
+> interpreter to be used during `nox` checks.
 
 Alternatively:
 
 ```sh
-nix-shell --argstr python python310 --run tox
-nix-shell --argstr python python311 --run tox
+nix-shell --argstr python python310 --run "python -m nox"
+nix-shell --argstr python python311 --run "python -m nox"
 ```
 
 ## Publishing

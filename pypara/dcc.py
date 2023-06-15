@@ -1,5 +1,5 @@
 """
-This module provides day-count convention definitions and functionlity.
+This module provides day-count convention definitions and functionality.
 """
 
 __all__ = ["DCC", "DCCRegistry"]
@@ -36,8 +36,8 @@ def _get_date_range(start: Date, end: Date) -> Iterable[Date]:
     :param end: The end date of the period.
     :return: A generator of dates.
     """
-    for i in range((end - start).days):
-        yield start + datetime.timedelta(days=i)
+    for d in range((end - start).days):
+        yield start + datetime.timedelta(days=d)
 
 
 def _get_actual_day_count(start: Date, end: Date) -> int:
@@ -340,7 +340,7 @@ class DCCRegistryMachinery:
         """
         Attempts to find the day count convention by the given name.
 
-        Note that all day count conventions are registered under stripped, uppercased names. Therefore,
+        Note that all day count conventions are registered under stripped, uppercase names. Therefore,
         the implementation will first attempt to find by given name as is. If it can not find it, it will
         strip and uppercase the name and try to find it as such as a last resort.
         """
@@ -430,7 +430,7 @@ def dcc(name: str, altnames: Optional[Set[str]] = None, ccys: Optional[Set[Curre
         ## Attach the dcc instance to the day count fraction calculation function (for whatever it is worth):
         setattr(func, "__dcc", dcc)  # noqa: B010
 
-        ## Done, return the function (if above statment did not raise any exceptions):
+        ## Done, return the function (if above statement did not raise any exceptions):
         return func
 
     return register_and_return_dcfc
@@ -831,7 +831,7 @@ def dcfc_30_360_us(start: Date, asof: Date, end: Date, freq: Optional[Decimal] =
             d2 = 30
 
     ## Revisit d2:
-    if d2 == 31 and (d1 == 30 or d1 == 31):
+    if d2 == 31 and (d1 in {30, 31}):
         d2 = 30
 
     ## Revisit d1:

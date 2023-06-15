@@ -26,7 +26,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
-dependencies = ["python-dateutil<3.0"]
+dependencies = [
+    "python-dateutil<3.0",
+    "typing_extensions; python_version<'3.10'",
+]
 
 [project.urls]
 
@@ -121,14 +124,11 @@ ignore = []
 typeCheckingMode = "basic"
 
 ## Demote (some) report groups to "warning" because mypy is our primary source:
-reportGeneralTypeIssues = "warning"
-reportMissingImports = "warning"
-reportMissingTypeStubs = "warning"
-reportPropertyTypeMismatch = "warning"
-reportUnusedImport = "warning"
-
-## Ignore some report groups:
-# reportSelfClsParameterName = false # Pylint handles this and pyright is not PEP-8 compliant.
+# reportGeneralTypeIssues = "warning"
+# reportMissingImports = "warning"
+# reportMissingTypeStubs = "warning"
+# reportPropertyTypeMismatch = "warning"
+# reportUnusedImport = "warning"
 
 ####################
 ## TOOL: coverage ##
@@ -182,7 +182,6 @@ exclude = [
     ".eggs",
     ".git",
     ".mypy_cache",
-    ".tox",
     "*.egg-info",
     "*.py[codi]",
     "build",
@@ -205,32 +204,82 @@ statistics = true
 ## Set Python version (for flake8-typing-imports flake8 plugin):
 min_python_version = "3.10"
 
-###############
-## TOOL: tox ##
-###############9
+##########################
+## PYLINT CONFIGURATION ##
+##########################
 
-[tool.tox]
+[tool.pylint."messages control"]
 
-legacy_tox_ini = """
-[tox]
+## Set the line length:
+max-line-length = 120
 
-skipsdist = True
-isolated_build = True
+# ## Allow some special names which occur often due to our domain:
+good-names = ["gt", "lt", "na", "of", "to"]
 
-[testenv]
+# ## Allow some names defined by regular expressions:
+good-names-rgxs = [
+    "^[_abcdefghjkmnopqrstuvwxyz][_0-9]?$", ## Allow single letter or single letter followed by a single number (including underscore, excludign i,l).
+    "^[pqrx]s$",                            ## Allow plurals of some letters.
+]
 
-## We will explicitly call these executables:
-allowlist_externals =
-    black
-    flake8
-    isort
-    mypy
-    pytest
+## Increase module line numbers:
+max-module-lines = 4096
 
-commands =
-    black --check pypara tests
-    isort --check-only pypara tests
-    flake8 pypara tests
-    mypy pypara tests
-    pytest --verbose --cov --ignore=docs/source/conf.py --doctest-modules
-"""
+## Enable report summary:
+reports = true
+
+## Recurse into directories:
+recursive = true
+
+## Ignore some files:
+ignore = []
+
+## Enable all checks:
+enable = ["all"]
+
+## NOTE: Below list is compiled from a sample pylint run with all checks enabled.
+## We will attend this list on an ongoing basis up until we enable all but a
+## selected group of checks which we really want to ignore (REAL IGNORES). Such
+## checks are grouped on the top of the list.
+##
+## Disable checks selectively:
+disable = [
+    ##################
+    ## REAL IGNORES ##
+    ##################
+
+    ## There are some valid reasons that we duplicated code:
+    "duplicate-code",
+
+    ## Allow locally disabling some messages:
+    "locally-disabled",
+
+    ## Toggle once in a while to see what we suppressed:
+    "suppressed-message",
+
+    ####################
+    ## TO BE ATTENDED ##
+    ####################
+
+    "missing-function-docstring",             ## 46
+    "superfluous-parens",                     ## 24
+    "unused-argument",                        ## 22
+    "unnecessary-dunder-call",                ## 14
+    "fixme",                                  ## 12
+    "no-else-return",                         ## 11
+    "unidiomatic-typecheck",                  ## 8
+    "use-implicit-booleaness-not-comparison", ## 6
+    "too-many-public-methods",                ## 6
+    "unsubscriptable-object",                 ## 5
+    "unnecessary-ellipsis",                   ## 5
+    "unneeded-not",                           ## 4
+    "too-few-public-methods",                 ## 4
+    "raise-missing-from",                     ## 4
+    "no-else-raise",                          ## 4
+    "missing-module-docstring",               ## 4
+    "unused-variable",                        ## 2
+    "too-many-arguments",                     ## 2
+    "redefined-outer-name",                   ## 2
+    "missing-class-docstring",                ## 2
+    "consider-using-f-string",                ## 2
+]

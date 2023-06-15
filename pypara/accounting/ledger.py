@@ -192,7 +192,7 @@ class ReadInitialBalances(Protocol):
     """
 
     def __call__(self, period: DateRange) -> InitialBalances:
-        pass
+        ...
 
 
 class GeneralLedgerProgram(Protocol[_T]):
@@ -201,7 +201,7 @@ class GeneralLedgerProgram(Protocol[_T]):
     """
 
     def __call__(self, period: DateRange) -> GeneralLedger[_T]:
-        pass
+        ...
 
 
 def compile_general_ledger_program(

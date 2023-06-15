@@ -7,6 +7,6 @@ def test_order() -> None:
     ccy2 = Currencies["EUR"]
 
     ## Test:
-    assert ccy1 == ccy1
+    assert ccy1 == Currencies["USD"]
     assert ccy1 > ccy2
     assert sorted([ccy1, ccy2]) == [ccy2, ccy1]

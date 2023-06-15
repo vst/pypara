@@ -16,15 +16,23 @@ __all__ = [
     "SomePrice",
 ]
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from decimal import Decimal, DivisionByZero, InvalidOperation
-from typing import Any, NamedTuple, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, TypeVar, Union, overload
 
 from .commons.errors import ProgrammingError
-from .commons.numbers import Numeric
+from .commons.numbers import ZERO, Numeric
 from .commons.zeitgeist import Date
 from .currencies import Currency
 from .exchange import FXRateLookupError, FXRateService
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+else:
+    try:
+        from typing import TypeGuard
+    except ImportError:
+        from typing_extensions import TypeGuard
 
 
 class IncompatibleCurrencyError(ValueError):
@@ -52,10 +60,11 @@ class MonetaryOperationException(TypeError):
     on.
     """
 
-    pass
+
+_T = TypeVar("_T")
 
 
-class Money:
+class Money(ABC):
     """
     Provides an abstract money model and its semantics.
     """
@@ -63,29 +72,31 @@ class Money:
     ## No need for slots.
     __slots__ = ()
 
-    #: Defines the *undefined* money object as a singleton.
-    NA: "Money"
+    @property
+    @abstractmethod
+    def defined(self) -> bool:
+        """
+        Indicates that the money is a *defined* monetary value.
 
-    #: Returns the currency of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    ccy: Currency
+        >>> from pypara.currencies import Currencies
+        >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
+        True
+        >>> Money.na().defined
+        False
+        """
 
-    #: Returns the quantity of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    qty: Decimal
+    @property
+    @abstractmethod
+    def undefined(self) -> bool:
+        """
+        Indicates that the money is a *undefined* monetary value.
 
-    #: Returns the value date of the money object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined money.
-    dov: Date
-
-    #: Indicates that the money is a *defined* monetary value.
-    defined: bool  # noqa: E704
-
-    #: Indicates that the money is an *undefined* monetary value.
-    undefined: bool
+        >>> from pypara.currencies import Currencies
+        >>> Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
+        False
+        >>> Money.na().undefined
+        True
+        """
 
     @abstractmethod
     def is_equal(self, other: Any) -> bool:
@@ -97,7 +108,6 @@ class Money:
         1. ``True`` if ``other`` is a money object **and** all slots are same.
         2. ``False`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_boolean(self) -> bool:
@@ -109,7 +119,6 @@ class Money:
         1. ``False`` if money is *undefined* **or** money quantity is ``zero``.
         2. ``True`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_float(self) -> float:
@@ -117,7 +126,6 @@ class Money:
         Returns the quantity as a ``float`` if *defined*, raises
         :class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
@@ -125,14 +133,12 @@ class Money:
         Returns the quantity as an ``int`` if *defined*, raises
         :class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def abs(self) -> "Money":
         """
         Returns the absolute money if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def negative(self) -> "Money":
@@ -140,14 +146,12 @@ class Money:
         Negates the quantity of the monetary value if *defined*, itself
         otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def positive(self) -> "Money":
         """
         Returns same monetary value if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Money":
@@ -155,7 +159,6 @@ class Money:
         Rounds the quantity of the monetary value to ``ndigits`` by using
         ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def add(self, other: "Money") -> "Money":
@@ -168,7 +171,6 @@ class Money:
         2. If any of the operands are undefined, returns the other one conveniently.
         3. Dates are carried forward as a result of addition of two defined money objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_add(self, other: Numeric) -> "Money":
@@ -177,7 +179,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def subtract(self, other: "Money") -> "Money":
@@ -193,7 +194,6 @@ class Money:
         3. Dates are carried forward as a result of addition of two defined
            money objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_subtract(self, other: Numeric) -> "Money":
@@ -202,7 +202,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def multiply(self, other: Numeric) -> "Money":
@@ -211,7 +210,6 @@ class Money:
 
         Note that undefined money object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def divide(self, other: Numeric) -> "Money":
@@ -221,7 +219,6 @@ class Money:
 
         Note that division by zero yields an undefined money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Money":
@@ -231,7 +228,6 @@ class Money:
 
         Note that division by zero yields an undefined money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def lt(self, other: "Money") -> bool:
@@ -245,7 +241,6 @@ class Money:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def lte(self, other: "Money") -> bool:
@@ -259,7 +254,6 @@ class Money:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gt(self, other: "Money") -> bool:
@@ -274,7 +268,6 @@ class Money:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gte(self, other: "Money") -> bool:
@@ -290,7 +283,60 @@ class Money:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined money objects with different currencies.
         """
-        pass
+
+    @abstractmethod
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        """
+        Returns itself if the monetary value is defined, the value of the given
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> fallback = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney = Money.of(Currencies["EUR"], Decimal('2'), Date(2019, 1, 2))
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> somemoney.or_else(lambda: fallback) is somemoney
+        True
+        >>> nonemoney.or_else(lambda: fallback) is fallback
+        True
+        """
+
+    @abstractmethod
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, undefined
+        monetary value otherwise.
+
+        >>> import datetime
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> new = somemoney.fmap(lambda x: Money.of(x.ccy, x.qty + Decimal('1'), x.dov + datetime.timedelta(days=10)))
+        >>> new.ccy.code
+        'USD'
+        >>> new.qty
+        Decimal('2.00')
+        >>> new.dov
+        datetime.date(2019, 1, 11)
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.fmap(lambda sm: Money.of(sm.ccy, sm.qty + Decimal('1'), sm.dov)) is Money.na()
+        True
+        """
+
+    @abstractmethod
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, the result of
+        the application of the given combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'USD'
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'EUR'
+        """
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Money":
@@ -298,7 +344,6 @@ class Money:
         Creates a new money object with the given currency if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Money":
@@ -306,7 +351,6 @@ class Money:
         Creates a new money object with the given quantity if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_dov(self, dov: Date) -> "Money":
@@ -314,7 +358,6 @@ class Money:
         Creates a new money object with the given value date if money is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
@@ -330,7 +373,21 @@ class Money:
         >>> nonemoney.ccy_or(Currencies["EUR"]).code
         'EUR'
         """
-        pass
+
+    @abstractmethod
+    def ccy_or_none(self) -> Optional[Currency]:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.ccy_or_none().code
+        'USD'
+        >>> nonemoney = Money.of(Currencies["USD"], None, None)
+        >>> nonemoney.ccy_or_none() is None
+        True
+        """
 
     @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
@@ -345,7 +402,69 @@ class Money:
         >>> nonemoney.qty_or(Decimal(0))
         Decimal('0')
         """
-        pass
+
+    @abstractmethod
+    def qty_or_zero(self) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``0`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or_zero()
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or_zero()
+        Decimal('0')
+        """
+
+    @abstractmethod
+    def qty_or_none(self) -> Optional[Decimal]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``None`` otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or_none()
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or_none() is None
+        True
+        """
+
+    @abstractmethod
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, the value of the
+        call of provided combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_or_else(lambda: Decimal('42'))
+        Decimal('1.00')
+        >>> somemoney.qty_or_else(lambda: True)
+        Decimal('1.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_or_else(lambda: Decimal('42'))
+        Decimal('42')
+        >>> nonemoney.qty_or_else(lambda: False)
+        False
+        """
+
+    @abstractmethod
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        """
+        Applies the given function to the ``qty`` and returns the result if the
+        monetary value is *defined*, returns the value of the call of provided
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
+        Decimal('2.00')
+        >>> nonemoney = Money.of(None, Decimal('1'), None)
+        >>> nonemoney.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
+        Decimal('42')
+        """
 
     @abstractmethod
     def dov_or(self, default: Date) -> Date:
@@ -360,7 +479,21 @@ class Money:
         >>> nonemoney.dov_or(Date(2001, 1, 1))
         datetime.date(2001, 1, 1)
         """
-        pass
+
+    @abstractmethod
+    def dov_or_none(self) -> Optional[Date]:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> somemoney = Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> somemoney.dov_or_none()
+        datetime.date(2019, 1, 1)
+        >>> nonemoney = Money.of(None, None, Date(2019, 1, 1))
+        >>> nonemoney.dov_or_none() is None
+        True
+        """
 
     @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
@@ -372,7 +505,44 @@ class Money:
 
         Note that we will carry the date forward as per ``asof`` date.
         """
-        raise NotImplementedError
+
+    @classmethod
+    def na(cls) -> "Money":
+        """
+        Undefined money instance.
+
+        >>> Money.na().defined
+        False
+        >>> Money.na().undefined
+        True
+        """
+        return NoMoney
+
+    @staticmethod
+    def is_none(x: "Money") -> TypeGuard["NoneMoney"]:
+        """
+        Type guard for undefined money instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Money.is_none(Money.na())
+        True
+        >>> Money.is_none(Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        False
+        """
+        return x.undefined
+
+    @staticmethod
+    def is_some(x: "Money") -> TypeGuard["SomeMoney"]:
+        """
+        Type guard for defined money instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Money.is_some(Money.na())
+        False
+        >>> Money.is_some(Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        True
+        """
+        return x.defined
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
@@ -389,27 +559,26 @@ class Money:
         """
         Returns the price representation of the money object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def __bool__(self) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __eq__(self, other: Any) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __abs__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __float__(self) -> float:
-        pass
+        ...
 
     @abstractmethod
     def __int__(self) -> int:
-        pass
+        ...
 
     @overload
     def __round__(self) -> int:
@@ -428,47 +597,47 @@ class Money:
 
     @abstractmethod
     def __neg__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __pos__(self) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __add__(self, other: "Money") -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __sub__(self, other: "Money") -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __mul__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __truediv__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __floordiv__(self, other: Numeric) -> "Money":
-        pass
+        ...
 
     @abstractmethod
     def __lt__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __le__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __gt__(self, other: "Money") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __ge__(self, other: "Money") -> bool:
-        pass
+        ...
 
 
 class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
@@ -478,9 +647,13 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 
     __slots__ = ()
 
-    defined = True
+    @property
+    def defined(self) -> bool:
+        return True
 
-    undefined = False
+    @property
+    def undefined(self) -> bool:
+        return False
 
     def is_equal(self, other: Any) -> bool:
         return other.__class__ is SomeMoney and tuple(self) == tuple(other)
@@ -579,32 +752,41 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
             return NoMoney
 
     def lt(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Money") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomeMoney):
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
+
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        return self
+
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        return f(self)
+
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        return f(self)
 
     def with_ccy(self, ccy: Currency) -> "Money":
         return SomeMoney(ccy, self[1], self[2])
@@ -619,10 +801,28 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
     def ccy_or(self, default: Currency) -> Currency:
         return self[0]
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return self[0]
+
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
+    def qty_or_zero(self) -> Decimal:
+        return self[1]
+
+    def qty_or_none(self) -> Optional[Decimal]:
+        return self[1]
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return self[1]
+
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        return f(self[1])
+
     def dov_or(self, default: Date) -> Date:
+        return self[2]
+
+    def dov_or_none(self) -> Optional[Date]:
         return self[2]
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
@@ -694,9 +894,13 @@ class SomeMoney(Money, NamedTuple("SomeMoney", [("ccy", Currency), ("qty", Decim
 class NoneMoney(Money):
     __slots__ = ()
 
-    defined = False
+    @property
+    def defined(self) -> bool:
+        return False
 
-    undefined = True
+    @property
+    def undefined(self) -> bool:
+        return True
 
     def as_boolean(self) -> bool:
         return False
@@ -755,6 +959,15 @@ class NoneMoney(Money):
     def gte(self, other: "Money") -> bool:
         return other.undefined
 
+    def or_else(self, e: Callable[[], "Money"]) -> "Money":
+        return e()
+
+    def fmap(self, f: Callable[["SomeMoney"], "Money"]) -> "Money":
+        return self
+
+    def dimap(self, f: Callable[["SomeMoney"], _T], e: Callable[[], _T]) -> _T:
+        return e()
+
     def with_ccy(self, ccy: Currency) -> "Money":
         return self
 
@@ -767,11 +980,29 @@ class NoneMoney(Money):
     def ccy_or(self, default: Currency) -> Currency:
         return default
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return None
+
     def qty_or(self, default: Decimal) -> Decimal:
         return default
 
+    def qty_or_zero(self) -> Decimal:
+        return ZERO
+
+    def qty_or_none(self) -> Optional[Decimal]:
+        return None
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return e()
+
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        return e()
+
     def dov_or(self, default: Date) -> Date:
         return default
+
+    def dov_or_none(self) -> Optional[Date]:
+        return None
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Money":
         return self
@@ -813,11 +1044,11 @@ class NoneMoney(Money):
     __ge__ = gte
 
 
-## Define and attach undefined money singleton.
-Money.NA = NoMoney = NoneMoney()
+#: Undefined money instance.
+NoMoney = NoneMoney()
 
 
-class Price:
+class Price(ABC):
     """
     Provides an abstract price model and its semantics.
     """
@@ -825,29 +1056,31 @@ class Price:
     ## No need for slots.
     __slots__ = ()
 
-    #: Defines the *undefined* price object as a singleton.
-    NA: "Price"
+    @property
+    @abstractmethod
+    def defined(self) -> bool:
+        """
+        Indicates that the price is a *defined* monetary value.
 
-    #: Returns the currency of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    ccy: Currency
+        >>> from pypara.currencies import Currencies
+        >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).defined
+        True
+        >>> Price.na().defined
+        False
+        """
 
-    #: Returns the quantity of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    qty: Decimal
+    @property
+    @abstractmethod
+    def undefined(self) -> bool:
+        """
+        Indicates that the price is a *undefined* monetary value.
 
-    #: Returns the value date of the price object, if defined.
-    #:
-    #: Note that a :class:`TypeError` is raised if call-site attempts to access this property of an undefined price.
-    dov: Date
-
-    #: Indicates that the price is a *defined* monetary value.
-    defined: bool  # noqa: E704
-
-    #: Indicates that the price is an *undefined* monetary value.
-    undefined: bool
+        >>> from pypara.currencies import Currencies
+        >>> Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)).undefined
+        False
+        >>> Price.na().undefined
+        True
+        """
 
     @abstractmethod
     def is_equal(self, other: Any) -> bool:
@@ -859,7 +1092,6 @@ class Price:
         1. ``True`` if ``other`` is a price object **and** all slots are same.
         2. ``False`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_boolean(self) -> bool:
@@ -871,7 +1103,6 @@ class Price:
         1. ``False`` if price is *undefined* **or** price quantity is ``zero``.
         2. ``True`` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_float(self) -> float:
@@ -879,7 +1110,6 @@ class Price:
         Returns the quantity as a ``float`` if *defined*, raises
         class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def as_integer(self) -> int:
@@ -887,14 +1117,12 @@ class Price:
         Returns the quantity as an ``int`` if *defined*, raises
         class:`MonetaryOperationException` otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def abs(self) -> "Price":
         """
         Returns the absolute price if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def negative(self) -> "Price":
@@ -902,14 +1130,12 @@ class Price:
         Negates the quantity of the monetary value if *defined*, itself
         otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def positive(self) -> "Price":
         """
         Returns same monetary value if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def round(self, ndigits: int = 0) -> "Price":
@@ -917,7 +1143,6 @@ class Price:
         Rounds the quantity of the monetary value to ``ndigits`` by using
         ``HALF_EVEN`` method if *defined*, itself otherwise.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def add(self, other: "Price") -> "Price":
@@ -933,7 +1158,6 @@ class Price:
         3. Dates are carried forward as a result of addition of two defined
            price objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_add(self, other: Numeric) -> "Price":
@@ -942,7 +1166,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def subtract(self, other: "Price") -> "Price":
@@ -958,7 +1181,6 @@ class Price:
         3. Dates are carried forward as a result of addition of two defined
            price objects.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def scalar_subtract(self, other: Numeric) -> "Price":
@@ -967,7 +1189,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def multiply(self, other: Numeric) -> "Price":
@@ -976,7 +1197,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def times(self, other: Numeric) -> "Money":
@@ -985,7 +1205,6 @@ class Price:
 
         Note that undefined price object is returned as is.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def divide(self, other: Numeric) -> "Price":
@@ -995,7 +1214,6 @@ class Price:
 
         Note that division by zero yields an undefined price object.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def floor_divide(self, other: Numeric) -> "Price":
@@ -1006,7 +1224,6 @@ class Price:
         Note that division by zero yields an undefined price object.
 
         """
-        raise NotImplementedError
 
     @abstractmethod
     def lt(self, other: "Price") -> bool:
@@ -1020,7 +1237,6 @@ class Price:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def lte(self, other: "Price") -> bool:
@@ -1034,7 +1250,6 @@ class Price:
         2. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gt(self, other: "Price") -> bool:
@@ -1049,7 +1264,6 @@ class Price:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
 
     @abstractmethod
     def gte(self, other: "Price") -> bool:
@@ -1065,7 +1279,60 @@ class Price:
         3. :class:`IncompatibleCurrencyError` is raised when comparing two
            defined price objects with different currencies.
         """
-        pass
+
+    @abstractmethod
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        """
+        Returns itself if the monetary value is defined, the value of the given
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> fallback = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice = Price.of(Currencies["EUR"], Decimal('2'), Date(2019, 1, 2))
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> someprice.or_else(lambda: fallback) is someprice
+        True
+        >>> noneprice.or_else(lambda: fallback) is fallback
+        True
+        """
+
+    @abstractmethod
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, undefined
+        monetary value otherwise.
+
+        >>> import datetime
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> new = someprice.fmap(lambda x: Price.of(x.ccy, x.qty + Decimal('1'), x.dov + datetime.timedelta(days=10)))
+        >>> new.ccy.code
+        'USD'
+        >>> new.qty
+        Decimal('2')
+        >>> new.dov
+        datetime.date(2019, 1, 11)
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.fmap(lambda sp: Price.of(sp.ccy, sp.qty + Decimal('1'), sp.dov)) is Price.na()
+        True
+        """
+
+    @abstractmethod
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        """
+        Consumes a given function that consumes a defined monetary value and
+        applies to the value if defined, and returns its value, the result of
+        the application of the given combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'USD'
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.dimap(lambda x: x.ccy.code, lambda: "EUR")
+        'EUR'
+        """
 
     @abstractmethod
     def with_ccy(self, ccy: Currency) -> "Price":
@@ -1073,7 +1340,6 @@ class Price:
         Creates a new price object with the given currency if price is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_qty(self, qty: Decimal) -> "Price":
@@ -1081,14 +1347,12 @@ class Price:
         Creates a new price object with the given quantity if price is
         *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def with_dov(self, dov: Date) -> "Price":
         """
         Creates a new price object with the given value date if price is *defined*, returns itself otherwise.
         """
-        pass
 
     @abstractmethod
     def ccy_or(self, default: Currency) -> Currency:
@@ -1104,7 +1368,21 @@ class Price:
         >>> someprice.ccy_or(Currencies["EUR"]).code
         'EUR'
         """
-        pass
+
+    @abstractmethod
+    def ccy_or_none(self) -> Optional[Currency]:
+        """
+        Returns the ``ccy`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.ccy_or_none().code
+        'USD'
+        >>> someprice = Price.of(Currencies["USD"], None, None)
+        >>> someprice.ccy_or_none() is None
+        True
+        """
 
     @abstractmethod
     def qty_or(self, default: Decimal) -> Decimal:
@@ -1120,7 +1398,71 @@ class Price:
         >>> noneprice.qty_or(Decimal(0))
         Decimal('0')
         """
-        pass
+
+    @abstractmethod
+    def qty_or_zero(self) -> Decimal:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``0``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or_zero()
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or_zero()
+        Decimal('0')
+        """
+
+    @abstractmethod
+    def qty_or_none(self) -> Optional[Decimal]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or_none()
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or_none() is None
+        True
+        """
+
+    @abstractmethod
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        """
+        Returns the ``qty`` if the monetary value is *defined*, the value of the
+        call of provided combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_or_else(lambda: Decimal('42'))
+        Decimal('1')
+        >>> someprice.qty_or_else(lambda: True)
+        Decimal('1')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_or_else(lambda: Decimal('42'))
+        Decimal('42')
+        >>> noneprice.qty_or_else(lambda: False)
+        False
+        """
+
+    @abstractmethod
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        """
+        Applies the given function to the ``qty`` and returns the result if the
+        monetary value is *defined*, returns the value of the call of provided
+        combinator otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
+        Decimal('2')
+        >>> noneprice = Price.of(None, Decimal('1'), None)
+        >>> noneprice.qty_map(lambda x: x + Decimal('1'), lambda: Decimal('42'))
+        Decimal('42')
+        """
 
     @abstractmethod
     def dov_or(self, default: Date) -> Date:
@@ -1136,7 +1478,21 @@ class Price:
         >>> noneprice.dov_or(Date(2001, 1, 1))
         datetime.date(2001, 1, 1)
         """
-        pass
+
+    @abstractmethod
+    def dov_or_none(self) -> Optional[Date]:
+        """
+        Returns the ``dov`` if the monetary value is *defined*, ``None``
+        otherwise.
+
+        >>> from pypara.currencies import Currencies
+        >>> someprice = Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1))
+        >>> someprice.dov_or_none()
+        datetime.date(2019, 1, 1)
+        >>> noneprice = Price.of(None, None, Date(2019, 1, 1))
+        >>> noneprice.dov_or_none() is None
+        True
+        """
 
     @abstractmethod
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
@@ -1148,7 +1504,6 @@ class Price:
 
         Note that we will carry the date forward as per ``asof`` date.
         """
-        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -1156,7 +1511,44 @@ class Price:
         """
         Returns the money representation of the price object.
         """
-        raise NotImplementedError
+
+    @classmethod
+    def na(cls) -> "Price":
+        """
+        Undefined price instance.
+
+        >>> Price.na().defined
+        False
+        >>> Price.na().undefined
+        True
+        """
+        return NoPrice
+
+    @staticmethod
+    def is_none(x: "Price") -> TypeGuard["NonePrice"]:
+        """
+        Type guard for undefined price instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Price.is_none(Price.na())
+        True
+        >>> Price.is_none(Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        False
+        """
+        return x.undefined
+
+    @staticmethod
+    def is_some(x: "Price") -> TypeGuard["SomePrice"]:
+        """
+        Type guard for defined price instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Price.is_some(Price.na())
+        False
+        >>> Price.is_some(Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        True
+        """
+        return x.defined
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
@@ -1169,23 +1561,23 @@ class Price:
 
     @abstractmethod
     def __bool__(self) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __eq__(self, other: Any) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __abs__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __float__(self) -> float:
-        pass
+        ...
 
     @abstractmethod
     def __int__(self) -> int:
-        pass
+        ...
 
     @overload
     def __round__(self) -> int:
@@ -1204,47 +1596,47 @@ class Price:
 
     @abstractmethod
     def __neg__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __pos__(self) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __add__(self, other: "Price") -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __sub__(self, other: "Price") -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __mul__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __truediv__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __floordiv__(self, other: Numeric) -> "Price":
-        pass
+        ...
 
     @abstractmethod
     def __lt__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __le__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __gt__(self, other: "Price") -> bool:
-        pass
+        ...
 
     @abstractmethod
     def __ge__(self, other: "Price") -> bool:
-        pass
+        ...
 
 
 class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decimal), ("dov", Date)])):
@@ -1254,9 +1646,13 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 
     __slots__ = ()
 
-    defined = True
+    @property
+    def defined(self) -> bool:
+        return True
 
-    undefined = False
+    @property
+    def undefined(self) -> bool:
+        return False
 
     def is_equal(self, other: Any) -> bool:
         return other.__class__ is SomePrice and tuple(self) == tuple(other)
@@ -1358,32 +1754,41 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
             return NoPrice
 
     def lt(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="< comparison")
         return self.qty < other.qty
 
     def lte(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return False
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="<= comparison")
         return self.qty <= other.qty
 
     def gt(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation="> comparison")
         return self.qty > other.qty
 
     def gte(self, other: "Price") -> bool:
-        if other.undefined:
+        if not isinstance(other, SomePrice):
             return True
         elif self.ccy != other.ccy:
-            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparision")
+            raise IncompatibleCurrencyError(ccy1=self.ccy, ccy2=other.ccy, operation=">= comparison")
         return self.qty >= other.qty
+
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        return self
+
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        return f(self)
+
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        return f(self)
 
     def with_ccy(self, ccy: Currency) -> "Price":
         return SomePrice(ccy, self[1], self[2])
@@ -1397,10 +1802,28 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
     def ccy_or(self, default: Currency) -> Currency:
         return self[0]
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return self[0]
+
     def qty_or(self, default: Decimal) -> Decimal:
         return self[1]
 
+    def qty_or_zero(self) -> Decimal:
+        return self[1]
+
+    def qty_or_none(self) -> Optional[Decimal]:
+        return self[1]
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return self[1]
+
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        return f(self[1])
+
     def dov_or(self, default: Date) -> Date:
+        return self[2]
+
+    def dov_or_none(self) -> Optional[Date]:
         return self[2]
 
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
@@ -1473,9 +1896,13 @@ class SomePrice(Price, NamedTuple("SomePrice", [("ccy", Currency), ("qty", Decim
 class NonePrice(Price):
     __slots__ = ()
 
-    defined = False
+    @property
+    def defined(self) -> bool:
+        return False
 
-    undefined = True
+    @property
+    def undefined(self) -> bool:
+        return True
 
     def as_boolean(self) -> bool:
         return False
@@ -1537,6 +1964,15 @@ class NonePrice(Price):
     def gte(self, other: "Price") -> bool:
         return other.undefined
 
+    def or_else(self, e: Callable[[], "Price"]) -> "Price":
+        return e()
+
+    def fmap(self, f: Callable[["SomePrice"], "Price"]) -> "Price":
+        return self
+
+    def dimap(self, f: Callable[["SomePrice"], _T], e: Callable[[], _T]) -> _T:
+        return e()
+
     def with_ccy(self, ccy: Currency) -> "Price":
         return self
 
@@ -1549,16 +1985,36 @@ class NonePrice(Price):
     def ccy_or(self, default: Currency) -> Currency:
         return default
 
+    def ccy_or_none(self) -> Optional[Currency]:
+        return None
+
     def qty_or(self, default: Decimal) -> Decimal:
         return default
+
+    def qty_or_zero(self) -> Decimal:
+        return ZERO
+
+    def qty_or_none(self) -> Optional[Decimal]:
+        return None
+
+    def qty_or_else(self, e: Callable[[], _T]) -> Union[Decimal, _T]:
+        return e()
+
+    def qty_map(self, f: Callable[[Decimal], _T], e: Callable[[], _T]) -> _T:
+        return e()
 
     def dov_or(self, default: Date) -> Date:
         return default
 
+    def dov_or_none(self) -> Optional[Date]:
+        return None
+
     def convert(self, to: Currency, asof: Optional[Date] = None, strict: bool = False) -> "Price":
         return self
 
-    money = NoMoney
+    @property
+    def money(self) -> Money:
+        return NoMoney
 
     __bool__ = as_boolean
 
@@ -1593,5 +2049,5 @@ class NonePrice(Price):
     __ge__ = gte
 
 
-#: Undefined price singleton.
-Price.NA = NoPrice = NonePrice()
+#: Undefined price instance.
+NoPrice = NonePrice()

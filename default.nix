@@ -106,6 +106,7 @@ let
       ps.ipython
       ps.isort
       ps.mypy
+      ps.nox
       ps.pip
       ps.pylint
       ps.pytest
@@ -113,7 +114,6 @@ let
       ps.sphinx
       ps.sphinx-rtd-theme
       ps.sphinxcontrib-apidoc
-      ps.tox
       ps.twine
       ps.wheel
 
@@ -127,6 +127,9 @@ let
     packages = [
       ## Python dependency with packages for development purposes:
       thisPythonWithDeps
+
+      ## Further development dependencies:
+      pkgs.nodePackages.pyright
     ];
 
     shellHook = ''
