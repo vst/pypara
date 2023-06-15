@@ -1,11 +1,11 @@
-# Currencies, Monetary Value Objects, Arithmetic and Conversion
+# Python Library for Currencies and Monetary Values
 
-![](https://img.shields.io/pypi/v/pypara?style=flat-square)
-![](https://img.shields.io/pypi/pyversions/pypara?style=flat-square)
-![](https://img.shields.io/github/license/vst/pypara?style=flat-square)
-![](https://img.shields.io/github/actions/workflow/status/vst/pypara/test.yml?style=flat-square)
-![](https://img.shields.io/github/issues/vst/pypara?style=flat-square)
-![](https://img.shields.io/github/last-commit/vst/pypara?style=flat-square)
+[![PyPI](https://img.shields.io/pypi/v/pypara?style=flat-square)](https://pypi.org/project/pypara/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pypara?style=flat-square)](https://pypi.org/project/pypara/)
+[![License](https://img.shields.io/github/license/vst/pypara?style=flat-square)](https://github.com/vst/pypara/blob/main/LICENSE)
+[![Builds](https://img.shields.io/github/actions/workflow/status/vst/pypara/test.yml?style=flat-square)](https://github.com/vst/pypara/actions/workflows/test.yml)
+[![Issues](https://img.shields.io/github/issues/vst/pypara?style=flat-square)](https://github.com/vst/pypara/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/vst/pypara?style=flat-square)](https://github.com/vst/pypara/commits)
 
 > **TODO**: Provide a complete README.
 
@@ -30,9 +30,14 @@ python -m nox
 Alternatively:
 
 ```sh
+nix-shell --argstr python python39  --run "python -m nox"
 nix-shell --argstr python python310 --run "python -m nox"
 nix-shell --argstr python python311 --run "python -m nox"
 ```
+
+> **Note:** Python 3.9 test are not added to GitHub Actions test workflow. It
+> takes very long to setup the Nix shell as Python 3.9 packages are no longer
+> fetched from the cache.
 
 ## Publishing
 
