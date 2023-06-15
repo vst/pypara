@@ -433,3 +433,23 @@ def test_with() -> None:
     ## Extras:
     assert Money.of(usd, zero, today).with_qty(Decimal("0.005")) == Money.of(usd, zero, today)
     assert Money.of(usd, zero, today).with_qty(Decimal("0.054")) == Money.of(usd, Decimal("0.05"), today)
+
+
+def test_type_guard() -> None:
+    none = Money.na()
+
+    assert Money.is_none(none)
+    assert not Money.is_some(none)
+
+    with pytest.raises(AttributeError) as exc:
+        none.ccy  # type: ignore[attr-defined]  # pylint: disable=[no-member,pointless-statement]
+
+    assert str(exc.value) == "'NoneMoney' object has no attribute 'ccy'"
+
+    some = Money.of(usd, zero, today)
+
+    assert not Money.is_none(some)
+    assert Money.is_some(some)
+    assert some.ccy == usd
+    assert some.qty == zero
+    assert some.dov == today

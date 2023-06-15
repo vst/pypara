@@ -26,7 +26,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
-dependencies = ["python-dateutil<3.0"]
+dependencies = [
+    "python-dateutil<3.0",
+    "typing_extensions; python_version<'3.10'",
+]
 
 [project.urls]
 
@@ -220,7 +223,7 @@ good-names-rgxs = [
 ]
 
 ## Increase module line numbers:
-max-module-lines = 2048
+max-module-lines = 4096
 
 ## Enable report summary:
 reports = true

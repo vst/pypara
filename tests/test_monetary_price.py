@@ -415,3 +415,23 @@ def test_types() -> None:
     assert isinstance(Price.na(), NonePrice)
     assert not isinstance(Price.na(), SomePrice)
     assert not isinstance(Price.na(), Money)
+
+
+def test_type_guard() -> None:
+    none = Price.na()
+
+    assert Price.is_none(none)
+    assert not Price.is_some(none)
+
+    with pytest.raises(AttributeError) as exc:
+        none.ccy  # type: ignore[attr-defined]  # pylint: disable=[no-member,pointless-statement]
+
+    assert str(exc.value) == "'NonePrice' object has no attribute 'ccy'"
+
+    some = Price.of(usd, zero, today)
+
+    assert not Price.is_none(some)
+    assert Price.is_some(some)
+    assert some.ccy == usd
+    assert some.qty == zero
+    assert some.dov == today

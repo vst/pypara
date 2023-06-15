@@ -18,13 +18,21 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from decimal import Decimal, DivisionByZero, InvalidOperation
-from typing import Any, Callable, NamedTuple, Optional, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, TypeVar, Union, overload
 
 from .commons.errors import ProgrammingError
 from .commons.numbers import ZERO, Numeric
 from .commons.zeitgeist import Date
 from .currencies import Currency
 from .exchange import FXRateLookupError, FXRateService
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+else:
+    try:
+        from typing import TypeGuard
+    except ImportError:
+        from typing_extensions import TypeGuard
 
 
 class IncompatibleCurrencyError(ValueError):
@@ -509,6 +517,32 @@ class Money(ABC):
         True
         """
         return NoMoney
+
+    @staticmethod
+    def is_none(x: "Money") -> TypeGuard["NoneMoney"]:
+        """
+        Type guard for undefined money instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Money.is_none(Money.na())
+        True
+        >>> Money.is_none(Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        False
+        """
+        return x.undefined
+
+    @staticmethod
+    def is_some(x: "Money") -> TypeGuard["SomeMoney"]:
+        """
+        Type guard for defined money instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Money.is_some(Money.na())
+        False
+        >>> Money.is_some(Money.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        True
+        """
+        return x.defined
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Money":
@@ -1489,6 +1523,32 @@ class Price(ABC):
         True
         """
         return NoPrice
+
+    @staticmethod
+    def is_none(x: "Price") -> TypeGuard["NonePrice"]:
+        """
+        Type guard for undefined price instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Price.is_none(Price.na())
+        True
+        >>> Price.is_none(Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        False
+        """
+        return x.undefined
+
+    @staticmethod
+    def is_some(x: "Price") -> TypeGuard["SomePrice"]:
+        """
+        Type guard for defined price instances.
+
+        >>> from pypara.currencies import Currencies
+        >>> Price.is_some(Price.na())
+        False
+        >>> Price.is_some(Price.of(Currencies["USD"], Decimal('1'), Date(2019, 1, 1)))
+        True
+        """
+        return x.defined
 
     @classmethod
     def of(cls, ccy: Optional[Currency], qty: Optional[Decimal], dov: Optional[Date]) -> "Price":
