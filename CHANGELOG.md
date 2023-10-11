@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.1](https://github.com/vst/pypara/compare/0.1.0...0.1.1) (2023-10-11)
+
+
+### Features
+
+* add DateRange.endpoints property ([a346121](https://github.com/vst/pypara/commit/a346121fcb9a82c31f9388f8667b4963628b973f))
+
 ## [0.1.0](https://github.com/vst/pypara/compare/0.0.27...0.1.0) (2023-06-15)
 
 
