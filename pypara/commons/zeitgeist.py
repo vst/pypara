@@ -213,6 +213,20 @@ class DateRange(Iterable[Date]):
         """
         return iter((self.since + TimeDelta(days=i) for i in range(0, (self.until - self.since).days + 1)))
 
+    @property
+    def endpoints(self) -> Tuple["Date", "Date"]:
+        """
+        Endpoints of the date range as a 2-tuple of dates (since, until).
+
+        >>> DateRange(Date(2019, 1, 1), Date(2019, 1, 1)).endpoints
+        (datetime.date(2019, 1, 1), datetime.date(2019, 1, 1))
+        >>> DateRange(Date(2019, 1, 1), Date(2019, 1, 2)).endpoints
+        (datetime.date(2019, 1, 1), datetime.date(2019, 1, 2))
+        >>> DateRange(Date(2019, 1, 1), Date(2019, 1, 3)).endpoints
+        (datetime.date(2019, 1, 1), datetime.date(2019, 1, 3))
+        """
+        return (self.since, self.until)
+
     @classmethod
     def of(cls, since: Date, until: Date) -> Optional["DateRange"]:
         """
